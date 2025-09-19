@@ -197,13 +197,15 @@ export function QuestionCard({
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center gap-2">
                 <ChiliRating
-                  rating={userSpicinessRating || question.suggestedLevel}
+                  rating={question.suggestedLevel}
+                  userRating={userSpicinessRating}
                   onRatingChange={(rating) => onRateSpiciness?.(question.id, rating)}
                   size="sm"
+                  showAverage={true}
                 />
               </div>
               <span className="text-xs text-gray-400">
-                {userSpicinessRating ? 'Your rating' : `Avg: ${question.suggestedLevel}/5`}
+                {userSpicinessRating ? 'Your rating' : `Tap to rate spiciness`}
               </span>
             </div>
           </div>

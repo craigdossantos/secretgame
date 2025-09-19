@@ -14,6 +14,8 @@ interface Room {
   name: string;
   memberCount: number;
   inviteCode: string;
+  ownerId: string;
+  questionIds?: string[];
 }
 
 interface Secret {
@@ -35,11 +37,14 @@ export default function RoomPage() {
   const roomId = params.id as string;
 
   const [room, setRoom] = useState<Room | null>(null);
-  const [questions, setQuestions] = useState<QuestionPrompt[]>([]);
+  const [allQuestions, setAllQuestions] = useState<QuestionPrompt[]>([]);
+  const [roomQuestions, setRoomQuestions] = useState<QuestionPrompt[]>([]);
   const [secrets, setSecrets] = useState<Secret[]>([]);
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [showQuestionSelector, setShowQuestionSelector] = useState(false);
 
   // Load room data and questions
   useEffect(() => {
@@ -55,21 +60,48 @@ export default function RoomPage() {
         const roomData = await roomResponse.json();
         setRoom(roomData.room);
 
+        // Get current user ID from cookies
+        const userId = document.cookie
+          .split('; ')
+          .find(row => row.startsWith('tempUserId='))
+          ?.split('=')[1];
+        setCurrentUserId(userId || null);
+
         // Load questions from markdown file
         try {
           const questionsResponse = await fetch('/questions.md');
           if (questionsResponse.ok) {
             const markdownContent = await questionsResponse.text();
             const parsedQuestions = parseQuestions(markdownContent);
-            setQuestions(parsedQuestions);
+            setAllQuestions(parsedQuestions);
+
+            // Filter questions for this room
+            if (roomData.room.questionIds && roomData.room.questionIds.length > 0) {
+              const roomQs = parsedQuestions.filter(q =>
+                roomData.room.questionIds.includes(q.id)
+              );
+              setRoomQuestions(roomQs);
+            } else {
+              setRoomQuestions([]);
+            }
           } else {
             // Fallback to mock questions
             console.warn('Could not load questions.md, using mock questions');
-            setQuestions(mockQuestions);
+            setAllQuestions(mockQuestions);
+
+            if (roomData.room.questionIds && roomData.room.questionIds.length > 0) {
+              const roomQs = mockQuestions.filter(q =>
+                roomData.room.questionIds.includes(q.id)
+              );
+              setRoomQuestions(roomQs);
+            } else {
+              setRoomQuestions([]);
+            }
           }
         } catch (questionsError) {
           console.warn('Error loading questions:', questionsError);
-          setQuestions(mockQuestions);
+          setAllQuestions(mockQuestions);
+          setRoomQuestions([]);
         }
 
         // Load room secrets
@@ -223,15 +255,49 @@ export default function RoomPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Question Prompts
             </h2>
-            <p className="text-gray-600">
-              Click on any question card to flip it and share your answer as a secret
-            </p>
+            {roomQuestions.length > 0 ? (
+              <p className="text-gray-600">
+                Click on any question card to flip it and share your answer as a secret
+              </p>
+            ) : (
+              <p className="text-gray-600">
+                {room?.ownerId === currentUserId
+                  ? "No questions added yet. Click below to select questions for your room."
+                  : "The room owner hasn't added any questions yet."}
+              </p>
+            )}
           </div>
-          <QuestionGrid
-            questions={questions}
-            answeredQuestionIds={answeredQuestionIds}
-            onSubmitAnswer={handleSubmitAnswer}
-          />
+
+          {roomQuestions.length > 0 ? (
+            <QuestionGrid
+              questions={roomQuestions}
+              answeredQuestionIds={answeredQuestionIds}
+              onSubmitAnswer={handleSubmitAnswer}
+            />
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+              <div className="mb-4">
+                <div className="text-6xl mb-4">❓</div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Questions Yet
+                </h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  {room?.ownerId === currentUserId
+                    ? "Get the conversation started by adding some spicy questions for your group!"
+                    : "Waiting for questions to be added to this room."}
+                </p>
+              </div>
+              {room?.ownerId === currentUserId && (
+                <Button
+                  onClick={() => router.push(`/admin?room=${roomId}`)}
+                  size="lg"
+                  className="rounded-xl"
+                >
+                  Add Questions to Room
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Existing Secrets */}

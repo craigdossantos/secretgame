@@ -16,6 +16,7 @@ interface Room {
   inviteCode: string;
   maxMembers: number;
   createdAt: Date;
+  questionIds?: string[]; // IDs of questions selected for this room
 }
 
 interface RoomMember {

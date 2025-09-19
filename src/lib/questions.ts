@@ -4,6 +4,10 @@ export interface QuestionPrompt {
   category: string;
   suggestedLevel: number; // 1-5
   difficulty: 'easy' | 'medium' | 'hard';
+  archived?: boolean;
+  tags?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type QuestionCategory =
@@ -93,9 +97,12 @@ export function getCategoryCounts(questions: QuestionPrompt[]): Record<string, n
 export function getCuratedQuestions(questions: QuestionPrompt[]): QuestionPrompt[] {
   if (questions.length === 0) return [];
 
+  // Filter out archived questions
+  const activeQuestions = questions.filter(q => !q.archived);
+
   // Group questions by category
   const questionsByCategory: Record<string, QuestionPrompt[]> = {};
-  for (const question of questions) {
+  for (const question of activeQuestions) {
     if (!questionsByCategory[question.category]) {
       questionsByCategory[question.category] = [];
     }
@@ -120,6 +127,64 @@ export function getCuratedQuestions(questions: QuestionPrompt[]): QuestionPrompt
 
   // Shuffle the final selection
   return selectedQuestions.sort(() => Math.random() - 0.5).slice(0, 12);
+}
+
+// Admin helper functions
+export function getActiveQuestions(questions: QuestionPrompt[]): QuestionPrompt[] {
+  return questions.filter(q => !q.archived);
+}
+
+export function getArchivedQuestions(questions: QuestionPrompt[]): QuestionPrompt[] {
+  return questions.filter(q => q.archived);
+}
+
+export function archiveQuestion(questionId: string, questions: QuestionPrompt[]): QuestionPrompt[] {
+  return questions.map(q =>
+    q.id === questionId
+      ? { ...q, archived: true, updatedAt: new Date().toISOString() }
+      : q
+  );
+}
+
+export function unarchiveQuestion(questionId: string, questions: QuestionPrompt[]): QuestionPrompt[] {
+  return questions.map(q =>
+    q.id === questionId
+      ? { ...q, archived: false, updatedAt: new Date().toISOString() }
+      : q
+  );
+}
+
+export function createNewQuestion(
+  question: string,
+  category: QuestionCategory,
+  suggestedLevel: number,
+  difficulty: 'easy' | 'medium' | 'hard',
+  tags: string[] = []
+): QuestionPrompt {
+  const now = new Date().toISOString();
+  return {
+    id: `${category.toLowerCase().replace(/[^a-z0-9]/g, '')}_${Date.now()}`,
+    question,
+    category,
+    suggestedLevel,
+    difficulty,
+    tags,
+    archived: false,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+
+export function updateQuestion(
+  questionId: string,
+  questions: QuestionPrompt[],
+  updates: Partial<QuestionPrompt>
+): QuestionPrompt[] {
+  return questions.map(q =>
+    q.id === questionId
+      ? { ...q, ...updates, updatedAt: new Date().toISOString() }
+      : q
+  );
 }
 
 // Mock questions data (fallback if markdown fails to load)
