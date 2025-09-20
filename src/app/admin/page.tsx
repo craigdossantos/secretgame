@@ -184,33 +184,42 @@ export default function AdminPage() {
 
             {/* Tag Filter */}
             {allTags.length > 0 && (
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="space-y-2">
                 <Label className="text-sm font-medium">Filter by tags:</Label>
-                {allTags.map(tag => (
-                  <Badge
-                    key={tag}
-                    variant={selectedTags.includes(tag) ? "default" : "outline"}
-                    className="cursor-pointer hover:scale-105 transition-transform"
-                    onClick={() => {
-                      if (selectedTags.includes(tag)) {
-                        setSelectedTags(prev => prev.filter(t => t !== tag));
-                      } else {
-                        setSelectedTags(prev => [...prev, tag]);
-                      }
-                    }}
-                  >
-                    {tag}
-                  </Badge>
-                ))}
-                {selectedTags.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedTags([])}
-                  >
-                    Clear filters
-                  </Button>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {allTags.map(tag => {
+                    const isCategoryTag = QUESTION_CATEGORIES.some(cat => cat.toLowerCase() === tag);
+                    return (
+                      <Badge
+                        key={tag}
+                        variant={selectedTags.includes(tag) ? "default" : "outline"}
+                        className={`cursor-pointer hover:scale-105 transition-transform ${
+                          isCategoryTag ? 'bg-blue-50 border-blue-200 hover:bg-blue-100' : ''
+                        }`}
+                        onClick={() => {
+                          if (selectedTags.includes(tag)) {
+                            setSelectedTags(prev => prev.filter(t => t !== tag));
+                          } else {
+                            setSelectedTags(prev => [...prev, tag]);
+                          }
+                        }}
+                      >
+                        {tag}
+                        {isCategoryTag && ' 📂'}
+                      </Badge>
+                    );
+                  })}
+                  {selectedTags.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedTags([])}
+                      className="ml-2"
+                    >
+                      Clear filters
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
 
@@ -377,11 +386,17 @@ function AdminQuestionCard({
   showRoomSelection = false
 }: AdminQuestionCardProps) {
   const [editingTags, setEditingTags] = useState(false);
-  const [tagInput, setTagInput] = useState(question.tags?.join(', ') || '');
+  // Initialize with additional tags only (exclude category tag)
+  const [tagInput, setTagInput] = useState(
+    question.tags?.filter(tag => tag !== question.category.toLowerCase()).join(', ') || ''
+  );
 
   const handleSaveTags = () => {
-    const tagsArray = tagInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-    onUpdateTags(tagsArray);
+    const additionalTags = tagInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    const categoryTag = question.category.toLowerCase();
+    // Combine category tag with additional tags
+    const allTags = [categoryTag, ...additionalTags];
+    onUpdateTags(allTags);
     setEditingTags(false);
   };
 
@@ -467,10 +482,13 @@ function AdminQuestionCard({
 
           {editingTags ? (
             <div className="space-y-2">
+              <div className="text-xs text-gray-600 mb-1">
+                Category tag "<span className="font-medium">{question.category.toLowerCase()}</span>" is automatically included
+              </div>
               <Input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                placeholder="tag1, tag2, tag3"
+                placeholder="Add additional tags (funny, deep, controversial, etc.)"
                 className="text-xs h-7"
               />
               <div className="flex gap-1">
@@ -482,7 +500,7 @@ function AdminQuestionCard({
                   variant="outline"
                   onClick={() => {
                     setEditingTags(false);
-                    setTagInput(question.tags?.join(', ') || '');
+                    setTagInput(question.tags?.filter(tag => tag !== question.category.toLowerCase()).join(', ') || '');
                   }}
                   className="h-6 text-xs"
                 >
@@ -493,13 +511,23 @@ function AdminQuestionCard({
           ) : (
             <div className="flex flex-wrap gap-1">
               {question.tags && question.tags.length > 0 ? (
-                question.tags.map((tag, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))
+                question.tags.map((tag, index) => {
+                  const isCategoryTag = tag === question.category.toLowerCase();
+                  return (
+                    <Badge
+                      key={index}
+                      variant={isCategoryTag ? "default" : "secondary"}
+                      className={`text-xs ${isCategoryTag ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}`}
+                    >
+                      {tag}
+                      {isCategoryTag && ' 📂'}
+                    </Badge>
+                  );
+                })
               ) : (
-                <span className="text-xs text-gray-400">No tags</span>
+                <Badge variant="default" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                  {question.category.toLowerCase()} 📂
+                </Badge>
               )}
             </div>
           )}

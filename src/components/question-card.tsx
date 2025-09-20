@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, RotateCcw, Tag } from 'lucide-react';
+import { Send, RotateCcw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { ChiliRating } from '@/components/chili-rating';
-import { QuestionPrompt } from '@/lib/questions';
+import { QuestionPrompt, getTagStyles } from '@/lib/questions';
 
 interface QuestionCardProps {
   question: QuestionPrompt;
@@ -72,69 +72,7 @@ export function QuestionCard({
     }
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'easy': return 'bg-green-100 text-green-800 border-green-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'hard': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
 
-  const getCategoryColors = (category: string) => {
-    switch (category) {
-      case 'Personal':
-        return {
-          bg: 'bg-gradient-to-br from-blue-50 to-blue-100',
-          border: 'border-blue-200',
-          tag: 'bg-blue-100 text-blue-800 border-blue-200'
-        };
-      case 'Relationships':
-        return {
-          bg: 'bg-gradient-to-br from-pink-50 to-pink-100',
-          border: 'border-pink-200',
-          tag: 'bg-pink-100 text-pink-800 border-pink-200'
-        };
-      case 'Embarrassing':
-        return {
-          bg: 'bg-gradient-to-br from-red-50 to-red-100',
-          border: 'border-red-200',
-          tag: 'bg-red-100 text-red-800 border-red-200'
-        };
-      case 'Fears & Dreams':
-        return {
-          bg: 'bg-gradient-to-br from-purple-50 to-purple-100',
-          border: 'border-purple-200',
-          tag: 'bg-purple-100 text-purple-800 border-purple-200'
-        };
-      case 'Opinions':
-        return {
-          bg: 'bg-gradient-to-br from-orange-50 to-orange-100',
-          border: 'border-orange-200',
-          tag: 'bg-orange-100 text-orange-800 border-orange-200'
-        };
-      case 'Work/School':
-        return {
-          bg: 'bg-gradient-to-br from-green-50 to-green-100',
-          border: 'border-green-200',
-          tag: 'bg-green-100 text-green-800 border-green-200'
-        };
-      case 'Random':
-        return {
-          bg: 'bg-gradient-to-br from-indigo-50 to-indigo-100',
-          border: 'border-indigo-200',
-          tag: 'bg-indigo-100 text-indigo-800 border-indigo-200'
-        };
-      default:
-        return {
-          bg: 'bg-gradient-to-br from-gray-50 to-gray-100',
-          border: 'border-gray-200',
-          tag: 'bg-gray-100 text-gray-800 border-gray-200'
-        };
-    }
-  };
-
-  const categoryColors = getCategoryColors(question.category);
 
   return (
     <motion.div
@@ -160,18 +98,11 @@ export function QuestionCard({
       >
         {/* Front of Card - Question Display */}
         <Card
-          className={`absolute inset-0 w-full h-full rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] ${categoryColors.bg} ${categoryColors.border} transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)] backface-hidden ${
+          className={`absolute inset-0 w-full h-full rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white border-gray-200 transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)] backface-hidden ${
             isAnswered ? 'opacity-60 cursor-not-allowed' : ''
           }`}
           style={{ backfaceVisibility: 'hidden', minHeight: '280px' }}
         >
-          {/* Category Tag */}
-          <div className="flex items-center justify-between mb-4">
-            <Badge variant="outline" className={`text-xs flex items-center gap-1 ${categoryColors.tag}`}>
-              <Tag className="w-3 h-3" />
-              {question.category}
-            </Badge>
-          </div>
 
           {/* Question Text */}
           <div className="flex-1 flex items-center justify-center mb-4">
@@ -181,7 +112,8 @@ export function QuestionCard({
           </div>
 
           {/* Footer */}
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {/* Action Text */}
             <div className="text-center">
               {isAnswered ? (
                 <Badge variant="secondary" className="text-xs">
@@ -193,6 +125,20 @@ export function QuestionCard({
                 </p>
               )}
             </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-1 justify-center">
+              {question.tags?.map((tag, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className={`text-xs ${getTagStyles(tag)}`}
+                >
+                  {tag.name}
+                </Badge>
+              ))}
+            </div>
+
             {/* Spiciness Rating */}
             <div className="flex flex-col items-center gap-1">
               <div className="flex items-center gap-2">

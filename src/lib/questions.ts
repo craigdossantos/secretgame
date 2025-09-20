@@ -1,11 +1,17 @@
+export interface Tag {
+  name: string;
+  type: 'category' | 'topic' | 'priority' | 'mood' | 'format';
+  color?: string;
+}
+
 export interface QuestionPrompt {
   id: string;
   question: string;
-  category: string;
+  category: string; // Keep for backward compatibility, will be migrated to tags
   suggestedLevel: number; // 1-5
   difficulty: 'easy' | 'medium' | 'hard';
   archived?: boolean;
-  tags?: string[];
+  tags?: Tag[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -28,6 +34,29 @@ export const QUESTION_CATEGORIES: QuestionCategory[] = [
   'Work/School',
   'Random'
 ];
+
+// Tag type colors following research-based best practices
+export const TAG_TYPE_COLORS = {
+  category: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' },
+  topic: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
+  priority: { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-200' },
+  mood: { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-200' },
+  format: { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-200' }
+};
+
+// Convert category to tag
+export function categoryToTag(category: string): Tag {
+  return {
+    name: category.toLowerCase(),
+    type: 'category'
+  };
+}
+
+// Get tag styling classes
+export function getTagStyles(tag: Tag): string {
+  const colors = TAG_TYPE_COLORS[tag.type];
+  return `${colors.bg} ${colors.text} ${colors.border}`;
+}
 
 // Parse questions from markdown format
 export function parseQuestions(markdownContent: string): QuestionPrompt[] {
@@ -61,6 +90,10 @@ export function parseQuestions(markdownContent: string): QuestionPrompt[] {
             category: currentCategory,
             suggestedLevel: parseInt(levelMatch[1]),
             difficulty: difficultyMatch[1] as 'easy' | 'medium' | 'hard',
+            tags: [categoryToTag(currentCategory)], // Auto-add category as tag
+            archived: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
           });
         }
       }
@@ -82,7 +115,22 @@ export function filterQuestionsByCategory(
   return questions.filter(q => selectedCategories.includes(q.category));
 }
 
-// Get category counts
+// Get tag counts for filtering
+export function getTagCounts(questions: QuestionPrompt[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+
+  for (const question of questions) {
+    if (question.tags) {
+      for (const tag of question.tags) {
+        counts[tag.name] = (counts[tag.name] || 0) + 1;
+      }
+    }
+  }
+
+  return counts;
+}
+
+// Get category counts (backward compatibility)
 export function getCategoryCounts(questions: QuestionPrompt[]): Record<string, number> {
   const counts: Record<string, number> = {};
 
@@ -159,16 +207,21 @@ export function createNewQuestion(
   category: QuestionCategory,
   suggestedLevel: number,
   difficulty: 'easy' | 'medium' | 'hard',
-  tags: string[] = []
+  additionalTags: Tag[] = []
 ): QuestionPrompt {
   const now = new Date().toISOString();
+  const categoryTag = categoryToTag(category);
+
+  // Ensure category is always included as a tag, plus any additional tags
+  const allTags = [categoryTag, ...additionalTags];
+
   return {
     id: `${category.toLowerCase().replace(/[^a-z0-9]/g, '')}_${Date.now()}`,
     question,
     category,
     suggestedLevel,
     difficulty,
-    tags,
+    tags: allTags,
     archived: false,
     createdAt: now,
     updatedAt: now
@@ -180,11 +233,21 @@ export function updateQuestion(
   questions: QuestionPrompt[],
   updates: Partial<QuestionPrompt>
 ): QuestionPrompt[] {
-  return questions.map(q =>
-    q.id === questionId
-      ? { ...q, ...updates, updatedAt: new Date().toISOString() }
-      : q
-  );
+  return questions.map(q => {
+    if (q.id === questionId) {
+      const updatedQuestion = { ...q, ...updates, updatedAt: new Date().toISOString() };
+
+      // If tags are being updated, ensure category is always included
+      if (updates.tags) {
+        const categoryTag = categoryToTag(q.category);
+        const otherTags = updates.tags.filter(tag => tag.name !== categoryTag.name);
+        updatedQuestion.tags = [categoryTag, ...otherTags];
+      }
+
+      return updatedQuestion;
+    }
+    return q;
+  });
 }
 
 // Mock questions data (fallback if markdown fails to load)
@@ -194,48 +257,62 @@ export const mockQuestions: QuestionPrompt[] = [
     question: "What's a habit you have that you think is weird?",
     category: 'Personal',
     suggestedLevel: 2,
-    difficulty: 'easy'
+    difficulty: 'easy',
+    tags: [categoryToTag('Personal'), { name: 'quirky', type: 'topic' }],
+    archived: false
   },
   {
     id: 'relationships_1',
     question: "Who was your first crush and what happened?",
     category: 'Relationships',
     suggestedLevel: 3,
-    difficulty: 'medium'
+    difficulty: 'medium',
+    tags: [categoryToTag('Relationships'), { name: 'dating', type: 'topic' }],
+    archived: false
   },
   {
     id: 'embarrassing_1',
     question: "What's the most embarrassing thing that's happened to you in public?",
     category: 'Embarrassing',
     suggestedLevel: 4,
-    difficulty: 'medium'
+    difficulty: 'medium',
+    tags: [categoryToTag('Embarrassing'), { name: 'funny', type: 'mood' }],
+    archived: false
   },
   {
     id: 'fears_1',
     question: "What's your biggest regret in life so far?",
     category: 'Fears & Dreams',
     suggestedLevel: 5,
-    difficulty: 'hard'
+    difficulty: 'hard',
+    tags: [categoryToTag('Fears & Dreams'), { name: 'deep', type: 'mood' }],
+    archived: false
   },
   {
     id: 'opinions_1',
     question: "What's an unpopular opinion you hold?",
     category: 'Opinions',
     suggestedLevel: 3,
-    difficulty: 'medium'
+    difficulty: 'medium',
+    tags: [categoryToTag('Opinions'), { name: 'controversial', type: 'topic' }],
+    archived: false
   },
   {
     id: 'work_1',
     question: "What's the worst mistake you've made at work/school?",
     category: 'Work/School',
     suggestedLevel: 4,
-    difficulty: 'medium'
+    difficulty: 'medium',
+    tags: [categoryToTag('Work/School'), { name: 'career', type: 'topic' }],
+    archived: false
   },
   {
     id: 'random_1',
     question: "What's your weirdest guilty pleasure?",
     category: 'Random',
     suggestedLevel: 2,
-    difficulty: 'easy'
+    difficulty: 'easy',
+    tags: [categoryToTag('Random'), { name: 'fun', type: 'mood' }],
+    archived: false
   }
 ];
