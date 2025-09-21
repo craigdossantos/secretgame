@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get rooms where user is a member (mock implementation)
-    const userRooms: any[] = [];
+    const userRooms: unknown[] = [];
 
     return successResponse({ rooms: userRooms });
   } catch (error) {

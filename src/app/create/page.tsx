@@ -88,7 +88,7 @@ export default function CreateRoomPage() {
           </div>
 
           <p className="text-sm text-gray-500">
-            Save this link! You'll need it to invite friends.
+            Save this link! You&apos;ll need it to invite friends.
           </p>
         </Card>
       </div>

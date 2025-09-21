@@ -31,7 +31,7 @@ export async function createTempUser(name: string) {
     id: createId(),
     email: `${createId()}@temp.com`,
     name,
-    avatarUrl: null,
+    avatarUrl: undefined,
     createdAt: new Date(),
   };
 }
@@ -42,6 +42,6 @@ export function errorResponse(message: string, status = 400) {
 }
 
 // Success response helper
-export function successResponse(data: any, status = 200) {
+export function successResponse(data: unknown, status = 200) {
   return NextResponse.json(data, { status });
 }

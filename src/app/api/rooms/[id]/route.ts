@@ -9,7 +9,7 @@ import {
 // GET /api/rooms/[id] - Get room details and secrets
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const roomId = (await params).id;

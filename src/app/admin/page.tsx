@@ -64,7 +64,7 @@ export default function AdminPage() {
     // Filter by selected tags
     if (selectedTags.length > 0) {
       filtered = filtered.filter(q =>
-        q.tags && q.tags.some(tag => selectedTags.includes(tag))
+        q.tags && q.tags.some(tag => selectedTags.includes(tag.name))
       );
     }
 
@@ -77,7 +77,7 @@ export default function AdminPage() {
     // Extract all unique tags
     const tags = new Set<string>();
     questions.forEach(q => {
-      q.tags?.forEach(tag => tags.add(tag));
+      q.tags?.forEach(tag => tags.add(tag.name));
     });
     setAllTags(Array.from(tags).sort());
   }, [questions, showArchived, selectedTags]);
@@ -94,7 +94,7 @@ export default function AdminPage() {
   };
 
   const handleCreateQuestion = () => {
-    const tagsArray = newQuestion.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    const tagsArray = newQuestion.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0).map(tag => ({ name: tag, type: 'topic' as const }));
     const question = createNewQuestion(
       newQuestion.question,
       newQuestion.category,
@@ -129,7 +129,8 @@ export default function AdminPage() {
   };
 
   const handleUpdateTags = (questionId: string, tags: string[]) => {
-    setQuestions(prev => updateQuestion(questionId, prev, { tags }));
+    const tagObjects = tags.map(tag => ({ name: tag, type: 'topic' as const }));
+    setQuestions(prev => updateQuestion(questionId, prev, { tags: tagObjects }));
   };
 
   const handleToggleQuestionInRoom = (questionId: string) => {
@@ -388,7 +389,7 @@ function AdminQuestionCard({
   const [editingTags, setEditingTags] = useState(false);
   // Initialize with additional tags only (exclude category tag)
   const [tagInput, setTagInput] = useState(
-    question.tags?.filter(tag => tag !== question.category.toLowerCase()).join(', ') || ''
+    question.tags?.filter(tag => tag.name !== question.category.toLowerCase()).map(tag => tag.name).join(', ') || ''
   );
 
   const handleSaveTags = () => {
@@ -483,7 +484,7 @@ function AdminQuestionCard({
           {editingTags ? (
             <div className="space-y-2">
               <div className="text-xs text-gray-600 mb-1">
-                Category tag "<span className="font-medium">{question.category.toLowerCase()}</span>" is automatically included
+                Category tag &quot;<span className="font-medium">{question.category.toLowerCase()}</span>&quot; is automatically included
               </div>
               <Input
                 value={tagInput}
@@ -500,7 +501,7 @@ function AdminQuestionCard({
                   variant="outline"
                   onClick={() => {
                     setEditingTags(false);
-                    setTagInput(question.tags?.filter(tag => tag !== question.category.toLowerCase()).join(', ') || '');
+                    setTagInput(question.tags?.filter(tag => tag.name !== question.category.toLowerCase()).map(tag => tag.name).join(', ') || '');
                   }}
                   className="h-6 text-xs"
                 >
@@ -512,14 +513,14 @@ function AdminQuestionCard({
             <div className="flex flex-wrap gap-1">
               {question.tags && question.tags.length > 0 ? (
                 question.tags.map((tag, index) => {
-                  const isCategoryTag = tag === question.category.toLowerCase();
+                  const isCategoryTag = tag.name === question.category.toLowerCase();
                   return (
                     <Badge
                       key={index}
                       variant={isCategoryTag ? "default" : "secondary"}
                       className={`text-xs ${isCategoryTag ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}`}
                     >
-                      {tag}
+                      {tag.name}
                       {isCategoryTag && ' 📂'}
                     </Badge>
                   );
