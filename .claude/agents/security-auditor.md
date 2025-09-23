@@ -1,3 +1,9 @@
+---
+name: security-auditor
+description: Expert security auditor for privacy-first applications and secret sharing security
+model: sonnet
+---
+
 # Security Auditor Agent - The Secret Game
 
 ## Purpose

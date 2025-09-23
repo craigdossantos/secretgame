@@ -1,3 +1,9 @@
+---
+name: seo-content-writer
+description: Expert SEO content writer for privacy-conscious social gaming content
+model: sonnet
+---
+
 # SEO Content Writer Agent - The Secret Game
 
 ## Purpose

@@ -1,3 +1,9 @@
+---
+name: ui-visual-validator
+description: Expert visual regression testing specialist for consistent Whisk-inspired design
+model: sonnet
+---
+
 # UI Visual Validator Agent - The Secret Game
 
 ## Purpose

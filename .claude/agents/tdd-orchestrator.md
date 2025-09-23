@@ -1,3 +1,9 @@
+---
+name: tdd-orchestrator
+description: Expert Test-Driven Development orchestrator enforcing red-green-refactor discipline
+model: sonnet
+---
+
 # TDD Orchestrator Agent - The Secret Game
 
 ## Purpose

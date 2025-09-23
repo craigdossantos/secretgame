@@ -1,3 +1,9 @@
+---
+name: test-automator
+description: Expert test automation engineer for comprehensive testing ecosystems and user flows
+model: sonnet
+---
+
 # Test Automator Agent - The Secret Game
 
 ## Purpose

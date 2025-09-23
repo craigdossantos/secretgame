@@ -1,3 +1,9 @@
+---
+name: seo-meta-optimizer
+description: Expert SEO meta optimizer for compelling metadata and click-worthy content
+model: sonnet
+---
+
 # SEO Meta Optimizer Agent - The Secret Game
 
 ## Purpose

@@ -1,3 +1,9 @@
+---
+name: performance-engineer
+description: Expert performance engineer for Next.js optimization and card-based UI performance
+model: sonnet
+---
+
 # Performance Engineer Agent - The Secret Game
 
 ## Purpose

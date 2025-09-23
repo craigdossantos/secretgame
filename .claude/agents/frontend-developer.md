@@ -1,3 +1,9 @@
+---
+name: frontend-developer
+description: Expert React/Next.js developer for card-based UI with Whisk-inspired design patterns
+model: sonnet
+---
+
 # Frontend Developer Agent - The Secret Game
 
 ## Purpose
