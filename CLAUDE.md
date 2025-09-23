@@ -12,7 +12,8 @@ The Secret Game enables small friend groups (≤20) to exchange secrets via invi
 
 **Non-negotiables**
 
-* Prefer **small, reversible changes** with proper testing
+* **ALWAYS** work on feature branches - never directly on main
+* Prefer **small, focused changes** (<400 lines) with proper testing
 * Ask before destructive actions (schema changes, secrets, deletes)
 * Follow commands and conventions defined here
 * Maintain Whisk-inspired card design principles
@@ -181,7 +182,39 @@ interface Secret {
 
 ---
 
-## 7) Security & Permissions
+## 7) Git Workflow & Feature Development
+
+**ALWAYS work on feature branches - NEVER directly on main:**
+
+```bash
+# Start new feature
+git checkout -b feature/your-feature-name
+
+# Work on changes
+git add . && git commit -m "feat: your changes"
+
+# Push to remote
+git push -u origin feature/your-feature-name
+
+# Create PR to merge back to main
+# (Use GitHub web interface or gh CLI)
+```
+
+**Branch naming conventions:**
+* `feature/add-spiciness-slider` - New features
+* `fix/secret-unlock-bug` - Bug fixes
+* `update/question-prompts` - Content updates
+* `refactor/database-mock` - Code refactoring
+
+**Git Rules**
+* **NEVER** work directly on main branch - always use feature branches
+* **NEVER** commit without running `npm run build` first
+* Create PR from feature branch to merge into main
+* Keep commits small and focused (prefer <400 lines)
+
+---
+
+## 8) Security & Permissions
 
 **Current Security Model**
 * Cookie-based temporary users (no passwords/tokens yet)
@@ -193,12 +226,11 @@ interface Secret {
 * Never read or write `.env*` files without explicit instruction
 * Do not run scripts outside this repository
 * Avoid `sudo` or system-level operations
-* When refactoring, work in feature branches for large changes
 * Ask before touching authentication or secret-related logic
 
 ---
 
-## 8) Testing Policy
+## 9) Testing Policy
 
 **Current Testing Setup**
 * E2E tests with Playwright for critical user flows
@@ -218,7 +250,7 @@ interface Secret {
 
 ---
 
-## 9) Review & Definition of Done
+## 10) Review & Definition of Done
 
 A change is **done** when:
 
@@ -238,7 +270,7 @@ A change is **done** when:
 
 ---
 
-## 10) How to Collaborate with Claude (Workflow)
+## 11) How to Collaborate with Claude (Workflow)
 
 **Standard Loop** (follow unless told otherwise):
 
@@ -263,7 +295,7 @@ A change is **done** when:
 
 ---
 
-## 11) Known Issues & Project Context
+## 12) Known Issues & Project Context
 
 **Current Architecture Decisions**
 * **Mock Database**: Simplified from Drizzle+Supabase for development speed
@@ -283,7 +315,7 @@ A change is **done** when:
 
 ---
 
-## 12) Quick Reference
+## 13) Quick Reference
 
 **Essential Commands**
 * `npm run dev` — development server
