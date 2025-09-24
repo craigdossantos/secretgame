@@ -49,6 +49,9 @@ export async function GET(
         name: room.name,
         memberCount,
         inviteCode: room.inviteCode,
+        ownerId: room.ownerId,
+        questionIds: room.questionIds || [],
+        customQuestions: room.customQuestions || [],
         isMember: true,
       },
     });

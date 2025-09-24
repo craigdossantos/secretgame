@@ -63,7 +63,7 @@ export default function RoomPage() {
         // Get current user ID from cookies
         const userId = document.cookie
           .split('; ')
-          .find(row => row.startsWith('tempUserId='))
+          .find(row => row.startsWith('userId='))
           ?.split('=')[1];
         setCurrentUserId(userId || null);
 
@@ -76,27 +76,65 @@ export default function RoomPage() {
             setAllQuestions(parsedQuestions);
 
             // Filter questions for this room
+            const roomQs: QuestionPrompt[] = [];
+
+            // Add selected regular questions
             if (roomData.room.questionIds && roomData.room.questionIds.length > 0) {
-              const roomQs = parsedQuestions.filter(q =>
+              const selectedQuestions = parsedQuestions.filter(q =>
                 roomData.room.questionIds.includes(q.id)
               );
-              setRoomQuestions(roomQs);
-            } else {
-              setRoomQuestions([]);
+              roomQs.push(...selectedQuestions);
             }
+
+            // Add custom questions
+            if (roomData.room.customQuestions && roomData.room.customQuestions.length > 0) {
+              const customQuestions = roomData.room.customQuestions.map((cq: any) => ({
+                id: cq.id,
+                question: cq.question,
+                category: cq.category,
+                suggestedLevel: cq.suggestedLevel,
+                difficulty: cq.difficulty,
+                tags: [{ name: cq.category.toLowerCase(), type: 'category' as const }],
+                archived: false,
+                createdAt: cq.createdAt,
+                updatedAt: cq.createdAt
+              }));
+              roomQs.push(...customQuestions);
+            }
+
+            setRoomQuestions(roomQs);
           } else {
             // Fallback to mock questions
             console.warn('Could not load questions.md, using mock questions');
             setAllQuestions(mockQuestions);
 
+            const roomQs: QuestionPrompt[] = [];
+
+            // Add selected regular questions
             if (roomData.room.questionIds && roomData.room.questionIds.length > 0) {
-              const roomQs = mockQuestions.filter(q =>
+              const selectedQuestions = mockQuestions.filter(q =>
                 roomData.room.questionIds.includes(q.id)
               );
-              setRoomQuestions(roomQs);
-            } else {
-              setRoomQuestions([]);
+              roomQs.push(...selectedQuestions);
             }
+
+            // Add custom questions
+            if (roomData.room.customQuestions && roomData.room.customQuestions.length > 0) {
+              const customQuestions = roomData.room.customQuestions.map((cq: any) => ({
+                id: cq.id,
+                question: cq.question,
+                category: cq.category,
+                suggestedLevel: cq.suggestedLevel,
+                difficulty: cq.difficulty,
+                tags: [{ name: cq.category.toLowerCase(), type: 'category' as const }],
+                archived: false,
+                createdAt: cq.createdAt,
+                updatedAt: cq.createdAt
+              }));
+              roomQs.push(...customQuestions);
+            }
+
+            setRoomQuestions(roomQs);
           }
         } catch (questionsError) {
           console.warn('Error loading questions:', questionsError);
