@@ -35,20 +35,32 @@ A minimal, playable web prototype for small friend groups (≤20) to exchange se
 - [ ] **ImportanceSlider component** - 1-5 importance rating
 - [ ] **LoadingSkeleton component** - Card grid skeleton states
 
+### Question Management Components
+- [ ] **QuestionSelector component** - Multi-select grid for room creation
+- [ ] **RefreshableQuestionDisplay** - Homepage 3-question display with refresh
+- [ ] **CustomQuestionModal** - Modal form for creating custom questions
+- [ ] **QuestionCard with selection mode** - Extend existing card for selection UI
+- [ ] **SelectedQuestionsPreview** - Show selected questions before room creation
+
 ---
 
 ## ⏳ Pending Tasks
 
 ### API Implementation
-- [ ] **POST /api/rooms** - Create room → returns { inviteUrl }
+- [ ] **POST /api/rooms** - Create room with selected question IDs → returns { inviteUrl }
 - [ ] **POST /api/rooms/:id/join** - Validate invite → add to room_members
-- [ ] **GET /api/rooms/:id** - Room info + members + paginated secret metadata
+- [ ] **GET /api/rooms/:id** - Room info + members + selected questions + secrets
+- [ ] **GET /api/questions** - Get random questions for selection
+- [ ] **POST /api/questions** - Create custom question
 - [ ] **POST /api/secrets** - Create secret (standalone submit)
 - [ ] **POST /api/secrets/:id/unlock** - Unlock with matching rating validation
 - [ ] **POST /api/secrets/:id/rate** - Rate secret and update avg_rating
 
 ### Core Features
-- [ ] **Room creation flow** - Minimal form with optional name
+- [ ] **Homepage question display** - Show only 3 questions with refresh button
+- [ ] **Room creation flow** - Minimal form with question selection step
+- [ ] **Question selection for rooms** - Choose 3 questions when creating room
+- [ ] **Custom question creation** - Ability to create custom questions in room creation
 - [ ] **Invite URL system** - Shareable links with unique codes
 - [ ] **Join room flow** - Google OAuth on invite URL visit
 - [ ] **Secret submission** - Body (≤100 words), self_rating, importance
