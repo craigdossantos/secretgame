@@ -17,6 +17,18 @@ interface Room {
   maxMembers: number;
   createdAt: Date;
   questionIds?: string[]; // IDs of questions selected for this room
+  customQuestions?: CustomQuestion[]; // Custom questions created for this room
+}
+
+interface CustomQuestion {
+  id: string;
+  roomId: string;
+  question: string;
+  category: string;
+  suggestedLevel: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  createdBy: string; // userId
+  createdAt: Date;
 }
 
 interface RoomMember {

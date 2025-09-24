@@ -13,10 +13,15 @@ import {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name = 'Secret Room', userName } = body;
+    const { name = 'Secret Room', userName, questionIds = [], customQuestions = [] } = body;
 
     if (!userName || userName.trim().length === 0) {
       return errorResponse('User name is required');
+    }
+
+    // Validate question selection
+    if (questionIds.length + customQuestions.length !== 3) {
+      return errorResponse('Exactly 3 questions must be selected');
     }
 
     // Get or create user
@@ -45,6 +50,24 @@ export async function POST(request: NextRequest) {
     const roomId = createId();
     const inviteCode = generateInviteCode();
 
+    // Process custom questions
+    const processedCustomQuestions = customQuestions.map((q: {
+      id?: string;
+      question: string;
+      category: string;
+      suggestedLevel: number;
+      difficulty: 'easy' | 'medium' | 'hard';
+    }) => ({
+      id: q.id || createId(),
+      roomId,
+      question: q.question,
+      category: q.category,
+      suggestedLevel: q.suggestedLevel,
+      difficulty: q.difficulty,
+      createdBy: userId,
+      createdAt: new Date()
+    }));
+
     const newRoom = {
       id: roomId,
       name,
@@ -52,6 +75,8 @@ export async function POST(request: NextRequest) {
       inviteCode,
       maxMembers: 20,
       createdAt: new Date(),
+      questionIds,
+      customQuestions: processedCustomQuestions,
     };
 
     await mockDb.insertRoom(newRoom);
