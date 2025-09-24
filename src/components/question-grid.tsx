@@ -30,25 +30,19 @@ export function QuestionGrid({
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [userSpicinessRatings, setUserSpicinessRatings] = useState<Record<string, number>>({});
 
-  // Get curated selection of 12 questions mixed from different categories
-  const curatedQuestions = useMemo(() => {
-    return getCuratedQuestions(questions);
-  }, [questions]);
-
-  // Filter questions based on selected categories from the curated set
-  const filteredQuestions = useMemo(() => {
-    return filterQuestionsByCategory(curatedQuestions, selectedCategories);
-  }, [curatedQuestions, selectedCategories]);
-
-  // Get category counts for all questions (for filter display)
-  const categoryCounts = useMemo(() => {
-    return getCategoryCounts(curatedQuestions);
-  }, [curatedQuestions]);
-
-  // Use filtered questions directly (already curated to 12)
+  // Use the passed questions directly (already curated/filtered by parent)
   const sortedQuestions = useMemo(() => {
-    return filteredQuestions;
-  }, [filteredQuestions]);
+    // If categories are selected, filter the questions
+    if (selectedCategories.length > 0) {
+      return filterQuestionsByCategory(questions, selectedCategories);
+    }
+    return questions;
+  }, [questions, selectedCategories]);
+
+  // Get category counts for the current questions
+  const categoryCounts = useMemo(() => {
+    return getCategoryCounts(questions);
+  }, [questions]);
 
   const handleRateSpiciness = (questionId: string, spiciness: number) => {
     setUserSpicinessRatings(prev => ({
@@ -69,9 +63,13 @@ export function QuestionGrid({
         />
       </div>
 
-      {/* Questions Grid - 3 columns x 4 rows */}
+      {/* Questions Grid - Responsive layout */}
       {sortedQuestions.length > 0 ? (
-        <div className="grid grid-cols-3 gap-4">
+        <div className={`grid gap-4 ${
+          sortedQuestions.length <= 3
+            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+            : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+        }`}>
           {sortedQuestions.map((question) => (
             <QuestionCard
               key={question.id}

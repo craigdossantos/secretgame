@@ -177,6 +177,57 @@ export function getCuratedQuestions(questions: QuestionPrompt[]): QuestionPrompt
   return selectedQuestions.sort(() => Math.random() - 0.5).slice(0, 12);
 }
 
+// Get 3 random questions from different categories for homepage
+export function getRandomQuestions(questions: QuestionPrompt[], count: number = 3, excludeIds: string[] = []): QuestionPrompt[] {
+  if (questions.length === 0) return [];
+
+  // Filter out archived questions and excluded questions
+  const activeQuestions = questions.filter(q => !q.archived && !excludeIds.includes(q.id));
+
+  if (activeQuestions.length === 0) return [];
+
+  // Group questions by category
+  const questionsByCategory: Record<string, QuestionPrompt[]> = {};
+  for (const question of activeQuestions) {
+    if (!questionsByCategory[question.category]) {
+      questionsByCategory[question.category] = [];
+    }
+    questionsByCategory[question.category].push(question);
+  }
+
+  const categories = Object.keys(questionsByCategory);
+  const selectedQuestions: QuestionPrompt[] = [];
+
+  // Try to get one question from different categories first
+  for (let i = 0; i < count && i < categories.length; i++) {
+    const category = categories[i];
+    const categoryQuestions = questionsByCategory[category];
+    const shuffled = [...categoryQuestions].sort(() => Math.random() - 0.5);
+    if (shuffled.length > 0) {
+      selectedQuestions.push(shuffled[0]);
+      // Remove selected question from the pool
+      questionsByCategory[category] = categoryQuestions.filter(q => q.id !== shuffled[0].id);
+    }
+  }
+
+  // If we need more questions, pick randomly from remaining
+  while (selectedQuestions.length < count) {
+    const remainingQuestions = Object.values(questionsByCategory).flat();
+    if (remainingQuestions.length === 0) break;
+
+    const randomIndex = Math.floor(Math.random() * remainingQuestions.length);
+    const selectedQuestion = remainingQuestions[randomIndex];
+    selectedQuestions.push(selectedQuestion);
+
+    // Remove from the pool
+    for (const category of Object.keys(questionsByCategory)) {
+      questionsByCategory[category] = questionsByCategory[category].filter(q => q.id !== selectedQuestion.id);
+    }
+  }
+
+  return selectedQuestions;
+}
+
 // Admin helper functions
 export function getActiveQuestions(questions: QuestionPrompt[]): QuestionPrompt[] {
   return questions.filter(q => !q.archived);

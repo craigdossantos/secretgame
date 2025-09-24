@@ -4,7 +4,7 @@ import { createId } from '@paralleldrive/cuid2';
 import {
   generateInviteCode,
   getCurrentUserId,
-  setUserId,
+  createUserCookie,
   createTempUser,
   errorResponse,
   successResponse
@@ -22,21 +22,22 @@ export async function POST(request: NextRequest) {
     // Get or create user
     let userId = await getCurrentUserId();
     let user;
+    let shouldSetCookie = false;
 
     if (!userId) {
       // Create temporary user
       user = await createTempUser(userName);
       await mockDb.insertUser(user);
-      await setUserId(user.id);
       userId = user.id;
+      shouldSetCookie = true;
     } else {
       // Get existing user
       user = await mockDb.findUserById(userId);
       if (!user) {
         user = await createTempUser(userName);
         await mockDb.insertUser(user);
-        await setUserId(user.id);
         userId = user.id;
+        shouldSetCookie = true;
       }
     }
 
@@ -64,12 +65,20 @@ export async function POST(request: NextRequest) {
 
     const inviteUrl = `${process.env.NEXTAUTH_URL}/invite/${inviteCode}`;
 
-    return successResponse({
+    const responseData = {
       roomId,
       inviteCode,
       inviteUrl,
       name,
-    });
+    };
+
+    // Set cookie if we created a new user
+    if (shouldSetCookie) {
+      const cookie = createUserCookie(userId);
+      return successResponse(responseData, 200, cookie);
+    }
+
+    return successResponse(responseData);
   } catch (error) {
     console.error('Failed to create room:', error);
     return errorResponse('Failed to create room', 500);

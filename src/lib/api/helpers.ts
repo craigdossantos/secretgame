@@ -15,14 +15,18 @@ export async function getCurrentUserId(): Promise<string | null> {
 }
 
 // Set user ID in cookie (temporary solution)
-export async function setUserId(userId: string) {
-  const cookieStore = await cookies();
-  cookieStore.set('userId', userId, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 30, // 30 days
-  });
+// Note: In Next.js 15, cookies must be set on the NextResponse object
+export function createUserCookie(userId: string) {
+  return {
+    name: 'userId',
+    value: userId,
+    options: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax' as const,
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+    }
+  };
 }
 
 // Create temporary user
@@ -42,6 +46,25 @@ export function errorResponse(message: string, status = 400) {
 }
 
 // Success response helper
-export function successResponse(data: unknown, status = 200) {
-  return NextResponse.json(data, { status });
+export function successResponse(
+  data: unknown,
+  status = 200,
+  cookie?: {
+    name: string;
+    value: string;
+    options: {
+      httpOnly?: boolean;
+      secure?: boolean;
+      sameSite?: 'strict' | 'lax' | 'none';
+      maxAge?: number;
+    }
+  }
+) {
+  const response = NextResponse.json(data, { status });
+
+  if (cookie) {
+    response.cookies.set(cookie.name, cookie.value, cookie.options);
+  }
+
+  return response;
 }

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { SecretCard } from '@/components/secret-card';
 import { UnlockDrawer } from '@/components/unlock-drawer';
 import { QuestionGrid } from '@/components/question-grid';
-import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
+import { parseQuestions, QuestionPrompt, mockQuestions, getRandomQuestions } from '@/lib/questions';
 
 // Mock data for demo
 const mockSecrets = [
@@ -57,7 +57,8 @@ const mockSecrets = [
 export default function Home() {
   const [selectedSecret, setSelectedSecret] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [questions, setQuestions] = useState<QuestionPrompt[]>([]);
+  const [allQuestions, setAllQuestions] = useState<QuestionPrompt[]>([]);
+  const [displayedQuestions, setDisplayedQuestions] = useState<QuestionPrompt[]>([]);
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<string[]>([]);
 
   // Load questions on mount
@@ -69,19 +70,26 @@ export default function Home() {
           const markdownContent = await questionsResponse.text();
           const parsedQuestions = parseQuestions(markdownContent);
           console.log('Parsed questions:', parsedQuestions.slice(0, 3)); // Debug first 3 questions
-          setQuestions(parsedQuestions);
+          setAllQuestions(parsedQuestions);
+          setDisplayedQuestions(getRandomQuestions(parsedQuestions, 3));
         } else {
           console.warn('Could not load questions.md, using mock questions');
-          setQuestions(mockQuestions);
+          setAllQuestions(mockQuestions);
+          setDisplayedQuestions(getRandomQuestions(mockQuestions, 3));
         }
       } catch (error) {
         console.warn('Error loading questions:', error);
-        setQuestions(mockQuestions);
+        setAllQuestions(mockQuestions);
+        setDisplayedQuestions(getRandomQuestions(mockQuestions, 3));
       }
     };
 
     loadQuestions();
   }, []);
+
+  const refreshQuestions = () => {
+    setDisplayedQuestions(getRandomQuestions(allQuestions, 3, answeredQuestionIds));
+  };
 
   const handleUnlock = (secretId: string) => {
     setSelectedSecret(secretId);
@@ -137,17 +145,39 @@ export default function Home() {
       <div className="max-w-7xl mx-auto">
         {/* Question Prompts */}
         <div className="mb-12">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Try Out Question Prompts
-            </h2>
-            <p className="text-gray-600">
-              Click on any question card to flip it and see how the answer form works. Create a room to share answers as secrets!
-            </p>
+          <div className="mb-6 flex justify-between items-end">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Try Out Question Prompts
+              </h2>
+              <p className="text-gray-600">
+                Click on any question card to flip it and see how the answer form works. Create a room to share answers as secrets!
+              </p>
+            </div>
+            <button
+              onClick={refreshQuestions}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+              disabled={displayedQuestions.length === 0}
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Refresh Questions
+            </button>
           </div>
-          {questions.length > 0 ? (
+          {displayedQuestions.length > 0 ? (
             <QuestionGrid
-              questions={questions}
+              questions={displayedQuestions}
               answeredQuestionIds={answeredQuestionIds}
               onSubmitAnswer={handleSubmitAnswer}
             />
