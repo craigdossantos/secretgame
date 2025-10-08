@@ -79,7 +79,9 @@ export async function POST(request: NextRequest) {
       customQuestions: processedCustomQuestions,
     };
 
+    console.log(`🏗️ Creating room:`, newRoom.id);
     await mockDb.insertRoom(newRoom);
+    console.log(`✅ Room created successfully:`, newRoom.id);
 
     // Add owner as first member
     await mockDb.insertRoomMember({

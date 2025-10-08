@@ -180,4 +180,11 @@ class MockDatabase {
   }
 }
 
-export const mockDb = new MockDatabase();
+// Ensure singleton pattern for mock database across hot reloads
+declare global {
+  var __mockDb: MockDatabase | undefined;
+}
+
+// Use global reference to persist across hot reloads in development
+export const mockDb = globalThis.__mockDb ?? new MockDatabase();
+globalThis.__mockDb = mockDb;

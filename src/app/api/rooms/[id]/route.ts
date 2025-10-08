@@ -20,9 +20,12 @@ export async function GET(
     }
 
     // Get room details
+    console.log(`🔍 Looking for room: ${roomId}`);
     const room = await mockDb.findRoomById(roomId);
+    console.log(`🏠 Found room:`, room ? 'YES' : 'NO');
 
     if (!room) {
+      console.log(`❌ Room ${roomId} not found in database`);
       return errorResponse('Room not found', 404);
     }
 

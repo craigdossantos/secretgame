@@ -31,6 +31,7 @@ Expert UI/UX designer specialized in The Secret Game's Whisk-inspired card inter
 shadow-[0_8px_30px_rgba(0,0,0,0.06)]
 
 /* Hover state */
+
 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]
 ```
 
