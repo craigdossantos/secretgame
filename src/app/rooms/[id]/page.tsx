@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { QuestionGrid } from '@/components/question-grid';
 import { SecretCard } from '@/components/secret-card';
+import { UnlockDrawer } from '@/components/unlock-drawer';
 import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, Share2, Copy } from 'lucide-react';
+import { ArrowLeft, Users, Share2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 
 interface Room {
   id: string;
@@ -27,8 +29,9 @@ interface Secret {
   buyersCount: number;
   authorName: string;
   authorAvatar?: string;
-  createdAt: Date;
+  createdAt: string; // ISO string from API
   isUnlocked?: boolean;
+  questionId?: string;
 }
 
 export default function RoomPage() {
@@ -37,14 +40,16 @@ export default function RoomPage() {
   const roomId = params.id as string;
 
   const [room, setRoom] = useState<Room | null>(null);
-  const [allQuestions, setAllQuestions] = useState<QuestionPrompt[]>([]);
-  const [roomQuestions, setRoomQuestions] = useState<QuestionPrompt[]>([]);
+  const [roomQuestions, setRoomQuestions] = useState<QuestionPrompt[]>([]); // All questions in room
+  const [displayedQuestions, setDisplayedQuestions] = useState<QuestionPrompt[]>([]); // 3 currently shown
   const [secrets, setSecrets] = useState<Secret[]>([]);
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<string[]>([]);
+  const [skippedQuestionIds, setSkippedQuestionIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [showQuestionSelector, setShowQuestionSelector] = useState(false);
+  const [unlockDrawerOpen, setUnlockDrawerOpen] = useState(false);
+  const [selectedSecretToUnlock, setSelectedSecretToUnlock] = useState<Secret | null>(null);
 
   // Load room data and questions
   useEffect(() => {
@@ -73,7 +78,6 @@ export default function RoomPage() {
           if (questionsResponse.ok) {
             const markdownContent = await questionsResponse.text();
             const parsedQuestions = parseQuestions(markdownContent);
-            setAllQuestions(parsedQuestions);
 
             // Filter questions for this room
             const roomQs: QuestionPrompt[] = [];
@@ -88,7 +92,14 @@ export default function RoomPage() {
 
             // Add custom questions
             if (roomData.room.customQuestions && roomData.room.customQuestions.length > 0) {
-              const customQuestions = roomData.room.customQuestions.map((cq: any) => ({
+              const customQuestions = roomData.room.customQuestions.map((cq: {
+                id: string;
+                question: string;
+                category: string;
+                suggestedLevel: number;
+                difficulty: string;
+                createdAt: string | Date;
+              }) => ({
                 id: cq.id,
                 question: cq.question,
                 category: cq.category,
@@ -106,7 +117,6 @@ export default function RoomPage() {
           } else {
             // Fallback to mock questions
             console.warn('Could not load questions.md, using mock questions');
-            setAllQuestions(mockQuestions);
 
             const roomQs: QuestionPrompt[] = [];
 
@@ -120,7 +130,14 @@ export default function RoomPage() {
 
             // Add custom questions
             if (roomData.room.customQuestions && roomData.room.customQuestions.length > 0) {
-              const customQuestions = roomData.room.customQuestions.map((cq: any) => ({
+              const customQuestions = roomData.room.customQuestions.map((cq: {
+                id: string;
+                question: string;
+                category: string;
+                suggestedLevel: number;
+                difficulty: string;
+                createdAt: string | Date;
+              }) => ({
                 id: cq.id,
                 question: cq.question,
                 category: cq.category,
@@ -138,7 +155,6 @@ export default function RoomPage() {
           }
         } catch (questionsError) {
           console.warn('Error loading questions:', questionsError);
-          setAllQuestions(mockQuestions);
           setRoomQuestions([]);
         }
 
@@ -161,6 +177,29 @@ export default function RoomPage() {
     }
   }, [roomId]);
 
+  // Helper: Update the 3 displayed questions
+  const updateDisplayedQuestions = React.useCallback(() => {
+    const availableQuestions = roomQuestions.filter(
+      q => !answeredQuestionIds.includes(q.id) && !skippedQuestionIds.includes(q.id)
+    );
+
+    // Always show up to 3 questions
+    const questionsToShow = availableQuestions.slice(0, 3);
+    setDisplayedQuestions(questionsToShow);
+  }, [roomQuestions, answeredQuestionIds, skippedQuestionIds]);
+
+  // Update displayed questions when dependencies change
+  useEffect(() => {
+    if (roomQuestions.length > 0) {
+      updateDisplayedQuestions();
+    }
+  }, [roomQuestions, answeredQuestionIds, skippedQuestionIds, updateDisplayedQuestions]);
+
+  const handleSkipQuestion = (questionId: string) => {
+    setSkippedQuestionIds(prev => [...prev, questionId]);
+    // updateDisplayedQuestions will be called by useEffect
+  };
+
   const handleSubmitAnswer = async (answer: {
     questionId: string;
     body: string;
@@ -176,6 +215,7 @@ export default function RoomPage() {
         },
         body: JSON.stringify({
           roomId,
+          questionId: answer.questionId,
           body: answer.body,
           selfRating: answer.selfRating,
           importance: answer.importance,
@@ -183,13 +223,19 @@ export default function RoomPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit answer');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to submit answer');
       }
 
-      // Mark question as answered
-      setAnsweredQuestionIds(prev => [...prev, answer.questionId]);
+      const data = await response.json();
+      toast.success(data.message || 'Secret submitted successfully!');
 
-      // Optionally reload secrets to show the new one
+      // Mark question as answered
+      if (!answeredQuestionIds.includes(answer.questionId)) {
+        setAnsweredQuestionIds(prev => [...prev, answer.questionId]);
+      }
+
+      // Reload secrets to show the new one
       const secretsResponse = await fetch(`/api/rooms/${roomId}/secrets`);
       if (secretsResponse.ok) {
         const secretsData = await secretsResponse.json();
@@ -198,24 +244,98 @@ export default function RoomPage() {
 
     } catch (error) {
       console.error('Failed to submit answer:', error);
-      alert('Failed to submit answer. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to submit answer');
     }
   };
 
   const handleUnlock = (secretId: string) => {
-    // This would open the unlock drawer
-    console.log('Unlock secret:', secretId);
+    const secret = secrets.find(s => s.id === secretId);
+    if (secret) {
+      setSelectedSecretToUnlock(secret);
+      setUnlockDrawerOpen(true);
+    }
   };
 
-  const handleRate = (secretId: string, rating: number) => {
-    console.log('Rate secret:', secretId, rating);
+  const handleUnlockSubmit = async (unlockData: {
+    body: string;
+    selfRating: number;
+    importance: number;
+  }) => {
+    if (!selectedSecretToUnlock) return;
+
+    try {
+      const response = await fetch(`/api/secrets/${selectedSecretToUnlock.id}/unlock`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          questionId: selectedSecretToUnlock.questionId || selectedSecretToUnlock.id, // Use secret's questionId
+          body: unlockData.body,
+          selfRating: unlockData.selfRating,
+          importance: unlockData.importance,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to unlock secret');
+      }
+
+      await response.json();
+      toast.success('Secret unlocked!');
+
+      // Reload secrets to show unlocked state
+      const secretsResponse = await fetch(`/api/rooms/${roomId}/secrets`);
+      if (secretsResponse.ok) {
+        const secretsData = await secretsResponse.json();
+        setSecrets(secretsData.secrets || []);
+      }
+
+      setUnlockDrawerOpen(false);
+      setSelectedSecretToUnlock(null);
+    } catch (error) {
+      console.error('Failed to unlock secret:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to unlock secret');
+      throw error; // Re-throw so UnlockDrawer can handle loading state
+    }
+  };
+
+  const handleRate = async (secretId: string, rating: number) => {
+    try {
+      const response = await fetch(`/api/secrets/${secretId}/rate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rating }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to rate secret');
+      }
+
+      const data = await response.json();
+      toast.success('Rating submitted!');
+
+      // Update the secret in state with new average
+      setSecrets(prevSecrets =>
+        prevSecrets.map(s =>
+          s.id === secretId ? { ...s, avgRating: data.avgRating } : s
+        )
+      );
+    } catch (error) {
+      console.error('Failed to rate secret:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to submit rating');
+    }
   };
 
   const copyInviteLink = async () => {
     if (room) {
       const inviteUrl = `${window.location.origin}/invite/${room.inviteCode}`;
       await navigator.clipboard.writeText(inviteUrl);
-      // You could show a toast notification here
+      toast.success('Invite link copied to clipboard!');
     }
   };
 
@@ -287,11 +407,47 @@ export default function RoomPage() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Secrets Section - Always visible */}
+        <div className="mb-12">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Secrets in This Room
+            </h2>
+            <p className="text-gray-600">
+              {secrets.length > 0
+                ? "Your secrets appear unlocked. Others' secrets require unlocking."
+                : "Answer a question below to share your first secret!"}
+            </p>
+          </div>
+          {secrets.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {secrets.map((secret) => (
+                <SecretCard
+                  key={secret.id}
+                  secret={secret}
+                  onUnlock={handleUnlock}
+                  onRate={handleRate}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+              <div className="text-6xl mb-4">🤫</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No Secrets Yet
+              </h3>
+              <p className="text-gray-600">
+                Be the first to share a secret by answering a question below!
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Question Prompts */}
         <div className="mb-12">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Question Prompts
+              Answer Questions
             </h2>
             {roomQuestions.length > 0 ? (
               <p className="text-gray-600">
@@ -306,12 +462,23 @@ export default function RoomPage() {
             )}
           </div>
 
-          {roomQuestions.length > 0 ? (
+          {displayedQuestions.length > 0 ? (
             <QuestionGrid
-              questions={roomQuestions}
+              questions={displayedQuestions}
               answeredQuestionIds={answeredQuestionIds}
               onSubmitAnswer={handleSubmitAnswer}
+              onSkipQuestion={handleSkipQuestion}
             />
+          ) : roomQuestions.length > 0 ? (
+            <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+              <div className="text-6xl mb-4">🎉</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                All Questions Answered!
+              </h3>
+              <p className="text-gray-600">
+                You&apos;ve answered or skipped all available questions.
+              </p>
+            </div>
           ) : (
             <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
               <div className="mb-4">
@@ -337,31 +504,17 @@ export default function RoomPage() {
             </div>
           )}
         </div>
-
-        {/* Existing Secrets */}
-        {secrets.length > 0 && (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Shared Secrets
-              </h2>
-              <p className="text-gray-600">
-                Secrets that have been shared in this room
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {secrets.map((secret) => (
-                <SecretCard
-                  key={secret.id}
-                  secret={secret}
-                  onUnlock={handleUnlock}
-                  onRate={handleRate}
-                />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Unlock Drawer */}
+      {selectedSecretToUnlock && (
+        <UnlockDrawer
+          isOpen={unlockDrawerOpen}
+          onOpenChange={setUnlockDrawerOpen}
+          requiredRating={selectedSecretToUnlock.selfRating}
+          onSubmit={handleUnlockSubmit}
+        />
+      )}
     </div>
   );
 }

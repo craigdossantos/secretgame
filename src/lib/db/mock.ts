@@ -41,6 +41,7 @@ interface Secret {
   id: string;
   roomId: string;
   authorId: string;
+  questionId?: string; // Link to question being answered
   body: string;
   selfRating: number;
   importance: number;

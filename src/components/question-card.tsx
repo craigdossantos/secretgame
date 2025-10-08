@@ -20,6 +20,7 @@ interface QuestionCardProps {
     selfRating: number;
     importance: number
   }) => void;
+  onSkip?: (questionId: string) => void;
   onRateSpiciness?: (questionId: string, spiciness: number) => void;
   userSpicinessRating?: number;
   isAnswered?: boolean;
@@ -28,6 +29,7 @@ interface QuestionCardProps {
 export function QuestionCard({
   question,
   onSubmit,
+  onSkip,
   onRateSpiciness,
   userSpicinessRating = 0,
   isAnswered = false
@@ -43,9 +45,13 @@ export function QuestionCard({
   const isValidWordCount = wordCount <= 100 && wordCount > 0;
 
   const handleFlip = () => {
-    if (!isAnswered) {
-      setIsFlipped(!isFlipped);
-    }
+    // Allow flipping even if answered (for editing)
+    setIsFlipped(!isFlipped);
+  };
+
+  const handleSkip = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card flip
+    onSkip?.(question.id);
   };
 
   const handleSubmit = async () => {
@@ -60,10 +66,8 @@ export function QuestionCard({
         importance,
       });
 
-      // Reset form and flip back
-      setBody('');
-      setSelfRating(question.suggestedLevel);
-      setImportance(3);
+      // Don't reset - keep form filled for potential edits
+      // Just flip back to front
       setIsFlipped(false);
     } catch (error) {
       console.error('Failed to submit answer:', error);
@@ -98,11 +102,20 @@ export function QuestionCard({
       >
         {/* Front of Card - Question Display */}
         <Card
-          className={`absolute inset-0 w-full h-full rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white border-gray-200 transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)] backface-hidden ${
-            isAnswered ? 'opacity-60 cursor-not-allowed' : ''
-          }`}
+          className="absolute inset-0 w-full h-full rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white border-gray-200 transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)] backface-hidden"
           style={{ backfaceVisibility: 'hidden', minHeight: '280px' }}
         >
+          {/* Skip Button */}
+          {!isAnswered && onSkip && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSkip}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xs"
+            >
+              Skip →
+            </Button>
+          )}
 
           {/* Question Text */}
           <div className="flex-1 flex items-center justify-center mb-4">
@@ -116,8 +129,8 @@ export function QuestionCard({
             {/* Action Text */}
             <div className="text-center">
               {isAnswered ? (
-                <Badge variant="secondary" className="text-xs">
-                  Already Answered
+                <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">
+                  ✓ Answered - Click to Edit
                 </Badge>
               ) : (
                 <p className="text-sm text-gray-500">
