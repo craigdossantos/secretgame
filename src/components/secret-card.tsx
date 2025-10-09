@@ -18,7 +18,7 @@ interface Secret {
   buyersCount: number;
   authorName: string;
   authorAvatar?: string;
-  createdAt: Date;
+  createdAt: string; // ISO string from API
   isUnlocked?: boolean;
 }
 
@@ -70,7 +70,7 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
             </span>
           </div>
           <div className="text-xs text-gray-500">
-            {secret.createdAt.toLocaleDateString()}
+            {new Date(secret.createdAt).toLocaleDateString()}
           </div>
         </div>
 

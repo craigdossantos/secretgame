@@ -14,20 +14,20 @@ interface QuestionSelectorProps {
   questions: QuestionPrompt[];
   selectedQuestionIds: string[];
   onSelectionChange: (selectedIds: string[], customQuestions: QuestionPrompt[]) => void;
-  maxSelections?: number;
+  maxSelections?: number | null; // null means unlimited
 }
 
 export function QuestionSelector({
   questions,
   selectedQuestionIds,
   onSelectionChange,
-  maxSelections = 3
+  maxSelections = null // Default to unlimited
 }: QuestionSelectorProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customQuestions, setCustomQuestions] = useState<QuestionPrompt[]>([]);
 
   const allQuestions = [...questions, ...customQuestions];
-  const isSelectionFull = selectedQuestionIds.length >= maxSelections;
+  const isSelectionFull = maxSelections !== null && selectedQuestionIds.length >= maxSelections;
 
   const handleQuestionSelect = (questionId: string) => {
     let newSelection: string[];
@@ -73,7 +73,10 @@ export function QuestionSelector({
           Choose Your Questions
         </h2>
         <p className="text-gray-600 text-sm">
-          Select exactly {maxSelections} questions for your room ({selectedQuestionIds.length}/{maxSelections} selected)
+          {maxSelections !== null
+            ? `Select exactly ${maxSelections} questions for your room (${selectedQuestionIds.length}/${maxSelections} selected)`
+            : `Select questions for your room (${selectedQuestionIds.length} selected)`
+          }
         </p>
       </div>
 

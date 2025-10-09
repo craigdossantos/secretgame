@@ -20,12 +20,14 @@ interface QuestionGridProps {
     selfRating: number;
     importance: number;
   }) => void;
+  onSkipQuestion?: (questionId: string) => void;
 }
 
 export function QuestionGrid({
   questions,
   answeredQuestionIds = [],
-  onSubmitAnswer
+  onSubmitAnswer,
+  onSkipQuestion
 }: QuestionGridProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [userSpicinessRatings, setUserSpicinessRatings] = useState<Record<string, number>>({});
@@ -76,6 +78,7 @@ export function QuestionGrid({
               question={question}
               isAnswered={answeredQuestionIds.includes(question.id)}
               onSubmit={onSubmitAnswer}
+              onSkip={onSkipQuestion}
               onRateSpiciness={handleRateSpiciness}
               userSpicinessRating={userSpicinessRatings[question.id] || 0}
             />

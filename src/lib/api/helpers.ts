@@ -1,6 +1,6 @@
 import { createId } from '@paralleldrive/cuid2';
 import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 
 // Generate a unique invite code
 export function generateInviteCode(): string {
@@ -12,6 +12,12 @@ export function generateInviteCode(): string {
 export async function getCurrentUserId(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get('userId')?.value || null;
+}
+
+// Get user ID from cookies in API routes (synchronous version for NextRequest)
+export function getUserIdFromCookies(request: NextRequest): string | null {
+  const userId = request.cookies.get('userId')?.value;
+  return userId || null;
 }
 
 // Set user ID in cookie (temporary solution)
