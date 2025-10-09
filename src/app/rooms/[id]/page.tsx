@@ -405,105 +405,106 @@ export default function RoomPage() {
         </div>
       </div>
 
-      {/* Content */}
+      {/* Content - Unified Feed */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Secrets Section - Always visible */}
-        <div className="mb-12">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Secrets in This Room
-            </h2>
-            <p className="text-gray-600">
-              {secrets.length > 0
-                ? "Your secrets appear unlocked. Others' secrets require unlocking."
-                : "Answer a question below to share your first secret!"}
-            </p>
-          </div>
-          {secrets.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {secrets.map((secret) => (
-                <SecretCard
-                  key={secret.id}
-                  secret={secret}
-                  onUnlock={handleUnlock}
-                  onRate={handleRate}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-              <div className="text-6xl mb-4">🤫</div>
+        {roomQuestions.length === 0 ? (
+          /* No Questions in Room State */
+          <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+            <div className="mb-4">
+              <div className="text-6xl mb-4">❓</div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                No Secrets Yet
+                No Questions Yet
               </h3>
-              <p className="text-gray-600">
-                Be the first to share a secret by answering a question below!
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                {room?.ownerId === currentUserId
+                  ? "Get the conversation started by adding some spicy questions for your group!"
+                  : "Waiting for questions to be added to this room."}
               </p>
             </div>
-          )}
-        </div>
-
-        {/* Question Prompts */}
-        <div className="mb-12">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Answer Questions
-            </h2>
-            {roomQuestions.length > 0 ? (
-              <p className="text-gray-600">
-                Click on any question card to flip it and share your answer as a secret
-              </p>
-            ) : (
-              <p className="text-gray-600">
-                {room?.ownerId === currentUserId
-                  ? "No questions added yet. Click below to select questions for your room."
-                  : "The room owner hasn't added any questions yet."}
-              </p>
+            {room?.ownerId === currentUserId && (
+              <Button
+                onClick={() => router.push(`/admin?room=${roomId}`)}
+                size="lg"
+                className="rounded-xl"
+              >
+                Add Questions to Room
+              </Button>
             )}
           </div>
+        ) : (
+          /* Unified Feed: Questions at top, Secrets below */
+          <div className="space-y-8">
+            {/* Unanswered Questions (3 at a time) */}
+            {displayedQuestions.length > 0 && (
+              <div>
+                <div className="mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Answer Questions to Share Secrets
+                  </h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Click a question to flip it and share your answer
+                  </p>
+                </div>
+                <QuestionGrid
+                  questions={displayedQuestions}
+                  answeredQuestionIds={answeredQuestionIds}
+                  onSubmitAnswer={handleSubmitAnswer}
+                  onSkipQuestion={handleSkipQuestion}
+                />
+              </div>
+            )}
 
-          {displayedQuestions.length > 0 ? (
-            <QuestionGrid
-              questions={displayedQuestions}
-              answeredQuestionIds={answeredQuestionIds}
-              onSubmitAnswer={handleSubmitAnswer}
-              onSkipQuestion={handleSkipQuestion}
-            />
-          ) : roomQuestions.length > 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-              <div className="text-6xl mb-4">🎉</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                All Questions Answered!
-              </h3>
-              <p className="text-gray-600">
-                You&apos;ve answered or skipped all available questions.
-              </p>
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-              <div className="mb-4">
-                <div className="text-6xl mb-4">❓</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  No Questions Yet
+            {/* All Questions Answered State */}
+            {displayedQuestions.length === 0 && roomQuestions.length > 0 && (
+              <div className="text-center py-8 bg-blue-50 rounded-xl border border-blue-200">
+                <div className="text-4xl mb-3">🎉</div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                  All Questions Answered!
                 </h3>
-                <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  {room?.ownerId === currentUserId
-                    ? "Get the conversation started by adding some spicy questions for your group!"
-                    : "Waiting for questions to be added to this room."}
+                <p className="text-sm text-gray-600">
+                  You&apos;ve answered or skipped all available questions.
                 </p>
               </div>
-              {room?.ownerId === currentUserId && (
-                <Button
-                  onClick={() => router.push(`/admin?room=${roomId}`)}
-                  size="lg"
-                  className="rounded-xl"
-                >
-                  Add Questions to Room
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
+            )}
+
+            {/* Secrets Feed */}
+            {secrets.length > 0 && (
+              <div>
+                <div className="mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Secrets ({secrets.length})
+                  </h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Your secrets appear unlocked. Unlock others&apos; by sharing secrets of equal or higher spiciness.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {secrets.map((secret) => (
+                    <SecretCard
+                      key={secret.id}
+                      secret={secret}
+                      onUnlock={handleUnlock}
+                      onRate={handleRate}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* No Secrets Yet State (only if there are questions) */}
+            {secrets.length === 0 && roomQuestions.length > 0 && (
+              <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                <div className="text-6xl mb-4">🤫</div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  No Secrets Yet
+                </h3>
+                <p className="text-gray-600">
+                  Be the first to share a secret by answering a question above!
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Unlock Drawer */}

@@ -20,8 +20,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate question selection
-    if (questionIds.length + customQuestions.length !== 3) {
-      return errorResponse('Exactly 3 questions must be selected');
+    const totalQuestions = questionIds.length + customQuestions.length;
+    if (totalQuestions < 1) {
+      return errorResponse('At least 1 question must be selected');
     }
 
     // Get or create user
