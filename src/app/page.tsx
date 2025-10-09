@@ -6,7 +6,6 @@ import { QuestionSelector } from '@/components/question-selector';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
-import { Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Home() {
@@ -17,12 +16,6 @@ export default function Home() {
   const [userName, setUserName] = useState('');
   const [roomName, setRoomName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  const [createdRoom, setCreatedRoom] = useState<{
-    roomId: string;
-    inviteUrl: string;
-    name: string;
-  } | null>(null);
-  const [isCopied, setIsCopied] = useState(false);
 
   // Load questions on mount
   useEffect(() => {
@@ -96,34 +89,14 @@ export default function Home() {
         return;
       }
 
-      // Show success state
-      setCreatedRoom({
-        roomId: data.roomId,
-        inviteUrl: data.inviteUrl,
-        name: data.name,
-      });
-
+      // Immediately redirect to the room
       toast.success(`Room "${data.name}" created successfully!`);
+      router.push(`/rooms/${data.roomId}`);
     } catch (error) {
       console.error('Failed to create room:', error);
       toast.error('Failed to create room. Please try again.');
     } finally {
       setIsCreating(false);
-    }
-  };
-
-  const handleCopyInviteLink = () => {
-    if (createdRoom) {
-      navigator.clipboard.writeText(createdRoom.inviteUrl);
-      setIsCopied(true);
-      toast.success('Invite link copied to clipboard!');
-      setTimeout(() => setIsCopied(false), 2000);
-    }
-  };
-
-  const handleGoToRoom = () => {
-    if (createdRoom) {
-      router.push(`/rooms/${createdRoom.roomId}`);
     }
   };
 
@@ -139,115 +112,53 @@ export default function Home() {
             </p>
           </div>
 
-          {!createdRoom ? (
-            <div className="flex gap-3 items-end">
-              <div className="flex-1">
-                <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Your Name
-                </label>
-                <Input
-                  id="userName"
-                  placeholder="Enter your name"
-                  value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
-                  className="w-full"
-                  disabled={isCreating}
-                />
-              </div>
-              <div className="flex-1">
-                <label htmlFor="roomName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Room Name
-                </label>
-                <Input
-                  id="roomName"
-                  placeholder="Enter room name"
-                  value={roomName}
-                  onChange={(e) => setRoomName(e.target.value)}
-                  className="w-full"
-                  disabled={isCreating}
-                />
-              </div>
-              <Button
-                onClick={handleCreateRoom}
+          <div className="flex gap-3 items-end">
+            <div className="flex-1">
+              <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-1">
+                Your Name
+              </label>
+              <Input
+                id="userName"
+                placeholder="Enter your name"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                className="w-full"
                 disabled={isCreating}
-                className="rounded-xl px-6 h-10"
-                size="lg"
-              >
-                {isCreating ? 'Creating...' : 'Create Room'}
-              </Button>
+              />
             </div>
-          ) : (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-              <h3 className="font-semibold text-green-900 mb-2">
-                Room &quot;{createdRoom.name}&quot; Created Successfully! 🎉
-              </h3>
-              <div className="flex gap-3 items-center">
-                <div className="flex-1 bg-white rounded-lg p-3 border border-green-300">
-                  <p className="text-sm text-gray-600 mb-1">Invite Link:</p>
-                  <p className="text-sm font-mono text-gray-900 break-all">
-                    {createdRoom.inviteUrl}
-                  </p>
-                </div>
-                <Button
-                  onClick={handleCopyInviteLink}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                >
-                  {isCopied ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4" />
-                      Copy Link
-                    </>
-                  )}
-                </Button>
-                <Button
-                  onClick={handleGoToRoom}
-                  className="rounded-xl"
-                >
-                  Go to Room →
-                </Button>
-              </div>
+            <div className="flex-1">
+              <label htmlFor="roomName" className="block text-sm font-medium text-gray-700 mb-1">
+                Room Name
+              </label>
+              <Input
+                id="roomName"
+                placeholder="Enter room name"
+                value={roomName}
+                onChange={(e) => setRoomName(e.target.value)}
+                className="w-full"
+                disabled={isCreating}
+              />
             </div>
-          )}
+            <Button
+              onClick={handleCreateRoom}
+              disabled={isCreating}
+              className="rounded-xl px-6 h-10"
+              size="lg"
+            >
+              {isCreating ? 'Creating...' : 'Create Room'}
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Main Content - Question Selection */}
       <main className="max-w-7xl mx-auto p-6">
-        {!createdRoom && (
-          <QuestionSelector
-            questions={allQuestions}
-            selectedQuestionIds={selectedQuestionIds}
-            onSelectionChange={handleSelectionChange}
-            maxSelections={null}
-          />
-        )}
-
-        {createdRoom && (
-          <div className="text-center py-12">
-            <p className="text-gray-600 mb-4">
-              Your room is ready! Share the invite link with your friends to get started.
-            </p>
-            <Button
-              onClick={() => {
-                setCreatedRoom(null);
-                setSelectedQuestionIds([]);
-                setCustomQuestions([]);
-                setUserName('');
-                setRoomName('');
-              }}
-              variant="outline"
-              className="rounded-xl"
-            >
-              Create Another Room
-            </Button>
-          </div>
-        )}
+        <QuestionSelector
+          questions={allQuestions}
+          selectedQuestionIds={selectedQuestionIds}
+          onSelectionChange={handleSelectionChange}
+          maxSelections={null}
+        />
       </main>
     </div>
   );

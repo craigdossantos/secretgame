@@ -7,7 +7,7 @@ import { SecretCard } from '@/components/secret-card';
 import { UnlockDrawer } from '@/components/unlock-drawer';
 import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, Share2 } from 'lucide-react';
+import { ArrowLeft, Users, Copy, Check } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
@@ -50,6 +50,7 @@ export default function RoomPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [unlockDrawerOpen, setUnlockDrawerOpen] = useState(false);
   const [selectedSecretToUnlock, setSelectedSecretToUnlock] = useState<Secret | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
 
   // Load room data and questions
   useEffect(() => {
@@ -335,7 +336,9 @@ export default function RoomPage() {
     if (room) {
       const inviteUrl = `${window.location.origin}/invite/${room.inviteCode}`;
       await navigator.clipboard.writeText(inviteUrl);
+      setIsCopied(true);
       toast.success('Invite link copied to clipboard!');
+      setTimeout(() => setIsCopied(false), 2000);
     }
   };
 
@@ -370,7 +373,8 @@ export default function RoomPage() {
       {/* Header */}
       <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+          {/* Top row: Title and back button */}
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
@@ -392,16 +396,39 @@ export default function RoomPage() {
                 </div>
               </div>
             </div>
-            <Button
-              onClick={copyInviteLink}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Share2 className="w-4 h-4" />
-              Invite Friends
-            </Button>
           </div>
+
+          {/* Invite link card */}
+          {room && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <p className="text-xs text-blue-700 font-medium mb-1">Invite Friends</p>
+                  <p className="text-sm font-mono text-gray-900 break-all">
+                    {`${window.location.origin}/invite/${room.inviteCode}`}
+                  </p>
+                </div>
+                <Button
+                  onClick={copyInviteLink}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2 shrink-0 bg-white"
+                >
+                  {isCopied ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      Copy
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
