@@ -17,10 +17,14 @@ import { ChiliRating } from '@/components/chili-rating';
 import {
   QuestionPrompt,
   QuestionCategory,
+  QuestionType,
   QUESTION_CATEGORIES,
+  QUESTION_TYPE_LABELS,
+  QUESTION_TYPE_DESCRIPTIONS,
   createNewQuestion,
   categoryToTag,
   getTagStyles,
+  getDefaultAnswerConfig,
   Tag
 } from '@/lib/questions';
 
@@ -37,6 +41,7 @@ export function CustomQuestionModal({
 }: CustomQuestionModalProps) {
   const [questionText, setQuestionText] = useState('');
   const [category, setCategory] = useState<QuestionCategory>('Personal');
+  const [questionType, setQuestionType] = useState<QuestionType>('text');
   const [spiciness, setSpiciness] = useState(3);
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [isCreating, setIsCreating] = useState(false);
@@ -68,11 +73,16 @@ export function CustomQuestionModal({
         additionalTags
       );
 
+      // Add question type and answer config
+      newQuestion.questionType = questionType;
+      newQuestion.answerConfig = getDefaultAnswerConfig(questionType);
+
       onCreateQuestion(newQuestion);
 
       // Reset form
       setQuestionText('');
       setCategory('Personal');
+      setQuestionType('text');
       setSpiciness(3);
       setDifficulty('medium');
     } catch {
@@ -87,6 +97,7 @@ export function CustomQuestionModal({
 
     setQuestionText('');
     setCategory('Personal');
+    setQuestionType('text');
     setSpiciness(3);
     setDifficulty('medium');
     setError('');
@@ -101,6 +112,29 @@ export function CustomQuestionModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Question Type Selection */}
+          <div className="space-y-2">
+            <Label>Question Type *</Label>
+            <Select value={questionType} onValueChange={(value: QuestionType) => setQuestionType(value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(QUESTION_TYPE_LABELS) as QuestionType[]).map((type) => (
+                  <SelectItem key={type} value={type}>
+                    <div className="flex flex-col gap-1">
+                      <span className="font-medium">{QUESTION_TYPE_LABELS[type]}</span>
+                      <span className="text-xs text-gray-500">{QUESTION_TYPE_DESCRIPTIONS[type]}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-gray-500">
+              {QUESTION_TYPE_DESCRIPTIONS[questionType]}
+            </p>
+          </div>
+
           {/* Question Text */}
           <div className="space-y-2">
             <Label htmlFor="question-text">Question *</Label>
@@ -189,12 +223,15 @@ export function CustomQuestionModal({
                   {questionText.trim()}
                 </p>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Badge
                       variant="outline"
                       className={`text-xs ${getTagStyles(categoryToTag(category))}`}
                     >
                       {category}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs bg-purple-100 text-purple-800 border-purple-200">
+                      {QUESTION_TYPE_LABELS[questionType]}
                     </Badge>
                     <Badge variant="outline" className="text-xs bg-gray-100 text-gray-800 border-gray-200">
                       Custom
