@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { RatingStars } from '@/components/rating-stars';
+import { SecretAnswerDisplay } from '@/components/secret-answer-display';
+import { SliderConfig } from '@/lib/questions';
 
 interface Secret {
   id: string;
@@ -21,6 +23,10 @@ interface Secret {
   createdAt: string; // ISO string from API
   isUnlocked?: boolean;
   questionText?: string;
+  // Typed answer support
+  answerType?: string;
+  answerData?: unknown;
+  questionConfig?: unknown; // Store original question config for display context
 }
 
 interface SecretCardProps {
@@ -104,9 +110,12 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
 
           {/* Answer */}
           {secret.isUnlocked ? (
-            <p className="text-gray-800 leading-relaxed">
-              {secret.body}
-            </p>
+            <SecretAnswerDisplay
+              answerType={secret.answerType || 'text'}
+              answerData={secret.answerData}
+              body={secret.body}
+              config={secret.questionConfig as SliderConfig | undefined}
+            />
           ) : (
             <div className="relative">
               <p className="text-gray-800 leading-relaxed blur-sm select-none">

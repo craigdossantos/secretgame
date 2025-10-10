@@ -10,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { ChiliRating } from '@/components/chili-rating';
-import { QuestionPrompt, getTagStyles } from '@/lib/questions';
+import { AnswerInputSlider } from '@/components/answer-input-slider';
+import { QuestionPrompt, getTagStyles, SliderConfig } from '@/lib/questions';
 
 interface QuestionCardProps {
   question: QuestionPrompt;
@@ -18,7 +19,9 @@ interface QuestionCardProps {
     questionId: string;
     body: string;
     selfRating: number;
-    importance: number
+    importance: number;
+    answerType?: string;
+    answerData?: unknown;
   }) => void;
   onSkip?: (questionId: string) => void;
   onRateSpiciness?: (questionId: string, spiciness: number) => void;
@@ -41,8 +44,20 @@ export function QuestionCard({
   const [importance, setImportance] = useState(3);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Slider-specific state
+  const questionType = question.questionType || 'text';
+  const sliderConfig = questionType === 'slider' && question.answerConfig?.type === 'slider'
+    ? question.answerConfig.config
+    : { min: 1, max: 10, minLabel: 'Low', maxLabel: 'High', step: 1 };
+  const [sliderValue, setSliderValue] = useState(
+    questionType === 'slider' ? Math.floor((sliderConfig.min + sliderConfig.max) / 2) : 1
+  );
+
   const wordCount = body.trim().split(/\s+/).filter(word => word.length > 0).length;
   const isValidWordCount = wordCount <= 100 && wordCount > 0;
+
+  // Validation based on question type
+  const isValidAnswer = questionType === 'text' ? isValidWordCount : true;
 
   const handleFlip = () => {
     // Allow flipping even if answered (for editing)
@@ -55,16 +70,34 @@ export function QuestionCard({
   };
 
   const handleSubmit = async () => {
-    if (!isValidWordCount) return;
+    if (!isValidAnswer) return;
 
     setIsSubmitting(true);
     try {
-      await onSubmit?.({
+      // Build answer based on question type
+      const answer: {
+        questionId: string;
+        body: string;
+        selfRating: number;
+        importance: number;
+        answerType?: string;
+        answerData?: unknown;
+      } = {
         questionId: question.id,
-        body: body.trim(),
+        body: questionType === 'slider' ? `Slider answer: ${sliderValue}` : body.trim(),
         selfRating,
         importance,
-      });
+      };
+
+      // Add typed answer data
+      if (questionType === 'slider') {
+        answer.answerType = 'slider';
+        answer.answerData = { value: sliderValue };
+      } else {
+        answer.answerType = 'text';
+      }
+
+      await onSubmit?.(answer);
 
       // Don't reset - keep form filled for potential edits
       // Just flip back to front
@@ -202,22 +235,31 @@ export function QuestionCard({
 
             {/* Answer Form */}
             <div className="flex-1 space-y-4 overflow-y-auto">
-              {/* Answer Textarea */}
-              <div className="space-y-2">
-                <Label htmlFor="answer-body" className="text-xs">Your Answer</Label>
-                <Textarea
-                  id="answer-body"
-                  placeholder="Share your honest answer..."
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  className="min-h-[80px] resize-none text-sm"
+              {/* Conditional Answer Input based on Question Type */}
+              {questionType === 'slider' ? (
+                <AnswerInputSlider
+                  config={sliderConfig as SliderConfig}
+                  value={sliderValue}
+                  onChange={setSliderValue}
                 />
-                <div className="text-xs text-right">
-                  <span className={wordCount > 100 ? 'text-red-500' : 'text-gray-500'}>
-                    {wordCount}/100 words
-                  </span>
+              ) : (
+                /* Text Answer Textarea */
+                <div className="space-y-2">
+                  <Label htmlFor="answer-body" className="text-xs">Your Answer</Label>
+                  <Textarea
+                    id="answer-body"
+                    placeholder="Share your honest answer..."
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    className="min-h-[80px] resize-none text-sm"
+                  />
+                  <div className="text-xs text-right">
+                    <span className={wordCount > 100 ? 'text-red-500' : 'text-gray-500'}>
+                      {wordCount}/100 words
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Rating Sliders */}
               <div className="space-y-3">
@@ -250,7 +292,7 @@ export function QuestionCard({
             {/* Submit Button */}
             <Button
               onClick={handleSubmit}
-              disabled={!isValidWordCount || isSubmitting}
+              disabled={!isValidAnswer || isSubmitting}
               className="w-full rounded-xl h-10 text-sm font-medium mt-4"
               size="sm"
             >

@@ -9,6 +9,8 @@ interface SecretSubmitBody {
   body: string;
   selfRating: number;
   importance: number;
+  answerType?: string;
+  answerData?: unknown;
 }
 
 export async function POST(request: NextRequest) {
@@ -21,21 +23,23 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const data: SecretSubmitBody = await request.json();
-    const { roomId, questionId, body, selfRating, importance } = data;
+    const { roomId, questionId, body, selfRating, importance, answerType, answerData } = data;
 
     // Validate required fields
     if (!roomId || !questionId || !body || selfRating === undefined || importance === undefined) {
       return errorResponse('Missing required fields', 400);
     }
 
-    // Validate word count (≤100 words)
-    const wordCount = body.trim().split(/\s+/).filter(word => word.length > 0).length;
-    if (wordCount > 100) {
-      return errorResponse('Secret must be 100 words or less', 400);
-    }
+    // Validate word count (≤100 words) for text answers only
+    if (!answerType || answerType === 'text') {
+      const wordCount = body.trim().split(/\s+/).filter(word => word.length > 0).length;
+      if (wordCount > 100) {
+        return errorResponse('Secret must be 100 words or less', 400);
+      }
 
-    if (wordCount === 0) {
-      return errorResponse('Secret cannot be empty', 400);
+      if (wordCount === 0) {
+        return errorResponse('Secret cannot be empty', 400);
+      }
     }
 
     // Validate ratings (1-5)
@@ -67,6 +71,8 @@ export async function POST(request: NextRequest) {
         body: body.trim(),
         selfRating,
         importance,
+        answerType: answerType || 'text',
+        answerData,
       });
 
       return successResponse({
@@ -76,6 +82,8 @@ export async function POST(request: NextRequest) {
           body: body.trim(),
           selfRating,
           importance,
+          answerType: answerType || 'text',
+          answerData,
         },
       });
     } else {
@@ -95,6 +103,8 @@ export async function POST(request: NextRequest) {
         createdAt: now,
         isHidden: false,
         questionId, // Store questionId for filtering
+        answerType: answerType || 'text',
+        answerData,
       };
 
       await mockDb.insertSecret(newSecret);
