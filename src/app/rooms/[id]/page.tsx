@@ -2,14 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { QuestionGrid } from '@/components/question-grid';
+import { QuestionCard } from '@/components/question-card';
 import { SecretCard } from '@/components/secret-card';
 import { UnlockDrawer } from '@/components/unlock-drawer';
+import { CustomQuestionModal } from '@/components/custom-question-modal';
 import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Users, Copy, Check } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { ArrowLeft, Users, Copy, Check, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 
 interface Room {
   id: string;
@@ -32,6 +35,7 @@ interface Secret {
   createdAt: string; // ISO string from API
   isUnlocked?: boolean;
   questionId?: string;
+  questionText?: string;
 }
 
 export default function RoomPage() {
@@ -51,6 +55,8 @@ export default function RoomPage() {
   const [unlockDrawerOpen, setUnlockDrawerOpen] = useState(false);
   const [selectedSecretToUnlock, setSelectedSecretToUnlock] = useState<Secret | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [isCustomQuestionModalOpen, setIsCustomQuestionModalOpen] = useState(false);
+  const [userSpicinessRatings, setUserSpicinessRatings] = useState<Record<string, number>>({});
 
   // Load room data and questions
   useEffect(() => {
@@ -342,6 +348,63 @@ export default function RoomPage() {
     }
   };
 
+  const handleRateSpiciness = (questionId: string, spiciness: number) => {
+    setUserSpicinessRatings(prev => ({
+      ...prev,
+      [questionId]: spiciness
+    }));
+  };
+
+  const handleCreateCustomQuestion = async (customQuestion: QuestionPrompt) => {
+    try {
+      const response = await fetch(`/api/rooms/${roomId}/questions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: customQuestion.question,
+          category: customQuestion.category,
+          suggestedLevel: customQuestion.suggestedLevel,
+          difficulty: customQuestion.difficulty || 'medium',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to add custom question');
+      }
+
+      const data = await response.json();
+      toast.success('Custom question added to room!');
+
+      // Add the new question to roomQuestions
+      const newQuestion: QuestionPrompt = {
+        id: data.question.id,
+        question: data.question.question,
+        category: data.question.category,
+        suggestedLevel: data.question.suggestedLevel,
+        difficulty: data.question.difficulty,
+        tags: [{ name: data.question.category.toLowerCase(), type: 'category' as const }],
+        archived: false,
+        createdAt: data.question.createdAt,
+        updatedAt: data.question.createdAt
+      };
+
+      setRoomQuestions(prev => [...prev, newQuestion]);
+
+      // If there are less than 3 displayed questions, add it to displayed
+      if (displayedQuestions.length < 3) {
+        setDisplayedQuestions(prev => [...prev, newQuestion]);
+      }
+
+      setIsCustomQuestionModalOpen(false);
+    } catch (error) {
+      console.error('Failed to add custom question:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to add custom question');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -472,12 +535,48 @@ export default function RoomPage() {
                     Click a question to flip it and share your answer
                   </p>
                 </div>
-                <QuestionGrid
-                  questions={displayedQuestions}
-                  answeredQuestionIds={answeredQuestionIds}
-                  onSubmitAnswer={handleSubmitAnswer}
-                  onSkipQuestion={handleSkipQuestion}
-                />
+
+                {/* Question Cards Grid - 3 columns */}
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-4">
+                  {displayedQuestions.map((question) => (
+                    <QuestionCard
+                      key={question.id}
+                      question={question}
+                      isAnswered={answeredQuestionIds.includes(question.id)}
+                      onSubmit={handleSubmitAnswer}
+                      onSkip={handleSkipQuestion}
+                      onRateSpiciness={handleRateSpiciness}
+                      userSpicinessRating={userSpicinessRatings[question.id] || 0}
+                    />
+                  ))}
+                </div>
+
+                {/* Custom Question Banner - Full width */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ y: -2 }}
+                  className="w-full"
+                >
+                  <Card
+                    className="relative w-full rounded-2xl p-5 border-2 border-dashed border-gray-300 bg-white hover:border-blue-400 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)] transition-all duration-200 cursor-pointer"
+                    onClick={() => setIsCustomQuestionModalOpen(true)}
+                  >
+                    <div className="flex items-center justify-center gap-4">
+                      <div className="rounded-full p-3 bg-blue-50">
+                        <Plus className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-gray-900">
+                          Create Custom Question
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Add your own question to the room
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                </motion.div>
               </div>
             )}
 
@@ -518,16 +617,35 @@ export default function RoomPage() {
               </div>
             )}
 
-            {/* No Secrets Yet State (only if there are questions) */}
+            {/* No Secrets Yet State - Show Example */}
             {secrets.length === 0 && roomQuestions.length > 0 && (
-              <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                <div className="text-6xl mb-4">🤫</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  No Secrets Yet
-                </h3>
-                <p className="text-gray-600">
-                  Be the first to share a secret by answering a question above!
-                </p>
+              <div>
+                <div className="mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Secrets (0)
+                  </h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Example of how secrets will appear - answer a question to share yours!
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <SecretCard
+                    secret={{
+                      id: 'example-secret',
+                      body: 'This is an example of a locked secret. The actual content is hidden until you unlock it by sharing a secret of equal or higher spiciness level. Secrets keep the conversation interesting and build trust in your group!',
+                      selfRating: 3,
+                      importance: 4,
+                      avgRating: null,
+                      buyersCount: 0,
+                      authorName: 'Example User',
+                      createdAt: new Date().toISOString(),
+                      isUnlocked: false,
+                      questionText: displayedQuestions[0]?.question || 'What\'s something you\'ve never told anyone?'
+                    }}
+                    onUnlock={() => {}}
+                    onRate={() => {}}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -543,6 +661,13 @@ export default function RoomPage() {
           onSubmit={handleUnlockSubmit}
         />
       )}
+
+      {/* Custom Question Modal */}
+      <CustomQuestionModal
+        isOpen={isCustomQuestionModalOpen}
+        onClose={() => setIsCustomQuestionModalOpen(false)}
+        onCreateQuestion={handleCreateCustomQuestion}
+      />
     </div>
   );
 }

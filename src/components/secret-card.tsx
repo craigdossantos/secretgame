@@ -20,6 +20,7 @@ interface Secret {
   authorAvatar?: string;
   createdAt: string; // ISO string from API
   isUnlocked?: boolean;
+  questionText?: string;
 }
 
 interface SecretCardProps {
@@ -91,7 +92,17 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
         </div>
 
         {/* Content */}
-        <div className="mb-4">
+        <div className="mb-4 space-y-3">
+          {/* Question Text */}
+          {secret.questionText && (
+            <div className="pb-2 border-b border-gray-100">
+              <p className="text-sm font-semibold text-gray-900 leading-snug">
+                {secret.questionText}
+              </p>
+            </div>
+          )}
+
+          {/* Answer */}
           {secret.isUnlocked ? (
             <p className="text-gray-800 leading-relaxed">
               {secret.body}

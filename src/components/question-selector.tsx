@@ -111,7 +111,7 @@ export function QuestionSelector({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           whileHover={{ y: -4 }}
-          className="h-[280px]"
+          className="h-[280px] order-first"
         >
           <Card
             className={`relative w-full h-full rounded-2xl p-5 border-2 border-dashed transition-all duration-200 cursor-pointer ${
