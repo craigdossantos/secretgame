@@ -60,6 +60,8 @@ export function QuestionCard({
   const isValidAnswer = questionType === 'text' ? isValidWordCount : true;
 
   const handleFlip = () => {
+    // Don't flip for slider questions - they answer inline
+    if (questionType === 'slider') return;
     // Allow flipping even if answered (for editing)
     setIsFlipped(!isFlipped);
   };
@@ -111,6 +113,88 @@ export function QuestionCard({
 
 
 
+  // Slider questions don't flip - render differently
+  if (questionType === 'slider') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -4 }}
+        className="h-[380px]"
+        data-testid="question-card"
+        data-category={question.category}
+      >
+        <Card className="w-full h-full rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white border-gray-200 transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]">
+          {/* Skip Button */}
+          {!isAnswered && onSkip && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSkip}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xs"
+            >
+              Skip →
+            </Button>
+          )}
+
+          <div className="h-full flex flex-col">
+            {/* Question Text */}
+            <div className="mb-4">
+              <p className="text-gray-900 leading-relaxed text-center text-base font-medium">
+                {question.question}
+              </p>
+            </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-1 justify-center mb-4">
+              {question.tags?.map((tag, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className={`text-xs ${getTagStyles(tag)}`}
+                >
+                  {tag.name}
+                </Badge>
+              ))}
+            </div>
+
+            {/* Slider Answer Input - Inline */}
+            <div className="flex-1 mb-4" onClick={(e) => e.stopPropagation()}>
+              <AnswerInputSlider
+                config={sliderConfig as SliderConfig}
+                value={sliderValue}
+                onChange={setSliderValue}
+              />
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="w-full rounded-xl h-10 text-sm font-medium"
+              size="sm"
+            >
+              {isSubmitting ? (
+                'Submitting...'
+              ) : isAnswered ? (
+                <>
+                  <Send className="w-3 h-3 mr-2" />
+                  Update Answer
+                </>
+              ) : (
+                <>
+                  <Send className="w-3 h-3 mr-2" />
+                  Submit Answer
+                </>
+              )}
+            </Button>
+          </div>
+        </Card>
+      </motion.div>
+    );
+  }
+
+  // Text questions use flip card
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -235,31 +319,22 @@ export function QuestionCard({
 
             {/* Answer Form */}
             <div className="flex-1 space-y-4 overflow-y-auto">
-              {/* Conditional Answer Input based on Question Type */}
-              {questionType === 'slider' ? (
-                <AnswerInputSlider
-                  config={sliderConfig as SliderConfig}
-                  value={sliderValue}
-                  onChange={setSliderValue}
+              {/* Text Answer Textarea - Only text questions use flip cards */}
+              <div className="space-y-2">
+                <Label htmlFor="answer-body" className="text-xs">Your Answer</Label>
+                <Textarea
+                  id="answer-body"
+                  placeholder="Share your honest answer..."
+                  value={body}
+                  onChange={(e) => setBody(e.target.value)}
+                  className="min-h-[80px] resize-none text-sm"
                 />
-              ) : (
-                /* Text Answer Textarea */
-                <div className="space-y-2">
-                  <Label htmlFor="answer-body" className="text-xs">Your Answer</Label>
-                  <Textarea
-                    id="answer-body"
-                    placeholder="Share your honest answer..."
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    className="min-h-[80px] resize-none text-sm"
-                  />
-                  <div className="text-xs text-right">
-                    <span className={wordCount > 100 ? 'text-red-500' : 'text-gray-500'}>
-                      {wordCount}/100 words
-                    </span>
-                  </div>
+                <div className="text-xs text-right">
+                  <span className={wordCount > 100 ? 'text-red-500' : 'text-gray-500'}>
+                    {wordCount}/100 words
+                  </span>
                 </div>
-              )}
+              </div>
 
               {/* Rating Sliders */}
               <div className="space-y-3">
