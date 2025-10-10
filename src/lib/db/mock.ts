@@ -96,6 +96,13 @@ class MockDatabase {
     return Array.from(this.rooms.values()).find(r => r.inviteCode === inviteCode);
   }
 
+  async updateRoom(id: string, updates: Partial<Room>): Promise<void> {
+    const room = this.rooms.get(id);
+    if (room) {
+      this.rooms.set(id, { ...room, ...updates });
+    }
+  }
+
   // Room Members
   async insertRoomMember(member: RoomMember): Promise<void> {
     const key = `${member.roomId}:${member.userId}`;

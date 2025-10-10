@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { mockDb } from '@/lib/db/mock';
 import { successResponse, errorResponse, getUserIdFromCookies } from '@/lib/api/helpers';
+import { parseQuestions } from '@/lib/questions';
 
 export async function GET(
   request: NextRequest,
@@ -40,6 +41,30 @@ export async function GET(
       return secret.questionId && validQuestionIds.includes(secret.questionId);
     });
 
+    // Load questions to get question text
+    const questionsMap = new Map<string, string>();
+
+    // Add custom questions from room
+    if (room.customQuestions) {
+      room.customQuestions.forEach(q => {
+        questionsMap.set(q.id, q.question);
+      });
+    }
+
+    // Load regular questions from markdown
+    try {
+      const questionsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/questions.md`);
+      if (questionsResponse.ok) {
+        const markdownContent = await questionsResponse.text();
+        const parsedQuestions = parseQuestions(markdownContent);
+        parsedQuestions.forEach(q => {
+          questionsMap.set(q.id, q.question);
+        });
+      }
+    } catch (error) {
+      console.warn('Could not load questions.md, question text will be missing');
+    }
+
     // For each secret, check if current user has access
     const userSecretAccess = await mockDb.findUserSecretAccess(userId);
     const unlockedSecretIds = new Set(userSecretAccess.map(access => access.secretId));
@@ -64,6 +89,7 @@ export async function GET(
           createdAt: secret.createdAt.toISOString(), // Convert Date to ISO string for JSON
           isUnlocked,
           questionId: secret.questionId,
+          questionText: secret.questionId ? questionsMap.get(secret.questionId) : undefined,
         };
       })
     );
