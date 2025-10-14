@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brutalist Bold - Room Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial Black', 'Arial Bold', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #000000;
+        }
+
+        .header {
+            background: #000000;
+            color: #ffffff;
+            border: 8px solid #000000;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 20px;
+            right: 20px;
+            height: 20px;
+            background: #ff00ff;
+            z-index: -1;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: #ffffff;
+            border: 4px solid #000000;
+            color: #000000;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0.5rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            box-shadow: 8px 8px 0 #ff00ff;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            letter-spacing: -0.03em;
+            color: #ffffff;
+            text-shadow: 4px 4px 0 #ff00ff;
+        }
+
+        .member-badge {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: #00ff00;
+            border: 4px solid #000000;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #000000;
+            text-transform: uppercase;
+        }
+
+        .invite-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: #ffff00;
+            border: 6px solid #000000;
+            position: relative;
+        }
+
+        .invite-section::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: 10px;
+            bottom: 10px;
+            border: 4px solid #00ffff;
+            z-index: -1;
+        }
+
+        .invite-label {
+            font-size: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .invite-url {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: #ffffff;
+            padding: 1rem;
+            border: 3px solid #000000;
+            margin-bottom: 1rem;
+        }
+
+        .copy-btn {
+            background: #ff00ff;
+            color: #ffffff;
+            border: 4px solid #000000;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 900;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 6px 6px 0 #000000;
+            transition: all 0.1s;
+        }
+
+        .copy-btn:active {
+            box-shadow: 3px 3px 0 #000000;
+            transform: translate(3px, 3px);
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            color: #000000;
+            border-left: 12px solid #ff00ff;
+            padding-left: 1rem;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            margin-left: calc(1rem + 12px);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2rem;
+            margin-bottom: 5rem;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 6px solid #000000;
+            padding: 2.5rem;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 12px 12px 0 #000000;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 16px 16px 0 #000000;
+        }
+
+        .card:nth-child(1) { background: #ff00ff; }
+        .card:nth-child(2) { background: #00ff00; }
+        .card:nth-child(3) { background: #00ffff; }
+
+        .question-text {
+            font-size: 1.4rem;
+            line-height: 1.4;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 4px solid #000000;
+            padding-top: 1rem;
+        }
+
+        .tag {
+            font-size: 0.9rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            background: #ffffff;
+            padding: 0.5rem 1rem;
+            border: 3px solid #000000;
+        }
+
+        .spiciness {
+            font-size: 1.5rem;
+        }
+
+        .add-question-card {
+            background: #ffff00;
+            border: 6px dashed #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 12px 12px 0 #000000;
+        }
+
+        .add-question-card:hover {
+            transform: translate(-4px, -4px);
+            box-shadow: 16px 16px 0 #000000;
+        }
+
+        .add-icon {
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .add-text {
+            font-size: 1.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .secret-card {
+            background: #ffffff;
+            border: 6px solid #000000;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: 12px 12px 0 #000000;
+        }
+
+        .secret-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: #ff00ff;
+        }
+
+        .secret-author {
+            font-size: 0.9rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+
+        .secret-question {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: #ffff00;
+            padding: 0.75rem;
+            border: 3px solid #000000;
+        }
+
+        .secret-body {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 4px solid #000000;
+        }
+
+        .rating {
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        .unlock-btn {
+            background: #ff00ff;
+            border: 4px solid #000000;
+            color: #000000;
+            padding: 0.75rem 2rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            box-shadow: 6px 6px 0 #000000;
+        }
+
+        .unlock-btn:active {
+            box-shadow: 3px 3px 0 #000000;
+            transform: translate(3px, 3px);
+        }
+
+        .locked-overlay {
+            background: rgba(255, 255, 255, 0.95);
+            border: 4px solid #000000;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .lock-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn">←</button>
+            <h1>SECRETS</h1>
+            <div class="member-badge">8 MEMBERS</div>
+
+            <div class="invite-section">
+                <div class="invite-label">INVITE LINK</div>
+                <div class="invite-url">localhost:3000/invite/abc123xyz</div>
+                <button class="copy-btn">COPY</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="section-title">QUESTIONS</h2>
+        <p class="section-subtitle">ANSWER TO UNLOCK SECRETS</p>
+
+        <div class="grid">
+            <div class="card">
+                <div class="question-text">WHAT'S YOUR SECRET TALENT?</div>
+                <div class="card-footer">
+                    <span class="tag">GROWTH</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">MOST EMBARRASSING MOMENT?</div>
+                <div class="card-footer">
+                    <span class="tag">SOCIAL</span>
+                    <span class="spiciness">🌶️🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">UNPOPULAR OPINION?</div>
+                <div class="card-footer">
+                    <span class="tag">BELIEFS</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="add-question-card">
+                <div style="text-align: center;">
+                    <div class="add-icon">+</div>
+                    <div class="add-text">NEW QUESTION</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">SECRETS</h2>
+        <p class="section-subtitle">3 TOTAL · YOUR SECRETS UNLOCKED</p>
+
+        <div class="grid">
+            <div class="secret-card">
+                <div class="secret-author">SARAH M. · 2H AGO</div>
+                <div class="secret-question">"WHAT'S YOUR SECRET TALENT?"</div>
+                <div class="secret-body">I CAN SOLVE A RUBIK'S CUBE IN UNDER 30 SECONDS BUT NEVER TOLD ANYONE.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️</div>
+                    <div class="rating">⭐ 4.2</div>
+                </div>
+            </div>
+
+            <div class="secret-card" style="position: relative;">
+                <div class="secret-author">ANON · 1D AGO</div>
+                <div class="secret-question">"BIGGEST FEAR?"</div>
+                <div class="secret-body" style="filter: blur(8px);">LOCKED CONTENT APPEARS HERE WHEN YOU UNLOCK IT...</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️🌶️🌶️</div>
+                    <div class="rating">3 UNLOCKS</div>
+                </div>
+                <div class="locked-overlay">
+                    <div class="lock-icon">🔒</div>
+                    <button class="unlock-btn">UNLOCK</button>
+                </div>
+            </div>
+
+            <div class="secret-card">
+                <div class="secret-author">MICHAEL K. · 3D AGO</div>
+                <div class="secret-question">"UNPOPULAR OPINION?"</div>
+                <div class="secret-body">PINEAPPLE ON PIZZA IS THE GREATEST FOOD COMBO EVER. FIGHT ME.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️</div>
+                    <div class="rating">⭐ 3.8</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Zen - Room Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom, #fafafa 0%, #f5f5f5 100%);
+            min-height: 100vh;
+            color: #1a1a1a;
+        }
+
+        .header {
+            background: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 3rem 2rem 2rem;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 2rem;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            display: inline-block;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+
+        .member-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: #f5f5f5;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .invite-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 0;
+        }
+
+        .invite-label {
+            font-size: 0.85rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+        }
+
+        .invite-url {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            color: #1a1a1a;
+            margin-bottom: 1rem;
+        }
+
+        .copy-btn {
+            background: #1a1a1a;
+            color: #ffffff;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            letter-spacing: 0.05em;
+            transition: opacity 0.2s;
+        }
+
+        .copy-btn:hover {
+            opacity: 0.8;
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+
+        .section-subtitle {
+            font-size: 0.95rem;
+            color: #999;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 3rem;
+            margin-bottom: 5rem;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            padding: 3rem 2.5rem;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: #1a1a1a;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: #1a1a1a;
+            font-weight: 300;
+            margin-bottom: 2rem;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .spiciness {
+            font-size: 1.2rem;
+        }
+
+        .add-question-card {
+            background: #fafafa;
+            border: 2px dashed #d0d0d0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .add-question-card:hover {
+            background: #f5f5f5;
+            border-color: #1a1a1a;
+        }
+
+        .add-icon {
+            font-size: 3rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .add-text {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 300;
+        }
+
+        .secret-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .secret-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, #1a1a1a 0%, #999 100%);
+        }
+
+        .secret-author {
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 1.5rem;
+        }
+
+        .secret-question {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .secret-body {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #1a1a1a;
+            margin-bottom: 2rem;
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .rating {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .unlock-btn {
+            background: none;
+            border: 1px solid #1a1a1a;
+            color: #1a1a1a;
+            padding: 0.5rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            transition: all 0.2s;
+        }
+
+        .unlock-btn:hover {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .locked-overlay {
+            background: rgba(255, 255, 255, 0.9);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .lock-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn">←</button>
+            <h1>Friend Circle Secrets</h1>
+            <div class="member-badge">8 members</div>
+
+            <div class="invite-section">
+                <div class="invite-label">Invite Link</div>
+                <div class="invite-url">localhost:3000/invite/abc123xyz</div>
+                <button class="copy-btn">COPY</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="section-title">Answer Questions to Share Secrets</h2>
+        <p class="section-subtitle">Click a question to flip it and share your answer</p>
+
+        <div class="grid">
+            <div class="card">
+                <div class="question-text">What's a secret talent you have that nobody knows about?</div>
+                <div class="card-footer">
+                    <span class="tag">Personal Growth</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's the most embarrassing thing that happened to you in public?</div>
+                <div class="card-footer">
+                    <span class="tag">Social</span>
+                    <span class="spiciness">🌶️🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's something you believe that most people disagree with?</div>
+                <div class="card-footer">
+                    <span class="tag">Beliefs</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="add-question-card">
+                <div style="text-align: center;">
+                    <div class="add-icon">+</div>
+                    <div class="add-text">Create Custom Question</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Secrets (3)</h2>
+        <p class="section-subtitle">Your secrets appear unlocked. Unlock others' by sharing secrets of equal or higher spiciness.</p>
+
+        <div class="grid">
+            <div class="secret-card">
+                <div class="secret-author">Sarah M. · 2 hours ago</div>
+                <div class="secret-question">"What's a secret talent you have?"</div>
+                <div class="secret-body">I can solve a Rubik's cube in under 30 seconds, but I've never told anyone because I don't want to be seen as a show-off.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️ self-rated</div>
+                    <div class="rating">⭐ 4.2 avg</div>
+                </div>
+            </div>
+
+            <div class="secret-card" style="position: relative;">
+                <div class="secret-author">Anonymous · 1 day ago</div>
+                <div class="secret-question">"What's your biggest fear?"</div>
+                <div class="secret-body" style="filter: blur(8px);">This content is locked until you share a secret of equal or higher spiciness level...</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️🌶️🌶️ self-rated</div>
+                    <div class="rating">3 unlocks</div>
+                </div>
+                <div class="locked-overlay">
+                    <div class="lock-icon">🔒</div>
+                    <button class="unlock-btn">UNLOCK</button>
+                </div>
+            </div>
+
+            <div class="secret-card">
+                <div class="secret-author">Michael K. · 3 days ago</div>
+                <div class="secret-question">"What's something you believe?"</div>
+                <div class="secret-body">I genuinely think pineapple on pizza is one of the greatest food combinations ever invented. Fight me.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️ self-rated</div>
+                    <div class="rating">⭐ 3.8 avg</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
