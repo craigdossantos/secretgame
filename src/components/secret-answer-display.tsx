@@ -1,12 +1,14 @@
 'use client';
 
-import { SliderConfig } from '@/lib/questions';
+import { SliderConfig, MultipleChoiceConfig } from '@/lib/questions';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle2 } from 'lucide-react';
 
 interface SecretAnswerDisplayProps {
   answerType: string;
   answerData?: unknown;
   body: string; // Fallback text representation
-  config?: SliderConfig; // Question config for context
+  config?: SliderConfig | MultipleChoiceConfig; // Question config for context
 }
 
 export function SecretAnswerDisplay({
@@ -21,7 +23,7 @@ export function SecretAnswerDisplay({
     const sliderValue = sliderAnswer.value;
 
     // If we have config, use it for visual representation
-    if (config) {
+    if (config && 'min' in config) {
       const percentage = ((sliderValue - config.min) / (config.max - config.min)) * 100;
 
       return (
@@ -66,6 +68,59 @@ export function SecretAnswerDisplay({
           {sliderValue}
         </div>
         <div className="text-sm text-gray-500">Slider answer</div>
+      </div>
+    );
+  }
+
+  // Handle multiple choice answer display
+  if (answerType === 'multipleChoice' && answerData && typeof answerData === 'object') {
+    const mcAnswer = answerData as { selected: string[] };
+    const selectedOptions = mcAnswer.selected || [];
+
+    // If we have config, show all options with visual indicators
+    if (config && 'options' in config) {
+      return (
+        <div className="space-y-2">
+          <div className="text-sm font-medium text-gray-700 mb-3">
+            {selectedOptions.length === 1 ? 'Selected option:' : `Selected ${selectedOptions.length} options:`}
+          </div>
+          <div className="space-y-2">
+            {config.options.map((option, index) => {
+              const isSelected = selectedOptions.includes(option);
+              return (
+                <div
+                  key={index}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all ${
+                    isSelected
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-200 bg-gray-50 opacity-50'
+                  }`}
+                >
+                  {isSelected && (
+                    <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  )}
+                  <span className={`text-sm ${isSelected ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
+                    {option}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // Fallback: just list selected options
+    return (
+      <div className="space-y-2">
+        <div className="text-sm font-medium text-gray-700 mb-2">Selected:</div>
+        <div className="flex flex-wrap gap-2">
+          {selectedOptions.map((option, index) => (
+            <Badge key={index} variant="default" className="bg-green-600 hover:bg-green-700">
+              {option}
+            </Badge>
+          ))}
+        </div>
       </div>
     );
   }
