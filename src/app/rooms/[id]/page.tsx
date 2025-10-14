@@ -367,6 +367,9 @@ export default function RoomPage() {
           category: customQuestion.category,
           suggestedLevel: customQuestion.suggestedLevel,
           difficulty: customQuestion.difficulty || 'medium',
+          questionType: customQuestion.questionType || 'text',
+          answerConfig: customQuestion.answerConfig,
+          allowAnonymous: customQuestion.allowAnonymous || false,
         }),
       });
 
@@ -388,7 +391,11 @@ export default function RoomPage() {
         tags: [{ name: data.question.category.toLowerCase(), type: 'category' as const }],
         archived: false,
         createdAt: data.question.createdAt,
-        updatedAt: data.question.createdAt
+        updatedAt: data.question.createdAt,
+        // Type-specific fields
+        questionType: data.question.questionType || 'text',
+        answerConfig: data.question.answerConfig,
+        allowAnonymous: data.question.allowAnonymous || false
       };
 
       setRoomQuestions(prev => [...prev, newQuestion]);
