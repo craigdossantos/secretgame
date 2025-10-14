@@ -29,6 +29,10 @@ interface CustomQuestion {
   difficulty: 'easy' | 'medium' | 'hard';
   createdBy: string; // userId
   createdAt: Date;
+  // New fields for question types
+  questionType?: string; // QuestionType enum value
+  answerConfig?: unknown; // AnswerConfig JSON (stored as-is)
+  allowAnonymous?: boolean;
 }
 
 interface RoomMember {
@@ -49,6 +53,14 @@ interface Secret {
   buyersCount: number;
   createdAt: Date;
   isHidden: boolean;
+  // New fields for typed answers
+  answerType?: string; // 'text' | 'slider' | 'multipleChoice' | etc.
+  answerData?: unknown; // Type-specific answer data (JSON):
+                        // - slider: { value: number }
+                        // - multipleChoice: { selected: string[] }
+                        // - personPicker: { selectedUserIds: string[] }
+                        // - imageUpload: { imageUrl: string, imageBase64?: string }
+  isAnonymous?: boolean; // If true, hide author identity
 }
 
 interface SecretAccess {

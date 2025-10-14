@@ -14,13 +14,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { ChiliRating } from '@/components/chili-rating';
+import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
 import {
   QuestionPrompt,
   QuestionCategory,
+  QuestionType,
   QUESTION_CATEGORIES,
+  QUESTION_TYPE_LABELS,
+  QUESTION_TYPE_DESCRIPTIONS,
   createNewQuestion,
   categoryToTag,
   getTagStyles,
+  getDefaultAnswerConfig,
   Tag
 } from '@/lib/questions';
 
@@ -37,10 +43,18 @@ export function CustomQuestionModal({
 }: CustomQuestionModalProps) {
   const [questionText, setQuestionText] = useState('');
   const [category, setCategory] = useState<QuestionCategory>('Personal');
+  const [questionType, setQuestionType] = useState<QuestionType>('text');
   const [spiciness, setSpiciness] = useState(3);
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState('');
+
+  // Slider configuration state
+  const [sliderMin, setSliderMin] = useState(1);
+  const [sliderMax, setSliderMax] = useState(10);
+  const [sliderMinLabel, setSliderMinLabel] = useState('Not at all');
+  const [sliderMaxLabel, setSliderMaxLabel] = useState('Extremely');
+  const [sliderPreviewValue, setSliderPreviewValue] = useState(5);
 
   const wordCount = questionText.trim().split(/\s+/).filter(word => word.length > 0).length;
   const isValidLength = questionText.trim().length >= 10 && questionText.trim().length <= 200;
@@ -68,13 +82,38 @@ export function CustomQuestionModal({
         additionalTags
       );
 
+      // Add question type and answer config
+      newQuestion.questionType = questionType;
+
+      // Use custom slider config if slider type
+      if (questionType === 'slider') {
+        newQuestion.answerConfig = {
+          type: 'slider',
+          config: {
+            min: sliderMin,
+            max: sliderMax,
+            minLabel: sliderMinLabel,
+            maxLabel: sliderMaxLabel,
+            step: 1
+          }
+        };
+      } else {
+        newQuestion.answerConfig = getDefaultAnswerConfig(questionType);
+      }
+
       onCreateQuestion(newQuestion);
 
       // Reset form
       setQuestionText('');
       setCategory('Personal');
+      setQuestionType('text');
       setSpiciness(3);
       setDifficulty('medium');
+      setSliderMin(1);
+      setSliderMax(10);
+      setSliderMinLabel('Not at all');
+      setSliderMaxLabel('Extremely');
+      setSliderPreviewValue(5);
     } catch {
       setError('Failed to create question. Please try again.');
     } finally {
@@ -87,8 +126,14 @@ export function CustomQuestionModal({
 
     setQuestionText('');
     setCategory('Personal');
+    setQuestionType('text');
     setSpiciness(3);
     setDifficulty('medium');
+    setSliderMin(1);
+    setSliderMax(10);
+    setSliderMinLabel('Not at all');
+    setSliderMaxLabel('Extremely');
+    setSliderPreviewValue(5);
     setError('');
     onClose();
   };
@@ -101,6 +146,29 @@ export function CustomQuestionModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Question Type Selection */}
+          <div className="space-y-2">
+            <Label>Question Type *</Label>
+            <Select value={questionType} onValueChange={(value: QuestionType) => setQuestionType(value)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {(Object.keys(QUESTION_TYPE_LABELS) as QuestionType[]).map((type) => (
+                  <SelectItem key={type} value={type}>
+                    <div className="flex flex-col gap-1">
+                      <span className="font-medium">{QUESTION_TYPE_LABELS[type]}</span>
+                      <span className="text-xs text-gray-500">{QUESTION_TYPE_DESCRIPTIONS[type]}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-gray-500">
+              {QUESTION_TYPE_DESCRIPTIONS[questionType]}
+            </p>
+          </div>
+
           {/* Question Text */}
           <div className="space-y-2">
             <Label htmlFor="question-text">Question *</Label>
@@ -165,8 +233,8 @@ export function CustomQuestionModal({
             </div>
           </div>
 
-          {/* Difficulty Level */}
-          <div className="space-y-2">
+          {/* Difficulty Level - Hidden for now */}
+          {/* <div className="space-y-2">
             <Label>Response Difficulty</Label>
             <Select value={difficulty} onValueChange={(value: 'easy' | 'medium' | 'hard') => setDifficulty(value)}>
               <SelectTrigger>
@@ -178,7 +246,98 @@ export function CustomQuestionModal({
                 <SelectItem value="hard">Hard - Deep reflection needed</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
+
+          {/* Slider Configuration - Only show for slider type */}
+          {questionType === 'slider' && (
+            <div className="space-y-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
+              <h4 className="text-sm font-semibold text-gray-900">Slider Configuration</h4>
+
+              {/* Min/Max Values */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="slider-min" className="text-xs">Min Value</Label>
+                  <Input
+                    id="slider-min"
+                    type="number"
+                    value={sliderMin}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      setSliderMin(val);
+                      if (sliderPreviewValue < val) setSliderPreviewValue(val);
+                    }}
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="slider-max" className="text-xs">Max Value</Label>
+                  <Input
+                    id="slider-max"
+                    type="number"
+                    value={sliderMax}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 1;
+                      setSliderMax(val);
+                      if (sliderPreviewValue > val) setSliderPreviewValue(val);
+                    }}
+                    className="h-9"
+                  />
+                </div>
+              </div>
+
+              {/* Labels */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="slider-min-label" className="text-xs">Min Label</Label>
+                  <Input
+                    id="slider-min-label"
+                    placeholder="e.g., Cold"
+                    value={sliderMinLabel}
+                    onChange={(e) => setSliderMinLabel(e.target.value)}
+                    maxLength={30}
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="slider-max-label" className="text-xs">Max Label</Label>
+                  <Input
+                    id="slider-max-label"
+                    placeholder="e.g., Hot"
+                    value={sliderMaxLabel}
+                    onChange={(e) => setSliderMaxLabel(e.target.value)}
+                    maxLength={30}
+                    className="h-9"
+                  />
+                </div>
+              </div>
+
+              {/* Slider Preview */}
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Preview</Label>
+                  <span className="text-sm font-bold text-blue-600">{sliderPreviewValue}</span>
+                </div>
+                <Slider
+                  value={[sliderPreviewValue]}
+                  onValueChange={(val) => setSliderPreviewValue(val[0])}
+                  min={sliderMin}
+                  max={sliderMax}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex items-center justify-between text-xs text-gray-600">
+                  <div className="flex flex-col">
+                    <span className="font-medium">{sliderMin}</span>
+                    <span>{sliderMinLabel}</span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="font-medium">{sliderMax}</span>
+                    <span>{sliderMaxLabel}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Preview */}
           {questionText.trim() && (
@@ -189,7 +348,7 @@ export function CustomQuestionModal({
                   {questionText.trim()}
                 </p>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Badge
                       variant="outline"
                       className={`text-xs ${getTagStyles(categoryToTag(category))}`}

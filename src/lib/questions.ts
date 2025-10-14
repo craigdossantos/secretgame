@@ -4,6 +4,60 @@ export interface Tag {
   color?: string;
 }
 
+// Question Types - Different input/answer formats
+export type QuestionType =
+  | 'text'              // Traditional text answer (current default)
+  | 'slider'            // Numeric slider with custom labels
+  | 'multipleChoice'    // Single or multi-select options
+  | 'personPicker'      // Select person(s) from room members
+  | 'imageUpload'       // Upload image as answer
+  | 'anonymousSurvey';  // Anonymous aggregate-only responses
+
+// Type-specific configuration for questions
+export interface SliderConfig {
+  min: number;
+  max: number;
+  minLabel: string;
+  maxLabel: string;
+  step?: number;
+}
+
+export interface MultipleChoiceConfig {
+  options: string[];
+  allowMultiple: boolean;
+  showDistribution?: boolean; // Show % breakdown in results
+}
+
+export interface PersonPickerConfig {
+  allowMultiple: boolean;
+  excludeSelf?: boolean;
+}
+
+export interface ImageUploadConfig {
+  maxSizeMB: number;
+  allowedFormats: string[]; // e.g., ['jpg', 'png', 'gif']
+  prompt?: string; // Additional instruction (e.g., "Take a screenshot of...")
+}
+
+export interface AnonymousSurveyConfig {
+  showOnlyAggregate: boolean; // If true, never show individual responses
+  aggregationType?: 'count' | 'average' | 'distribution';
+}
+
+export type AnswerConfig =
+  | { type: 'text' }
+  | { type: 'slider'; config: SliderConfig }
+  | { type: 'multipleChoice'; config: MultipleChoiceConfig }
+  | { type: 'personPicker'; config: PersonPickerConfig }
+  | { type: 'imageUpload'; config: ImageUploadConfig }
+  | { type: 'anonymousSurvey'; config: AnonymousSurveyConfig };
+
+// Unlock requirements for bounty system
+export interface UnlockRequirement {
+  type: 'matchSpiciness' | 'answerAnyQuestion' | 'answerSpecificQuestion';
+  bountyQuestionId?: string; // Required if type is 'answerSpecificQuestion'
+}
+
 export interface QuestionPrompt {
   id: string;
   question: string;
@@ -14,6 +68,11 @@ export interface QuestionPrompt {
   tags?: Tag[];
   createdAt?: string;
   updatedAt?: string;
+  // New fields for question types
+  questionType?: QuestionType; // Defaults to 'text' for backward compatibility
+  answerConfig?: AnswerConfig; // Type-specific configuration
+  unlockRequirement?: UnlockRequirement; // Custom unlock logic (defaults to matchSpiciness)
+  allowAnonymous?: boolean; // Allow users to answer anonymously
 }
 
 export type QuestionCategory =
@@ -367,3 +426,75 @@ export const mockQuestions: QuestionPrompt[] = [
     archived: false
   }
 ];
+
+// Question Type Labels and Descriptions
+export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
+  text: 'Text Answer',
+  slider: 'Slider Scale',
+  multipleChoice: 'Multiple Choice',
+  personPicker: 'Pick a Person',
+  imageUpload: 'Image Upload',
+  anonymousSurvey: 'Anonymous Survey'
+};
+
+export const QUESTION_TYPE_DESCRIPTIONS: Record<QuestionType, string> = {
+  text: 'Traditional text-based answer (up to 100 words)',
+  slider: 'Numeric scale with custom labels (e.g., 1-10)',
+  multipleChoice: 'Select from predefined options',
+  personPicker: 'Choose person(s) from the room',
+  imageUpload: 'Upload an image as your answer',
+  anonymousSurvey: 'Anonymous responses with aggregate results only'
+};
+
+// Helper: Get default config for a question type
+export function getDefaultAnswerConfig(type: QuestionType): AnswerConfig {
+  switch (type) {
+    case 'text':
+      return { type: 'text' };
+    case 'slider':
+      return {
+        type: 'slider',
+        config: {
+          min: 1,
+          max: 10,
+          minLabel: 'Not at all',
+          maxLabel: 'Extremely',
+          step: 1
+        }
+      };
+    case 'multipleChoice':
+      return {
+        type: 'multipleChoice',
+        config: {
+          options: ['Option 1', 'Option 2', 'Option 3'],
+          allowMultiple: false,
+          showDistribution: true
+        }
+      };
+    case 'personPicker':
+      return {
+        type: 'personPicker',
+        config: {
+          allowMultiple: false,
+          excludeSelf: true
+        }
+      };
+    case 'imageUpload':
+      return {
+        type: 'imageUpload',
+        config: {
+          maxSizeMB: 5,
+          allowedFormats: ['jpg', 'jpeg', 'png', 'gif'],
+          prompt: 'Upload an image'
+        }
+      };
+    case 'anonymousSurvey':
+      return {
+        type: 'anonymousSurvey',
+        config: {
+          showOnlyAggregate: true,
+          aggregationType: 'count'
+        }
+      };
+  }
+}

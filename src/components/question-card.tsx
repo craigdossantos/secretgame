@@ -10,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { ChiliRating } from '@/components/chili-rating';
-import { QuestionPrompt, getTagStyles } from '@/lib/questions';
+import { AnswerInputSlider } from '@/components/answer-input-slider';
+import { QuestionPrompt, getTagStyles, SliderConfig } from '@/lib/questions';
 
 interface QuestionCardProps {
   question: QuestionPrompt;
@@ -18,7 +19,9 @@ interface QuestionCardProps {
     questionId: string;
     body: string;
     selfRating: number;
-    importance: number
+    importance: number;
+    answerType?: string;
+    answerData?: unknown;
   }) => void;
   onSkip?: (questionId: string) => void;
   onRateSpiciness?: (questionId: string, spiciness: number) => void;
@@ -41,10 +44,24 @@ export function QuestionCard({
   const [importance, setImportance] = useState(3);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Slider-specific state
+  const questionType = question.questionType || 'text';
+  const sliderConfig = questionType === 'slider' && question.answerConfig?.type === 'slider'
+    ? question.answerConfig.config
+    : { min: 1, max: 10, minLabel: 'Low', maxLabel: 'High', step: 1 };
+  const [sliderValue, setSliderValue] = useState(
+    questionType === 'slider' ? Math.floor((sliderConfig.min + sliderConfig.max) / 2) : 1
+  );
+
   const wordCount = body.trim().split(/\s+/).filter(word => word.length > 0).length;
   const isValidWordCount = wordCount <= 100 && wordCount > 0;
 
+  // Validation based on question type
+  const isValidAnswer = questionType === 'text' ? isValidWordCount : true;
+
   const handleFlip = () => {
+    // Don't flip for slider questions - they answer inline
+    if (questionType === 'slider') return;
     // Allow flipping even if answered (for editing)
     setIsFlipped(!isFlipped);
   };
@@ -55,16 +72,34 @@ export function QuestionCard({
   };
 
   const handleSubmit = async () => {
-    if (!isValidWordCount) return;
+    if (!isValidAnswer) return;
 
     setIsSubmitting(true);
     try {
-      await onSubmit?.({
+      // Build answer based on question type
+      const answer: {
+        questionId: string;
+        body: string;
+        selfRating: number;
+        importance: number;
+        answerType?: string;
+        answerData?: unknown;
+      } = {
         questionId: question.id,
-        body: body.trim(),
+        body: questionType === 'slider' ? `Slider answer: ${sliderValue}` : body.trim(),
         selfRating,
         importance,
-      });
+      };
+
+      // Add typed answer data
+      if (questionType === 'slider') {
+        answer.answerType = 'slider';
+        answer.answerData = { value: sliderValue };
+      } else {
+        answer.answerType = 'text';
+      }
+
+      await onSubmit?.(answer);
 
       // Don't reset - keep form filled for potential edits
       // Just flip back to front
@@ -78,6 +113,88 @@ export function QuestionCard({
 
 
 
+  // Slider questions don't flip - render differently
+  if (questionType === 'slider') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -4 }}
+        className="h-[380px]"
+        data-testid="question-card"
+        data-category={question.category}
+      >
+        <Card className="w-full h-full rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white border-gray-200 transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]">
+          {/* Skip Button */}
+          {!isAnswered && onSkip && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSkip}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xs"
+            >
+              Skip →
+            </Button>
+          )}
+
+          <div className="h-full flex flex-col">
+            {/* Question Text */}
+            <div className="mb-4">
+              <p className="text-gray-900 leading-relaxed text-center text-base font-medium">
+                {question.question}
+              </p>
+            </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-1 justify-center mb-4">
+              {question.tags?.map((tag, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className={`text-xs ${getTagStyles(tag)}`}
+                >
+                  {tag.name}
+                </Badge>
+              ))}
+            </div>
+
+            {/* Slider Answer Input - Inline */}
+            <div className="flex-1 mb-4" onClick={(e) => e.stopPropagation()}>
+              <AnswerInputSlider
+                config={sliderConfig as SliderConfig}
+                value={sliderValue}
+                onChange={setSliderValue}
+              />
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="w-full rounded-xl h-10 text-sm font-medium"
+              size="sm"
+            >
+              {isSubmitting ? (
+                'Submitting...'
+              ) : isAnswered ? (
+                <>
+                  <Send className="w-3 h-3 mr-2" />
+                  Update Answer
+                </>
+              ) : (
+                <>
+                  <Send className="w-3 h-3 mr-2" />
+                  Submit Answer
+                </>
+              )}
+            </Button>
+          </div>
+        </Card>
+      </motion.div>
+    );
+  }
+
+  // Text questions use flip card
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -202,7 +319,7 @@ export function QuestionCard({
 
             {/* Answer Form */}
             <div className="flex-1 space-y-4 overflow-y-auto">
-              {/* Answer Textarea */}
+              {/* Text Answer Textarea - Only text questions use flip cards */}
               <div className="space-y-2">
                 <Label htmlFor="answer-body" className="text-xs">Your Answer</Label>
                 <Textarea
@@ -250,7 +367,7 @@ export function QuestionCard({
             {/* Submit Button */}
             <Button
               onClick={handleSubmit}
-              disabled={!isValidWordCount || isSubmitting}
+              disabled={!isValidAnswer || isSubmitting}
               className="w-full rounded-xl h-10 text-sm font-medium mt-4"
               size="sm"
             >
