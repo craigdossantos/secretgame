@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { ChiliRating } from '@/components/chili-rating';
 import { AnswerInputSlider } from '@/components/answer-input-slider';
-import { QuestionPrompt, getTagStyles, SliderConfig } from '@/lib/questions';
+import { AnswerInputMultipleChoice } from '@/components/answer-input-multiple-choice';
+import { QuestionPrompt, getTagStyles, SliderConfig, MultipleChoiceConfig } from '@/lib/questions';
 
 interface QuestionCardProps {
   question: QuestionPrompt;
@@ -44,8 +45,10 @@ export function QuestionCard({
   const [importance, setImportance] = useState(3);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Slider-specific state
+  // Question type and configs
   const questionType = question.questionType || 'text';
+
+  // Slider-specific state
   const sliderConfig = questionType === 'slider' && question.answerConfig?.type === 'slider'
     ? question.answerConfig.config
     : { min: 1, max: 10, minLabel: 'Low', maxLabel: 'High', step: 1 };
@@ -53,15 +56,24 @@ export function QuestionCard({
     questionType === 'slider' ? Math.floor((sliderConfig.min + sliderConfig.max) / 2) : 1
   );
 
+  // Multiple choice-specific state
+  const mcConfig = questionType === 'multipleChoice' && question.answerConfig?.type === 'multipleChoice'
+    ? question.answerConfig.config
+    : { options: ['Option 1', 'Option 2'], allowMultiple: false, showDistribution: true };
+  const [mcSelected, setMcSelected] = useState<string[]>([]);
+
   const wordCount = body.trim().split(/\s+/).filter(word => word.length > 0).length;
   const isValidWordCount = wordCount <= 100 && wordCount > 0;
 
   // Validation based on question type
-  const isValidAnswer = questionType === 'text' ? isValidWordCount : true;
+  const isValidAnswer =
+    questionType === 'text' ? isValidWordCount :
+    questionType === 'multipleChoice' ? mcSelected.length > 0 :
+    true;
 
   const handleFlip = () => {
-    // Don't flip for slider questions - they answer inline
-    if (questionType === 'slider') return;
+    // Don't flip for slider or MC questions - they answer inline
+    if (questionType === 'slider' || questionType === 'multipleChoice') return;
     // Allow flipping even if answered (for editing)
     setIsFlipped(!isFlipped);
   };
@@ -86,7 +98,10 @@ export function QuestionCard({
         answerData?: unknown;
       } = {
         questionId: question.id,
-        body: questionType === 'slider' ? `Slider answer: ${sliderValue}` : body.trim(),
+        body:
+          questionType === 'slider' ? `Slider answer: ${sliderValue}` :
+          questionType === 'multipleChoice' ? `Selected: ${mcSelected.join(', ')}` :
+          body.trim(),
         selfRating,
         importance,
       };
@@ -95,6 +110,9 @@ export function QuestionCard({
       if (questionType === 'slider') {
         answer.answerType = 'slider';
         answer.answerData = { value: sliderValue };
+      } else if (questionType === 'multipleChoice') {
+        answer.answerType = 'multipleChoice';
+        answer.answerData = { selected: mcSelected };
       } else {
         answer.answerType = 'text';
       }
@@ -113,7 +131,7 @@ export function QuestionCard({
 
 
 
-  // Slider questions don't flip - render differently
+  // Slider questions don't flip - render inline
   if (questionType === 'slider') {
     return (
       <motion.div
@@ -171,6 +189,87 @@ export function QuestionCard({
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
+              className="w-full rounded-xl h-10 text-sm font-medium"
+              size="sm"
+            >
+              {isSubmitting ? (
+                'Submitting...'
+              ) : isAnswered ? (
+                <>
+                  <Send className="w-3 h-3 mr-2" />
+                  Update Answer
+                </>
+              ) : (
+                <>
+                  <Send className="w-3 h-3 mr-2" />
+                  Submit Answer
+                </>
+              )}
+            </Button>
+          </div>
+        </Card>
+      </motion.div>
+    );
+  }
+
+  // Multiple choice questions don't flip - render inline
+  if (questionType === 'multipleChoice') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -4 }}
+        className="h-[420px]"
+        data-testid="question-card"
+        data-category={question.category}
+      >
+        <Card className="w-full h-full rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white border-gray-200 transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]">
+          {/* Skip Button */}
+          {!isAnswered && onSkip && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSkip}
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xs"
+            >
+              Skip →
+            </Button>
+          )}
+
+          <div className="h-full flex flex-col">
+            {/* Question Text */}
+            <div className="mb-4">
+              <p className="text-gray-900 leading-relaxed text-center text-base font-medium">
+                {question.question}
+              </p>
+            </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-1 justify-center mb-4">
+              {question.tags?.map((tag, index) => (
+                <Badge
+                  key={index}
+                  variant="outline"
+                  className={`text-xs ${getTagStyles(tag)}`}
+                >
+                  {tag.name}
+                </Badge>
+              ))}
+            </div>
+
+            {/* Multiple Choice Answer Input - Inline */}
+            <div className="flex-1 mb-4 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <AnswerInputMultipleChoice
+                config={mcConfig as MultipleChoiceConfig}
+                value={mcSelected}
+                onChange={setMcSelected}
+              />
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              onClick={handleSubmit}
+              disabled={isSubmitting || !isValidAnswer}
               className="w-full rounded-xl h-10 text-sm font-medium"
               size="sm"
             >

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Mode Cyberpunk - Room Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes neonPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        body {
+            font-family: 'Courier New', 'Roboto Mono', monospace;
+            background: #0a0e27;
+            min-height: 100vh;
+            color: #00ff9f;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 159, 0.03) 2px,
+                    rgba(0, 255, 159, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: -100%;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(0, 255, 159, 0.1) 50%,
+                transparent 100%
+            );
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f1729 0%, #1a1f3a 100%);
+            border-bottom: 2px solid #00ff9f;
+            box-shadow: 0 4px 30px rgba(0, 255, 159, 0.3), 0 0 20px rgba(255, 0, 255, 0.2);
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #00ffff, transparent);
+            animation: neonPulse 2s ease-in-out infinite;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #0f1729, #1a1f3a);
+            border: 2px solid #00ff9f;
+            color: #00ff9f;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0.5rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            box-shadow: 0 0 20px rgba(0, 255, 159, 0.5);
+            text-shadow: 0 0 10px #00ff9f;
+            clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 159, 0.8);
+            background: linear-gradient(135deg, #1a1f3a, #0f1729);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #00ff9f;
+            text-shadow: 0 0 20px #00ff9f, 0 0 40px #00ff9f;
+            animation: neonPulse 3s ease-in-out infinite;
+            letter-spacing: 0.2em;
+            font-family: 'Courier New', monospace;
+        }
+
+        h1::before {
+            content: '[ ';
+            color: #ff00ff;
+        }
+
+        h1::after {
+            content: ' ]';
+            color: #00ffff;
+        }
+
+        .member-badge {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #0f1729, #1a1f3a);
+            border: 2px solid #00ffff;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #00ffff;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px #00ffff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+            clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
+        }
+
+        .invite-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #0f1729, #1a1f3a);
+            border: 2px solid #ff00ff;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.3), inset 0 0 20px rgba(0, 255, 159, 0.1);
+            position: relative;
+        }
+
+        .invite-section::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ff9f, #00ffff, #ff00ff);
+            z-index: -1;
+            filter: blur(10px);
+            opacity: 0.5;
+        }
+
+        .invite-label {
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 1rem;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+        }
+
+        .invite-label::before {
+            content: '> ';
+        }
+
+        .invite-url {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border: 1px solid #00ff9f;
+            margin-bottom: 1rem;
+            color: #00ff9f;
+            text-shadow: 0 0 5px #00ff9f;
+            box-shadow: inset 0 0 10px rgba(0, 255, 159, 0.2);
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #ff00ff, #ff0080);
+            color: #ffffff;
+            border: 2px solid #00ffff;
+            padding: 0.75rem 2rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+            text-shadow: 0 0 10px #ffffff;
+            clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            color: #00ff9f;
+            text-shadow: 0 0 20px #00ff9f;
+            letter-spacing: 0.1em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .section-title::before {
+            content: '// ';
+            color: #666;
+        }
+
+        .section-subtitle {
+            font-size: 0.95rem;
+            margin-bottom: 3rem;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2rem;
+            margin-bottom: 5rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #0f1729 0%, #1a1f3a 100%);
+            border: 2px solid #00ff9f;
+            padding: 2.5rem;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 159, 0.3), inset 0 0 20px rgba(0, 255, 159, 0.05);
+            transition: all 0.3s;
+            clip-path: polygon(0 0, 98% 0, 100% 10%, 100% 100%, 2% 100%, 0 90%);
+        }
+
+        .card:hover {
+            border-color: #00ffff;
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.5), inset 0 0 30px rgba(0, 255, 255, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            border-top: 2px solid #ff00ff;
+            border-right: 2px solid #ff00ff;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(0, 255, 159, 0.3);
+            padding-top: 1rem;
+        }
+
+        .tag {
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem 1rem;
+            border: 1px solid #00ff9f;
+            color: #00ff9f;
+            text-shadow: 0 0 5px #00ff9f;
+            clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
+        }
+
+        .spiciness {
+            font-size: 1.3rem;
+            filter: drop-shadow(0 0 5px #ff0000);
+        }
+
+        .add-question-card {
+            background: linear-gradient(135deg, #0f1729, #1a1f3a);
+            border: 2px dashed #00ffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 20px rgba(255, 0, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .add-question-card:hover {
+            border-color: #ff00ff;
+            box-shadow: 0 0 40px rgba(255, 0, 255, 0.4), inset 0 0 30px rgba(0, 255, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .add-icon {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff;
+            margin-bottom: 1rem;
+        }
+
+        .add-text {
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+        }
+
+        .secret-card {
+            background: linear-gradient(135deg, #0f1729, #1a1f3a);
+            border: 2px solid #00ffff;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 20px rgba(0, 255, 159, 0.05);
+            clip-path: polygon(0 0, 98% 0, 100% 10%, 100% 100%, 2% 100%, 0 90%);
+        }
+
+        .secret-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, #ff00ff, #00ffff);
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
+        }
+
+        .secret-author {
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .secret-author::before {
+            content: '< ';
+        }
+
+        .secret-author::after {
+            content: ' >';
+        }
+
+        .secret-question {
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+            font-style: italic;
+        }
+
+        .secret-body {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            color: #ffffff;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .rating {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #00ff9f;
+            text-shadow: 0 0 5px #00ff9f;
+        }
+
+        .unlock-btn {
+            background: linear-gradient(135deg, #ff00ff, #ff0080);
+            border: 2px solid #00ffff;
+            color: #ffffff;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+            text-shadow: 0 0 10px #ffffff;
+            clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
+            transition: all 0.3s;
+        }
+
+        .unlock-btn:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .locked-overlay {
+            background: linear-gradient(135deg, rgba(15, 23, 41, 0.95), rgba(26, 31, 58, 0.95));
+            border: 2px solid #ff00ff;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: inset 0 0 40px rgba(255, 0, 255, 0.3);
+            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+        }
+
+        .lock-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 20px #ff00ff);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn">← BACK</button>
+            <h1>SECRETS.EXE</h1>
+            <div class="member-badge">8 CONNECTED</div>
+
+            <div class="invite-section">
+                <div class="invite-label">ACCESS_CODE</div>
+                <div class="invite-url">localhost:3000/invite/abc123xyz</div>
+                <button class="copy-btn">COPY</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="section-title">QUERIES</h2>
+        <p class="section-subtitle">ANSWER TO UNLOCK ENCRYPTED DATA</p>
+
+        <div class="grid">
+            <div class="card">
+                <div class="question-text">What's a secret talent you have that nobody knows about?</div>
+                <div class="card-footer">
+                    <span class="tag">GROWTH</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's the most embarrassing thing that happened to you in public?</div>
+                <div class="card-footer">
+                    <span class="tag">SOCIAL</span>
+                    <span class="spiciness">🌶️🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's something you believe that most people disagree with?</div>
+                <div class="card-footer">
+                    <span class="tag">BELIEFS</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="add-question-card">
+                <div style="text-align: center;">
+                    <div class="add-icon">+</div>
+                    <div class="add-text">NEW QUERY</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">ENCRYPTED_DATA</h2>
+        <p class="section-subtitle">3 FILES · AUTHENTICATION REQUIRED</p>
+
+        <div class="grid">
+            <div class="secret-card">
+                <div class="secret-author">SARAH_M · 2H AGO</div>
+                <div class="secret-question">"What's your secret talent?"</div>
+                <div class="secret-body">I can solve a Rubik's cube in under 30 seconds, but I've never told anyone because I don't want to be seen as a show-off.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️ SELF</div>
+                    <div class="rating">⭐ 4.2 AVG</div>
+                </div>
+            </div>
+
+            <div class="secret-card" style="position: relative;">
+                <div class="secret-author">ANON · 1D AGO</div>
+                <div class="secret-question">"Biggest fear?"</div>
+                <div class="secret-body" style="filter: blur(8px);">ENCRYPTED DATA LOCKED...</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️🌶️🌶️</div>
+                    <div class="rating">3 UNLOCKS</div>
+                </div>
+                <div class="locked-overlay">
+                    <div class="lock-icon">🔒</div>
+                    <button class="unlock-btn">DECRYPT</button>
+                </div>
+            </div>
+
+            <div class="secret-card">
+                <div class="secret-author">MICHAEL_K · 3D AGO</div>
+                <div class="secret-question">"Unpopular opinion?"</div>
+                <div class="secret-body">I genuinely think pineapple on pizza is one of the greatest food combinations ever invented. Fight me.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️ SELF</div>
+                    <div class="rating">⭐ 3.8 AVG</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
