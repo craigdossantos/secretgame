@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ChiliRating } from '@/components/chili-rating';
 import { AnswerInputSlider } from '@/components/answer-input-slider';
 import { AnswerInputMultipleChoice } from '@/components/answer-input-multiple-choice';
@@ -23,6 +24,7 @@ interface QuestionCardProps {
     importance: number;
     answerType?: string;
     answerData?: unknown;
+    isAnonymous?: boolean;
   }) => void;
   onSkip?: (questionId: string) => void;
   onRateSpiciness?: (questionId: string, spiciness: number) => void;
@@ -62,6 +64,10 @@ export function QuestionCard({
     : { options: ['Option 1', 'Option 2'], allowMultiple: false, showDistribution: true };
   const [mcSelected, setMcSelected] = useState<string[]>([]);
 
+  // Anonymous answer state
+  const questionAllowsAnonymous = question.allowAnonymous || false;
+  const [isAnonymous, setIsAnonymous] = useState(false);
+
   const wordCount = body.trim().split(/\s+/).filter(word => word.length > 0).length;
   const isValidWordCount = wordCount <= 100 && wordCount > 0;
 
@@ -96,6 +102,7 @@ export function QuestionCard({
         importance: number;
         answerType?: string;
         answerData?: unknown;
+        isAnonymous?: boolean;
       } = {
         questionId: question.id,
         body:
@@ -104,6 +111,7 @@ export function QuestionCard({
           body.trim(),
         selfRating,
         importance,
+        isAnonymous: questionAllowsAnonymous && isAnonymous,
       };
 
       // Add typed answer data
@@ -185,6 +193,21 @@ export function QuestionCard({
               />
             </div>
 
+            {/* Anonymous Answer Checkbox */}
+            {questionAllowsAnonymous && (
+              <div className="flex items-center space-x-2 mb-3">
+                <Checkbox
+                  id="answer-anonymous-slider"
+                  checked={isAnonymous}
+                  onCheckedChange={(checked) => setIsAnonymous(checked as boolean)}
+                  className="h-4 w-4"
+                />
+                <label htmlFor="answer-anonymous-slider" className="text-xs text-gray-600 cursor-pointer">
+                  Answer anonymously
+                </label>
+              </div>
+            )}
+
             {/* Submit Button */}
             <Button
               onClick={handleSubmit}
@@ -265,6 +288,21 @@ export function QuestionCard({
                 onChange={setMcSelected}
               />
             </div>
+
+            {/* Anonymous Answer Checkbox */}
+            {questionAllowsAnonymous && (
+              <div className="flex items-center space-x-2 mb-3">
+                <Checkbox
+                  id="answer-anonymous-mc"
+                  checked={isAnonymous}
+                  onCheckedChange={(checked) => setIsAnonymous(checked as boolean)}
+                  className="h-4 w-4"
+                />
+                <label htmlFor="answer-anonymous-mc" className="text-xs text-gray-600 cursor-pointer">
+                  Answer anonymously
+                </label>
+              </div>
+            )}
 
             {/* Submit Button */}
             <Button
@@ -461,6 +499,21 @@ export function QuestionCard({
                   />
                 </div>
               </div>
+
+              {/* Anonymous Answer Checkbox */}
+              {questionAllowsAnonymous && (
+                <div className="flex items-center space-x-2 pt-3">
+                  <Checkbox
+                    id="answer-anonymous-text"
+                    checked={isAnonymous}
+                    onCheckedChange={(checked) => setIsAnonymous(checked as boolean)}
+                    className="h-4 w-4"
+                  />
+                  <label htmlFor="answer-anonymous-text" className="text-xs text-gray-600 cursor-pointer">
+                    Answer anonymously
+                  </label>
+                </div>
+              )}
             </div>
 
             {/* Submit Button */}
