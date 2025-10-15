@@ -11,6 +11,7 @@ interface SecretSubmitBody {
   importance: number;
   answerType?: string;
   answerData?: unknown;
+  isAnonymous?: boolean;
 }
 
 export async function POST(request: NextRequest) {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const data: SecretSubmitBody = await request.json();
-    const { roomId, questionId, body, selfRating, importance, answerType, answerData } = data;
+    const { roomId, questionId, body, selfRating, importance, answerType, answerData, isAnonymous } = data;
 
     // Validate required fields
     if (!roomId || !questionId || !body || selfRating === undefined || importance === undefined) {
@@ -73,6 +74,7 @@ export async function POST(request: NextRequest) {
         importance,
         answerType: answerType || 'text',
         answerData,
+        isAnonymous: isAnonymous || false,
       });
 
       return successResponse({
@@ -84,6 +86,7 @@ export async function POST(request: NextRequest) {
           importance,
           answerType: answerType || 'text',
           answerData,
+          isAnonymous: isAnonymous || false,
         },
       });
     } else {
@@ -105,6 +108,7 @@ export async function POST(request: NextRequest) {
         questionId, // Store questionId for filtering
         answerType: answerType || 'text',
         answerData,
+        isAnonymous: isAnonymous || false,
       };
 
       await mockDb.insertSecret(newSecret);

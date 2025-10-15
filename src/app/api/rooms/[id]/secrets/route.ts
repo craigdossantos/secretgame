@@ -90,6 +90,11 @@ export async function GET(
           isUnlocked,
           questionId: secret.questionId,
           questionText: secret.questionId ? questionsMap.get(secret.questionId) : undefined,
+          // Typed answer support
+          answerType: secret.answerType,
+          answerData: isUnlocked ? secret.answerData : undefined, // Only send answer data if unlocked
+          // Anonymous answer support
+          isAnonymous: secret.isAnonymous || false,
         };
       })
     );
