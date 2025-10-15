@@ -27,6 +27,8 @@ interface Secret {
   answerType?: string;
   answerData?: unknown;
   questionConfig?: unknown; // Store original question config for display context
+  // Anonymous answer support
+  isAnonymous?: boolean;
 }
 
 interface SecretCardProps {
@@ -68,13 +70,29 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Avatar className="w-8 h-8">
-              <AvatarImage src={secret.authorAvatar} />
-              <AvatarFallback>{secret.authorName[0]}</AvatarFallback>
-            </Avatar>
-            <span className="text-sm font-medium text-gray-700">
-              {secret.authorName}
-            </span>
+            {secret.isAnonymous ? (
+              <>
+                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+                  <span className="text-purple-600 text-sm font-medium">?</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-700">Anonymous</span>
+                  <Badge variant="outline" className="text-xs bg-purple-50 border-purple-200 text-purple-700">
+                    Hidden
+                  </Badge>
+                </div>
+              </>
+            ) : (
+              <>
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={secret.authorAvatar} />
+                  <AvatarFallback>{secret.authorName[0]}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium text-gray-700">
+                  {secret.authorName}
+                </span>
+              </>
+            )}
           </div>
           <div className="text-xs text-gray-500">
             {new Date(secret.createdAt).toLocaleDateString()}
