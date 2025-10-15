@@ -146,18 +146,18 @@ export function QuestionCard({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -4 }}
-        className="h-[380px]"
+        className="h-[380px] relative z-20"
         data-testid="question-card"
         data-category={question.category}
       >
-        <Card className="w-full h-full rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white border-gray-200 transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]">
+        <Card className="w-full h-full art-deco-border p-5 bg-card/50 backdrop-blur-sm transition-all duration-200 hover:art-deco-glow">
           {/* Skip Button */}
           {!isAnswered && onSkip && (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleSkip}
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xs"
+              className="absolute top-2 right-2 text-muted-foreground hover:text-foreground text-xs"
             >
               Skip →
             </Button>
@@ -166,7 +166,7 @@ export function QuestionCard({
           <div className="h-full flex flex-col">
             {/* Question Text */}
             <div className="mb-4">
-              <p className="text-gray-900 leading-relaxed text-center text-base font-medium">
+              <p className="text-foreground leading-relaxed text-center text-base font-medium art-deco-shadow">
                 {question.question}
               </p>
             </div>
@@ -177,7 +177,7 @@ export function QuestionCard({
                 <Badge
                   key={index}
                   variant="outline"
-                  className={`text-xs ${getTagStyles(tag)}`}
+                  className={`text-xs ${getTagStyles(tag)} bg-secondary/30 border-border`}
                 >
                   {tag.name}
                 </Badge>
@@ -202,7 +202,7 @@ export function QuestionCard({
                   onCheckedChange={(checked) => setIsAnonymous(checked as boolean)}
                   className="h-4 w-4"
                 />
-                <label htmlFor="answer-anonymous-slider" className="text-xs text-gray-600 cursor-pointer">
+                <label htmlFor="answer-anonymous-slider" className="text-xs text-muted-foreground cursor-pointer">
                   Answer anonymously
                 </label>
               </div>
@@ -212,7 +212,7 @@ export function QuestionCard({
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="w-full rounded-xl h-10 text-sm font-medium"
+              className="w-full art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 h-10 text-sm font-medium art-deco-text"
               size="sm"
             >
               {isSubmitting ? (
@@ -242,18 +242,18 @@ export function QuestionCard({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -4 }}
-        className="h-[420px]"
+        className="h-[420px] relative z-20"
         data-testid="question-card"
         data-category={question.category}
       >
-        <Card className="w-full h-full rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white border-gray-200 transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]">
+        <Card className="w-full h-full art-deco-border p-5 bg-card/50 backdrop-blur-sm transition-all duration-200 hover:art-deco-glow">
           {/* Skip Button */}
           {!isAnswered && onSkip && (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleSkip}
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xs"
+              className="absolute top-2 right-2 text-muted-foreground hover:text-foreground text-xs"
             >
               Skip →
             </Button>
@@ -262,7 +262,7 @@ export function QuestionCard({
           <div className="h-full flex flex-col">
             {/* Question Text */}
             <div className="mb-4">
-              <p className="text-gray-900 leading-relaxed text-center text-base font-medium">
+              <p className="text-foreground leading-relaxed text-center text-base font-medium art-deco-shadow">
                 {question.question}
               </p>
             </div>
@@ -273,7 +273,7 @@ export function QuestionCard({
                 <Badge
                   key={index}
                   variant="outline"
-                  className={`text-xs ${getTagStyles(tag)}`}
+                  className={`text-xs ${getTagStyles(tag)} bg-secondary/30 border-border`}
                 >
                   {tag.name}
                 </Badge>
@@ -298,7 +298,7 @@ export function QuestionCard({
                   onCheckedChange={(checked) => setIsAnonymous(checked as boolean)}
                   className="h-4 w-4"
                 />
-                <label htmlFor="answer-anonymous-mc" className="text-xs text-gray-600 cursor-pointer">
+                <label htmlFor="answer-anonymous-mc" className="text-xs text-muted-foreground cursor-pointer">
                   Answer anonymously
                 </label>
               </div>
@@ -308,7 +308,7 @@ export function QuestionCard({
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting || !isValidAnswer}
-              className="w-full rounded-xl h-10 text-sm font-medium"
+              className="w-full art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 h-10 text-sm font-medium art-deco-text"
               size="sm"
             >
               {isSubmitting ? (
@@ -343,7 +343,7 @@ export function QuestionCard({
       }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
-      className="perspective-1000 h-[300px]"
+      className="perspective-1000 h-[300px] relative z-20"
       data-testid="question-card"
       data-category={question.category}
     >
@@ -356,7 +356,7 @@ export function QuestionCard({
       >
         {/* Front of Card - Question Display */}
         <Card
-          className="absolute inset-0 w-full h-full rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white border-gray-200 transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)] backface-hidden"
+          className="absolute inset-0 w-full h-full art-deco-border p-5 bg-card/50 backdrop-blur-sm transition-all duration-200 hover:art-deco-glow backface-hidden"
           style={{ backfaceVisibility: 'hidden', minHeight: '280px' }}
         >
           {/* Skip Button */}
@@ -365,7 +365,7 @@ export function QuestionCard({
               variant="ghost"
               size="sm"
               onClick={handleSkip}
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xs"
+              className="absolute top-2 right-2 text-muted-foreground hover:text-foreground text-xs"
             >
               Skip →
             </Button>
@@ -373,7 +373,7 @@ export function QuestionCard({
 
           {/* Question Text */}
           <div className="flex-1 flex items-center justify-center mb-4">
-            <p className="text-gray-900 leading-relaxed text-center text-base font-medium">
+            <p className="text-foreground leading-relaxed text-center text-base font-medium art-deco-shadow">
               {question.question}
             </p>
           </div>
@@ -383,11 +383,11 @@ export function QuestionCard({
             {/* Action Text */}
             <div className="text-center">
               {isAnswered ? (
-                <Badge variant="default" className="text-xs bg-green-600 hover:bg-green-700">
+                <Badge variant="default" className="text-xs bg-primary/80 hover:bg-primary border border-primary">
                   ✓ Answered - Click to Edit
                 </Badge>
               ) : (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Click to answer this question
                 </p>
               )}
@@ -399,7 +399,7 @@ export function QuestionCard({
                 <Badge
                   key={index}
                   variant="outline"
-                  className={`text-xs ${getTagStyles(tag)}`}
+                  className={`text-xs ${getTagStyles(tag)} bg-secondary/30 border-border`}
                 >
                   {tag.name}
                 </Badge>
@@ -417,7 +417,7 @@ export function QuestionCard({
                   showAverage={true}
                 />
               </div>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground">
                 {userSpicinessRating ? 'Your rating' : `Tap to rate spiciness`}
               </span>
             </div>
@@ -426,7 +426,7 @@ export function QuestionCard({
 
         {/* Back of Card - Answer Form */}
         <Card
-          className="absolute inset-0 w-full h-full rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white/95 border border-black/5 backface-hidden"
+          className="absolute inset-0 w-full h-full art-deco-border p-5 bg-card/95 backdrop-blur-sm backface-hidden"
           style={{
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)'
@@ -437,7 +437,7 @@ export function QuestionCard({
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex-1">
-                <h3 className="text-sm font-semibold text-gray-900 line-clamp-2">
+                <h3 className="text-sm font-semibold text-foreground line-clamp-2 art-deco-shadow">
                   {question.question}
                 </h3>
               </div>
@@ -448,7 +448,7 @@ export function QuestionCard({
                   e.stopPropagation();
                   setIsFlipped(false);
                 }}
-                className="rounded-full flex-shrink-0"
+                className="rounded-full flex-shrink-0 hover:bg-primary/10"
               >
                 <RotateCcw className="w-4 h-4" />
               </Button>
@@ -458,16 +458,16 @@ export function QuestionCard({
             <div className="flex-1 space-y-4 overflow-y-auto">
               {/* Text Answer Textarea - Only text questions use flip cards */}
               <div className="space-y-2">
-                <Label htmlFor="answer-body" className="text-xs">Your Answer</Label>
+                <Label htmlFor="answer-body" className="text-xs text-foreground">Your Answer</Label>
                 <Textarea
                   id="answer-body"
                   placeholder="Share your honest answer..."
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
-                  className="min-h-[80px] resize-none text-sm"
+                  className="min-h-[80px] resize-none text-sm bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
                 />
                 <div className="text-xs text-right">
-                  <span className={wordCount > 100 ? 'text-red-500' : 'text-gray-500'}>
+                  <span className={wordCount > 100 ? 'text-red-500' : 'text-muted-foreground'}>
                     {wordCount}/100 words
                   </span>
                 </div>
@@ -476,7 +476,7 @@ export function QuestionCard({
               {/* Rating Sliders */}
               <div className="space-y-3">
                 <div className="space-y-2">
-                  <Label className="text-xs">Spiciness Level: {selfRating}/5</Label>
+                  <Label className="text-xs text-foreground">Spiciness Level: {selfRating}/5</Label>
                   <Slider
                     value={[selfRating]}
                     onValueChange={(value) => setSelfRating(value[0])}
@@ -488,7 +488,7 @@ export function QuestionCard({
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-xs">Keep-it-private: {importance}/5</Label>
+                  <Label className="text-xs text-foreground">Keep-it-private: {importance}/5</Label>
                   <Slider
                     value={[importance]}
                     onValueChange={(value) => setImportance(value[0])}
@@ -509,7 +509,7 @@ export function QuestionCard({
                     onCheckedChange={(checked) => setIsAnonymous(checked as boolean)}
                     className="h-4 w-4"
                   />
-                  <label htmlFor="answer-anonymous-text" className="text-xs text-gray-600 cursor-pointer">
+                  <label htmlFor="answer-anonymous-text" className="text-xs text-muted-foreground cursor-pointer">
                     Answer anonymously
                   </label>
                 </div>
@@ -520,7 +520,7 @@ export function QuestionCard({
             <Button
               onClick={handleSubmit}
               disabled={!isValidAnswer || isSubmitting}
-              className="w-full rounded-xl h-10 text-sm font-medium mt-4"
+              className="w-full art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 h-10 text-sm font-medium art-deco-text mt-4"
               size="sm"
             >
               {isSubmitting ? (

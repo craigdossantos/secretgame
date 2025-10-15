@@ -101,20 +101,23 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background art-deco-pattern">
       {/* Sticky Header with Room Creation Form */}
-      <header className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
+      <header className="sticky top-0 z-10 bg-card/80 backdrop-blur-sm border-b border-border">
         <div className="max-w-7xl mx-auto p-6">
-          <div className="mb-4">
-            <h1 className="text-4xl font-bold mb-2">The Secret Game</h1>
-            <p className="text-lg text-gray-600">
+          <div className="mb-6 text-center">
+            <h1 className="text-5xl font-serif mb-3 text-foreground art-deco-text art-deco-shadow">The Secret Game</h1>
+            <div className="art-deco-divider my-4">
+              <span>◆ ◆ ◆</span>
+            </div>
+            <p className="text-lg text-muted-foreground">
               Select questions, create a room, and start sharing secrets with friends
             </p>
           </div>
 
           <div className="flex gap-3 items-end">
             <div className="flex-1">
-              <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="userName" className="block text-sm font-medium text-foreground mb-2 art-deco-text">
                 Your Name
               </label>
               <Input
@@ -122,12 +125,12 @@ export default function Home() {
                 placeholder="Enter your name"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                className="w-full"
+                className="w-full bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
                 disabled={isCreating}
               />
             </div>
             <div className="flex-1">
-              <label htmlFor="roomName" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="roomName" className="block text-sm font-medium text-foreground mb-2 art-deco-text">
                 Room Name
               </label>
               <Input
@@ -135,14 +138,14 @@ export default function Home() {
                 placeholder="Enter room name"
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}
-                className="w-full"
+                className="w-full bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
                 disabled={isCreating}
               />
             </div>
             <Button
               onClick={handleCreateRoom}
               disabled={isCreating}
-              className="rounded-xl px-6 h-10"
+              className="art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 px-6 h-10 art-deco-text art-deco-glow"
               size="lg"
             >
               {isCreating ? 'Creating...' : 'Create Room'}

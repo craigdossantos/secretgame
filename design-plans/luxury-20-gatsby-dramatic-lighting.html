@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Secret Game - Luxury Art Deco Gatsby (Dramatic Lighting)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Didot', 'Bodoni MT', 'Garamond', serif;
+            background: radial-gradient(ellipse at center top, #1a1a1a 0%, #000000 50%, #000000 100%);
+            color: #d4af37;
+            min-height: 100vh;
+            padding: 60px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Dramatic vignette */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, transparent 40%, rgba(0, 0, 0, 0.6) 70%, rgba(0, 0, 0, 0.9) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Spotlight effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150%;
+            height: 200%;
+            background: radial-gradient(ellipse at center top, rgba(212, 175, 55, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: spotlightPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes spotlightPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Illuminated header */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 400;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffd700 0%, #d4af37 50%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.9));
+            position: relative;
+        }
+
+        /* Light rays from title */
+        h1::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.1) 0%, transparent 60%);
+            z-index: -1;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #b8924f;
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5), 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Art Deco divider with glow */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin: 40px 0;
+            color: #d4af37;
+            font-size: 1.5rem;
+            justify-content: center;
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.6));
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #d4af37, transparent);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
+        }
+
+        /* Illuminated invitation section */
+        .invitation-section {
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            border: 2px solid #d4af37;
+            clip-path: polygon(0 15px, 15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px));
+            padding: 40px;
+            margin-bottom: 50px;
+            position: relative;
+            box-shadow:
+                0 0 30px rgba(212, 175, 55, 0.4),
+                0 10px 40px rgba(0, 0, 0, 0.9),
+                inset 0 1px 0 rgba(255, 215, 0, 0.2),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* Rim lighting effect */
+        .invitation-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            clip-path: polygon(0 15px, 15px 0, calc(100% - 15px) 0, 100% 15px, 100% calc(100% - 15px), calc(100% - 15px) 100%, 15px 100%, 0 calc(100% - 15px));
+            box-shadow: inset 0 2px 30px rgba(255, 215, 0, 0.3), inset 0 -2px 30px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+        }
+
+        /* Spotlight on corner decorations */
+        .art-deco-corner {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #d4af37;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.7));
+        }
+
+        .art-deco-corner::before,
+        .art-deco-corner::after {
+            content: '';
+            position: absolute;
+            background: #d4af37;
+            box-shadow: 0 0 8px rgba(212, 175, 55, 0.9);
+        }
+
+        .art-deco-corner::before {
+            width: 100%;
+            height: 2px;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        .art-deco-corner::after {
+            width: 2px;
+            height: 100%;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        .art-deco-corner.top-left { top: 25px; left: 25px; }
+        .art-deco-corner.top-right { top: 25px; right: 25px; }
+        .art-deco-corner.bottom-left { bottom: 25px; left: 25px; }
+        .art-deco-corner.bottom-right { bottom: 25px; right: 25px; }
+
+        .invitation-code {
+            font-size: 2rem;
+            letter-spacing: 0.5em;
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            color: #ffd700;
+            text-shadow:
+                0 0 20px rgba(255, 215, 0, 0.9),
+                0 0 40px rgba(255, 215, 0, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .invitation-text {
+            text-align: center;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #c5a572;
+            text-shadow: 0 0 10px rgba(197, 165, 114, 0.5), 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Dramatically lit secrets grid */
+        .secrets-section h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #d4af37;
+            text-shadow:
+                0 0 20px rgba(212, 175, 55, 0.8),
+                0 0 40px rgba(212, 175, 55, 0.4),
+                0 4px 8px rgba(0, 0, 0, 0.9);
+        }
+
+        .secrets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        /* Cards with dramatic shadows */
+        .secret-card {
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+            border: 2px solid #9c8545;
+            clip-path: polygon(0 12px, 12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px));
+            padding: 30px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, 0.9),
+                0 10px 40px rgba(0, 0, 0, 0.7),
+                inset 0 1px 0 rgba(156, 133, 69, 0.3),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* Hover: move into spotlight */
+        .secret-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #d4af37;
+            box-shadow:
+                0 0 40px rgba(212, 175, 55, 0.6),
+                0 15px 60px rgba(0, 0, 0, 0.9),
+                0 25px 80px rgba(0, 0, 0, 0.7),
+                inset 0 2px 20px rgba(255, 215, 0, 0.2),
+                inset 0 -2px 10px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Inner glow on hover */
+        .secret-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            clip-path: polygon(0 12px, 12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            background: radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .secret-card:hover::before {
+            opacity: 1;
+        }
+
+        .secret-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .secret-author {
+            font-size: 0.9rem;
+            color: #b8924f;
+            letter-spacing: 0.1em;
+            text-shadow: 0 0 8px rgba(184, 146, 79, 0.5), 0 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .spiciness {
+            font-size: 1.2rem;
+            filter: brightness(1.3) drop-shadow(0 0 6px #ff4400) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+        }
+
+        .secret-body {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #c5a572;
+            margin-bottom: 20px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #9c8545;
+            padding-top: 15px;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Illuminated locked state */
+        .secret-card.locked {
+            background: linear-gradient(135deg, #080808 0%, #0f0f0f 50%, #080808 100%);
+            border-color: #6b5d3f;
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, 0.95),
+                inset 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .secret-card.locked:hover {
+            border-color: #9c8545;
+            box-shadow:
+                0 0 25px rgba(156, 133, 69, 0.4),
+                0 10px 40px rgba(0, 0, 0, 0.9),
+                inset 0 0 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .lock-icon {
+            font-size: 3rem;
+            text-align: center;
+            margin: 30px 0;
+            opacity: 0.4;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.3));
+        }
+
+        /* Dramatically lit CTA button */
+        .cta-section {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 18px 60px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            color: #ffd700;
+            text-decoration: none;
+            font-size: 1.1rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            border: 2px solid #d4af37;
+            clip-path: polygon(0 10px, 10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px));
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow:
+                0 0 30px rgba(212, 175, 55, 0.4),
+                0 8px 25px rgba(0, 0, 0, 0.9),
+                inset 0 1px 0 rgba(255, 215, 0, 0.2),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.7), 0 2px 4px rgba(0, 0, 0, 0.9);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            clip-path: polygon(0 10px, 10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px));
+            background: radial-gradient(circle at 50% 0%, rgba(255, 215, 0, 0.2) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                0 0 50px rgba(255, 215, 0, 0.7),
+                0 12px 40px rgba(0, 0, 0, 0.9),
+                0 20px 60px rgba(0, 0, 0, 0.7),
+                inset 0 2px 20px rgba(255, 215, 0, 0.3),
+                inset 0 -2px 10px rgba(0, 0, 0, 0.7);
+        }
+
+        .cta-button:hover::before {
+            opacity: 1;
+        }
+
+        /* Geometric pattern background with depth */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                repeating-linear-gradient(0deg, transparent, transparent 100px, rgba(212, 175, 55, 0.02) 100px, rgba(212, 175, 55, 0.02) 101px),
+                repeating-linear-gradient(90deg, transparent, transparent 100px, rgba(212, 175, 55, 0.02) 100px, rgba(212, 175, 55, 0.02) 101px);
+            z-index: 0;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .secrets-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .invitation-section {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+
+    <div class="container">
+        <header>
+            <h1>The Secret Game</h1>
+            <p class="subtitle">Where Secrets Come Alive</p>
+        </header>
+
+        <div class="divider">◆ ◆ ◆</div>
+
+        <section class="invitation-section">
+            <div class="art-deco-corner top-left"></div>
+            <div class="art-deco-corner top-right"></div>
+            <div class="art-deco-corner bottom-left"></div>
+            <div class="art-deco-corner bottom-right"></div>
+
+            <div class="invitation-code">GATSBY-2025</div>
+            <p class="invitation-text">
+                You&apos;ve been invited to an exclusive gathering.<br>
+                Share your secrets. Unlock others&apos;. Join the intrigue.
+            </p>
+        </section>
+
+        <section class="secrets-section">
+            <h2>Secrets Revealed</h2>
+
+            <div class="secrets-grid">
+                <div class="secret-card">
+                    <div class="secret-header">
+                        <span class="secret-author">Anonymous</span>
+                        <span class="spiciness">🌶️🌶️🌶️</span>
+                    </div>
+                    <div class="secret-body">
+                        I once spent an entire summer pretending to have a job at a prestigious law firm, when really I was taking dance classes and performing in underground jazz clubs every night.
+                    </div>
+                    <div class="secret-footer">
+                        <span>Unlocked by 8 people</span>
+                        <span>2 days ago</span>
+                    </div>
+                </div>
+
+                <div class="secret-card">
+                    <div class="secret-header">
+                        <span class="secret-author">Anonymous</span>
+                        <span class="spiciness">🌶️🌶️</span>
+                    </div>
+                    <div class="secret-body">
+                        I&apos;ve been collecting vintage champagne coupes from estate sales, and my collection is now worth more than my car. My family thinks they&apos;re just regular glasses.
+                    </div>
+                    <div class="secret-footer">
+                        <span>Unlocked by 12 people</span>
+                        <span>5 days ago</span>
+                    </div>
+                </div>
+
+                <div class="secret-card locked">
+                    <div class="lock-icon">🔒</div>
+                    <div class="secret-body" style="text-align: center; opacity: 0.6;">
+                        Share a secret with 🌶️🌶️🌶️ spiciness to unlock this mystery...
+                    </div>
+                </div>
+
+                <div class="secret-card">
+                    <div class="secret-header">
+                        <span class="secret-author">Anonymous</span>
+                        <span class="spiciness">🌶️🌶️🌶️🌶️</span>
+                    </div>
+                    <div class="secret-body">
+                        During Prohibition, my great-grandfather ran a speakeasy in our family&apos;s basement. I recently discovered his hidden ledgers and realized half the town&apos;s elite were regular patrons.
+                    </div>
+                    <div class="secret-footer">
+                        <span>Unlocked by 6 people</span>
+                        <span>1 week ago</span>
+                    </div>
+                </div>
+
+                <div class="secret-card locked">
+                    <div class="lock-icon">🔒</div>
+                    <div class="secret-body" style="text-align: center; opacity: 0.6;">
+                        Share a secret with 🌶️🌶️ spiciness to unlock this revelation...
+                    </div>
+                </div>
+
+                <div class="secret-card">
+                    <div class="secret-header">
+                        <span class="secret-author">Anonymous</span>
+                        <span class="spiciness">🌶️🌶️🌶️🌶️🌶️</span>
+                    </div>
+                    <div class="secret-body">
+                        I know who really wrote the anonymous letters that dissolved three marriages in our social circle last year. It wasn&apos;t who everyone suspects.
+                    </div>
+                    <div class="secret-footer">
+                        <span>Unlocked by 3 people</span>
+                        <span>3 days ago</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider">◆ ◆ ◆</div>
+
+        <section class="cta-section">
+            <a href="#" class="cta-button">Share Your Secret</a>
+        </section>
+    </div>
+</body>
+</html>

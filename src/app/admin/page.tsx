@@ -144,22 +144,25 @@ export default function AdminPage() {
   const currentQuestions = showArchived ? archivedQuestions : activeQuestions;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-background art-deco-pattern p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Question Admin</h1>
-            <p className="text-gray-600 mt-1">Manage question cards for your Secret Game</p>
+            <h1 className="text-4xl font-serif text-foreground art-deco-text art-deco-shadow">Question Admin</h1>
+            <p className="text-muted-foreground mt-2">Manage question cards for your Secret Game</p>
+            <div className="art-deco-divider my-4">
+              <span>◆</span>
+            </div>
           </div>
-          <Button onClick={() => setShowNewQuestionForm(true)} className="flex items-center gap-2">
+          <Button onClick={() => setShowNewQuestionForm(true)} className="flex items-center gap-2 art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 art-deco-text art-deco-glow">
             <Plus className="w-4 h-4" />
             Add Question
           </Button>
         </div>
 
         {/* Room Selection and Filters */}
-        <Card className="p-6 mb-6">
+        <Card className="p-6 mb-6 art-deco-border bg-card/50 backdrop-blur-sm">
           <div className="space-y-4">
             {/* Room Selection */}
             <div className="flex items-center gap-4">

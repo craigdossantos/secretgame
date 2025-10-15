@@ -66,49 +66,49 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
       onHoverEnd={() => setIsHovered(false)}
       className="perspective-1000"
     >
-      <Card className="rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] bg-white/95 border border-black/5 transition-all duration-200 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)]">
+      <Card className="art-deco-border p-5 bg-card/50 backdrop-blur-sm transition-all duration-200 hover:art-deco-glow">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             {secret.isAnonymous ? (
               <>
-                <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                  <span className="text-purple-600 text-sm font-medium">?</span>
+                <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
+                  <span className="text-primary text-sm font-medium">?</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-700">Anonymous</span>
-                  <Badge variant="outline" className="text-xs bg-purple-50 border-purple-200 text-purple-700">
+                  <span className="text-sm font-medium text-foreground art-deco-text">Anonymous</span>
+                  <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30 text-primary">
                     Hidden
                   </Badge>
                 </div>
               </>
             ) : (
               <>
-                <Avatar className="w-8 h-8">
+                <Avatar className="w-8 h-8 border-2 border-border">
                   <AvatarImage src={secret.authorAvatar} />
-                  <AvatarFallback>{secret.authorName[0]}</AvatarFallback>
+                  <AvatarFallback className="bg-primary/20 text-primary">{secret.authorName[0]}</AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-foreground">
                   {secret.authorName}
                 </span>
               </>
             )}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-muted-foreground">
             {new Date(secret.createdAt).toLocaleDateString()}
           </div>
         </div>
 
         {/* Badges */}
         <div className="flex gap-2 mb-4">
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="text-xs bg-secondary/50 border-border">
             Level {secret.selfRating}
           </Badge>
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="outline" className="text-xs bg-secondary/30 border-border">
             Keep-it-private: {secret.importance}/5
           </Badge>
           {secret.avgRating && (
-            <Badge variant="default" className="text-xs flex items-center gap-1">
+            <Badge variant="default" className="text-xs flex items-center gap-1 bg-primary/80 border-primary">
               <Star className="w-3 h-3 fill-current" />
               {secret.avgRating.toFixed(1)}
             </Badge>
@@ -119,8 +119,8 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
         <div className="mb-4 space-y-3">
           {/* Question Text */}
           {secret.questionText && (
-            <div className="pb-2 border-b border-gray-100">
-              <p className="text-sm font-semibold text-gray-900 leading-snug">
+            <div className="pb-2 border-b border-border/50">
+              <p className="text-sm font-semibold text-foreground leading-snug art-deco-shadow">
                 {secret.questionText}
               </p>
             </div>
@@ -136,10 +136,13 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
             />
           ) : (
             <div className="relative">
-              <p className="text-gray-800 leading-relaxed blur-sm select-none">
+              <p className="text-foreground/60 leading-relaxed blur-sm select-none">
                 {blurredPreview}
               </p>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-white/60" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-card/30 to-card/60" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Lock className="w-8 h-8 text-primary/40 filter drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]" />
+              </div>
             </div>
           )}
         </div>
@@ -148,7 +151,7 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
         <div className="flex items-center justify-between">
           {secret.isUnlocked ? (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Rate this secret:</span>
+              <span className="text-sm text-muted-foreground">Rate this secret:</span>
               <RatingStars
                 rating={selectedRating || 0}
                 onRatingChange={handleRate}
@@ -157,14 +160,14 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
           ) : (
             <Button
               onClick={handleUnlock}
-              className="flex items-center gap-2 rounded-xl hover:scale-105 transition-transform"
+              className="flex items-center gap-2 art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform art-deco-text text-xs"
             >
               <Lock className="w-4 h-4" />
-              Unlock by submitting a level {secret.selfRating}+ secret
+              Unlock (Level {secret.selfRating}+)
             </Button>
           )}
 
-          <div className="flex items-center gap-1 text-sm text-gray-500">
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Users className="w-4 h-4" />
             {secret.buyersCount}
           </div>

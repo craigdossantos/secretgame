@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Deco Gatsby - Bold Borders Variant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Didot', 'Bodoni MT', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #000000 0%, #0d0d0d 50%, #000000 100%);
+            min-height: 100vh;
+            color: #e8c170;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 20px,
+                    rgba(232, 193, 112, 0.02) 20px,
+                    rgba(232, 193, 112, 0.02) 22px
+                );
+            pointer-events: none;
+        }
+
+        .art-deco-border {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 5px solid #d4af37;
+            pointer-events: none;
+            z-index: 9999;
+            box-shadow: inset 0 0 0 3px #000000;
+        }
+
+        .art-deco-border::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            border: 2px solid #d4af37;
+        }
+
+        .art-deco-corner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 5px solid #d4af37;
+            background: #000000;
+        }
+
+        .corner-tl {
+            top: -5px;
+            left: -5px;
+            border-right: none;
+            border-bottom: none;
+            clip-path: polygon(0 0, 100% 0, 100% 20px, 20px 20px, 20px 100%, 0 100%);
+        }
+
+        .corner-tr {
+            top: -5px;
+            right: -5px;
+            border-left: none;
+            border-bottom: none;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, calc(100% - 20px) 100%, calc(100% - 20px) 20px, 0 20px);
+        }
+
+        .corner-bl {
+            bottom: -5px;
+            left: -5px;
+            border-right: none;
+            border-top: none;
+            clip-path: polygon(0 0, 20px 0, 20px calc(100% - 20px), 100% calc(100% - 20px), 100% 100%, 0 100%);
+        }
+
+        .corner-br {
+            bottom: -5px;
+            right: -5px;
+            border-left: none;
+            border-top: none;
+            clip-path: polygon(calc(100% - 20px) 0, 100% 0, 100% 100%, 0 100%, 0 calc(100% - 20px), calc(100% - 20px) calc(100% - 20px));
+        }
+
+        .header {
+            background: #000000;
+            border-bottom: 6px solid #d4af37;
+            border-top: 2px solid #d4af37;
+            padding: 3.5rem 3rem;
+            position: relative;
+            box-shadow: 0 0 0 2px #000000, 0 10px 60px rgba(212, 175, 55, 0.4);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 6px;
+            background: repeating-linear-gradient(
+                90deg,
+                #d4af37 0px,
+                #d4af37 10px,
+                transparent 10px,
+                transparent 15px
+            );
+        }
+
+        .header::after {
+            content: '◆';
+            position: absolute;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.5rem;
+            color: #d4af37;
+            text-shadow: 0 0 20px #d4af37;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 4px solid #d4af37;
+            color: #e8c170;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0.75rem 2.5rem;
+            margin-bottom: 2.5rem;
+            display: inline-block;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            transition: all 0.4s ease;
+            position: relative;
+            clip-path: polygon(12% 0%, 88% 0%, 100% 50%, 88% 100%, 12% 100%, 0% 50%);
+            box-shadow: 0 0 0 2px #000000, 0 0 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .back-btn:hover {
+            background: #d4af37;
+            color: #000000;
+            box-shadow: 0 0 0 2px #000000, 0 0 50px rgba(212, 175, 55, 0.6);
+        }
+
+        h1 {
+            font-size: 5rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: #e8c170;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-family: 'Didot', serif;
+            text-shadow: 0 0 40px rgba(232, 193, 112, 0.5), 0 6px 0 rgba(0, 0, 0, 0.8);
+            -webkit-text-stroke: 1px #d4af37;
+        }
+
+        h1::before,
+        h1::after {
+            content: '◆';
+            font-size: 3rem;
+            margin: 0 2rem;
+            text-shadow: 0 0 30px #d4af37;
+            -webkit-text-stroke: 0;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #d4af37;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .member-badge {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: transparent;
+            border: 4px solid #d4af37;
+            border-left: none;
+            border-right: none;
+            font-size: 0.8rem;
+            color: #e8c170;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .member-badge::before,
+        .member-badge::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 100%;
+            top: 0;
+            border-top: 4px solid #d4af37;
+            border-bottom: 4px solid #d4af37;
+        }
+
+        .member-badge::before {
+            left: -30px;
+            border-left: 4px solid #d4af37;
+        }
+
+        .member-badge::after {
+            right: -30px;
+            border-right: 4px solid #d4af37;
+        }
+
+        .invite-section {
+            margin-top: 3rem;
+            padding: 2.5rem;
+            background: rgba(0, 0, 0, 0.9);
+            border: 5px double #d4af37;
+            position: relative;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+        }
+
+        .invite-section::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+        }
+
+        .invite-label {
+            font-size: 0.75rem;
+            color: #d4af37;
+            text-transform: uppercase;
+            letter-spacing: 0.35em;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .invite-url {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #e8c170;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+            padding: 0.75rem;
+            border: 2px solid #d4af37;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .copy-btn {
+            background: transparent;
+            color: #e8c170;
+            border: 4px solid #d4af37;
+            padding: 0.75rem 3rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            transition: all 0.4s ease;
+            clip-path: polygon(8% 0%, 92% 0%, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .copy-btn:hover {
+            background: #d4af37;
+            color: #000000;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.6);
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 5rem 3rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .section-header::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                transparent 10px,
+                #d4af37 10px,
+                #d4af37 20px,
+                transparent 20px,
+                transparent 30px
+            );
+            z-index: 0;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 400;
+            color: #e8c170;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            background: #000000;
+            padding: 0 2.5rem;
+            display: inline-block;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 40px rgba(232, 193, 112, 0.5);
+            border-left: 4px solid #d4af37;
+            border-right: 4px solid #d4af37;
+        }
+
+        .section-subtitle {
+            font-size: 0.9rem;
+            color: #d4af37;
+            margin-top: 1.5rem;
+            letter-spacing: 0.25em;
+            font-weight: 400;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 3rem;
+            margin-bottom: 6rem;
+        }
+
+        .card {
+            background: #000000;
+            border: 5px solid #d4af37;
+            padding: 3rem;
+            min-height: 340px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 0 0 3px #000000, 0 12px 50px rgba(212, 175, 55, 0.4), inset 0 2px 0 rgba(212, 175, 55, 0.3);
+            transition: all 0.5s ease;
+            position: relative;
+            clip-path: polygon(
+                0 15px, 15px 0,
+                calc(100% - 15px) 0, 100% 15px,
+                100% calc(100% - 15px), calc(100% - 15px) 100%,
+                15px 100%, 0 calc(100% - 15px)
+            );
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            right: 18px;
+            bottom: 18px;
+            border: 2px solid rgba(212, 175, 55, 0.5);
+            pointer-events: none;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 23px;
+            left: 23px;
+            right: 23px;
+            bottom: 23px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 0 0 3px #000000, 0 24px 80px rgba(212, 175, 55, 0.6), inset 0 2px 0 rgba(212, 175, 55, 0.5);
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.9;
+            color: #e8c170;
+            font-weight: 300;
+            margin-bottom: 2.5rem;
+            letter-spacing: 0.02em;
+            text-align: center;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 3px solid rgba(212, 175, 55, 0.5);
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            color: #e8c170;
+            background: transparent;
+            padding: 0.6rem 1.8rem;
+            border: 3px solid #d4af37;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .spiciness {
+            font-size: 1.3rem;
+            filter: brightness(1.3) drop-shadow(0 0 10px #ff4400);
+        }
+
+        .add-question-card {
+            background: rgba(0, 0, 0, 0.95);
+            border: 5px dashed #d4af37;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+        }
+
+        .add-question-card:hover {
+            background: #000000;
+            transform: translateY(-12px);
+            border-style: solid;
+            box-shadow: 0 24px 80px rgba(212, 175, 55, 0.5);
+        }
+
+        .add-icon {
+            font-size: 4rem;
+            color: #d4af37;
+            margin-bottom: 1rem;
+            font-weight: 300;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+        }
+
+        .add-text {
+            font-size: 1rem;
+            color: #e8c170;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        .secret-card {
+            background: #000000;
+            border: 5px solid #d4af37;
+            padding: 3rem;
+            position: relative;
+            box-shadow: 0 0 0 3px #000000, 0 12px 50px rgba(212, 175, 55, 0.4), inset 0 2px 0 rgba(212, 175, 55, 0.3);
+            clip-path: polygon(
+                0 15px, 15px 0,
+                calc(100% - 15px) 0, 100% 15px,
+                100% calc(100% - 15px), calc(100% - 15px) 100%,
+                15px 100%, 0 calc(100% - 15px)
+            );
+        }
+
+        .secret-card::before {
+            content: '◆';
+            position: absolute;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #d4af37;
+            font-size: 1.2rem;
+            text-shadow: 0 0 15px #d4af37;
+        }
+
+        .secret-author {
+            font-size: 0.8rem;
+            color: #d4af37;
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            font-weight: 400;
+            text-align: center;
+        }
+
+        .secret-question {
+            font-size: 0.95rem;
+            color: #e8c170;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+            text-align: center;
+        }
+
+        .secret-body {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #e8c170;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+            text-align: center;
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 3px solid rgba(212, 175, 55, 0.5);
+        }
+
+        .rating {
+            font-size: 0.8rem;
+            color: #d4af37;
+            letter-spacing: 0.12em;
+            font-weight: 400;
+        }
+
+        .unlock-btn {
+            background: transparent;
+            border: 4px solid #d4af37;
+            color: #e8c170;
+            padding: 0.75rem 2.2rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            transition: all 0.4s ease;
+            clip-path: polygon(8% 0%, 92% 0%, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
+        }
+
+        .unlock-btn:hover {
+            background: #d4af37;
+            color: #000000;
+            box-shadow: 0 0 50px rgba(212, 175, 55, 0.6);
+        }
+
+        .locked-overlay {
+            background: rgba(0, 0, 0, 0.98);
+            border: 4px solid #d4af37;
+            position: absolute;
+            top: 22px;
+            left: 22px;
+            right: 22px;
+            bottom: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: inset 0 0 60px rgba(212, 175, 55, 0.3);
+        }
+
+        .lock-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 30px #d4af37);
+        }
+    </style>
+</head>
+<body>
+    <div class="art-deco-border">
+        <div class="art-deco-corner corner-tl"></div>
+        <div class="art-deco-corner corner-tr"></div>
+        <div class="art-deco-corner corner-bl"></div>
+        <div class="art-deco-corner corner-br"></div>
+    </div>
+
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn">← Return</button>
+            <h1>Secrets</h1>
+            <p class="subtitle">A Private Society</p>
+            <div class="member-badge">Eight Members</div>
+
+            <div class="invite-section">
+                <div class="invite-label">Exclusive Access</div>
+                <div class="invite-url">localhost:3000/invite/abc123xyz</div>
+                <button class="copy-btn">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="section-header">
+            <h2 class="section-title">Inquiries</h2>
+            <p class="section-subtitle">Share Your Truth</p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="question-text">What's a secret talent you have that nobody knows about?</div>
+                <div class="card-footer">
+                    <span class="tag">Growth</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's the most embarrassing thing that happened to you in public?</div>
+                <div class="card-footer">
+                    <span class="tag">Social</span>
+                    <span class="spiciness">🌶️🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's something you believe that most people disagree with?</div>
+                <div class="card-footer">
+                    <span class="tag">Beliefs</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="add-question-card">
+                <div style="text-align: center;">
+                    <div class="add-icon">+</div>
+                    <div class="add-text">Compose</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-header">
+            <h2 class="section-title">Revelations</h2>
+            <p class="section-subtitle">Three Shared · Exchange to Access</p>
+        </div>
+
+        <div class="grid">
+            <div class="secret-card">
+                <div class="secret-author">Sarah M. · Two Hours Past</div>
+                <div class="secret-question">"What's a secret talent you have?"</div>
+                <div class="secret-body">I can solve a Rubik's cube in under 30 seconds, but I've never told anyone because I don't want to be seen as a show-off.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️ Self</div>
+                    <div class="rating">⭐ 4.2 Merit</div>
+                </div>
+            </div>
+
+            <div class="secret-card" style="position: relative;">
+                <div class="secret-author">Anonymous · One Day Past</div>
+                <div class="secret-question">"What's your greatest fear?"</div>
+                <div class="secret-body" style="filter: blur(8px);">This revelation remains sealed until you share one of equal depth...</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️🌶️🌶️</div>
+                    <div class="rating">Three Access</div>
+                </div>
+                <div class="locked-overlay">
+                    <div class="lock-icon">🔒</div>
+                    <button class="unlock-btn">Unlock</button>
+                </div>
+            </div>
+
+            <div class="secret-card">
+                <div class="secret-author">Michael K. · Three Days Past</div>
+                <div class="secret-question">"An unpopular conviction?"</div>
+                <div class="secret-body">I genuinely think pineapple on pizza is one of the greatest food combinations ever invented. Fight me.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️ Mild</div>
+                    <div class="rating">⭐ 3.8 Merit</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -420,10 +420,10 @@ export default function RoomPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading room...</p>
+      <div className="min-h-screen bg-background art-deco-pattern flex items-center justify-center">
+        <div className="text-center art-deco-border p-8 bg-card/50 backdrop-blur-sm art-deco-glow">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-foreground art-deco-text text-sm">Loading room...</p>
         </div>
       </div>
     );
@@ -431,11 +431,15 @@ export default function RoomPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Room Not Found</h1>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <Button onClick={() => router.push('/')} variant="outline">
+      <div className="min-h-screen bg-background art-deco-pattern flex items-center justify-center">
+        <div className="text-center art-deco-border p-8 bg-card/50 backdrop-blur-sm art-deco-glow max-w-md">
+          <h1 className="text-2xl font-serif text-foreground mb-2 art-deco-text art-deco-shadow">Room Not Found</h1>
+          <p className="text-muted-foreground mb-6">{error}</p>
+          <Button
+            onClick={() => router.push('/')}
+            variant="outline"
+            className="bg-secondary border-border hover:bg-primary hover:text-primary-foreground transition-all"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Go Home
           </Button>
@@ -445,9 +449,9 @@ export default function RoomPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background art-deco-pattern">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <div className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           {/* Top row: Title and back button */}
           <div className="flex items-center justify-between mb-3">
@@ -456,16 +460,16 @@ export default function RoomPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => router.push('/')}
-                className="rounded-full"
+                className="rounded-full hover:bg-primary/10"
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">
+                <h1 className="text-2xl font-serif text-foreground art-deco-text art-deco-shadow">
                   {room?.name || 'Secret Room'}
                 </h1>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                  <Badge variant="secondary" className="text-xs flex items-center gap-1 bg-secondary/50 border border-border">
                     <Users className="w-3 h-3" />
                     {room?.memberCount || 1} member{room?.memberCount !== 1 ? 's' : ''}
                   </Badge>
@@ -474,21 +478,26 @@ export default function RoomPage() {
             </div>
           </div>
 
+          {/* Art Deco Divider */}
+          <div className="art-deco-divider my-4">
+            <span>◆</span>
+          </div>
+
           {/* Invite link card */}
           {room && (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+            <div className="art-deco-border bg-card/50 backdrop-blur-sm p-4 art-deco-glow">
               <div className="flex items-center gap-3">
                 <div className="flex-1">
-                  <p className="text-xs text-blue-700 font-medium mb-1">Invite Friends</p>
-                  <p className="text-sm font-mono text-gray-900 break-all">
-                    {`${window.location.origin}/invite/${room.inviteCode}`}
+                  <p className="text-xs text-primary font-medium mb-2 art-deco-text">Invitation Code</p>
+                  <p className="text-lg font-mono text-foreground break-all tracking-widest">
+                    {room.inviteCode}
                   </p>
                 </div>
                 <Button
                   onClick={copyInviteLink}
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-2 shrink-0 bg-white"
+                  className="flex items-center gap-2 shrink-0 bg-secondary border-border hover:bg-primary hover:text-primary-foreground transition-all"
                 >
                   {isCopied ? (
                     <>
@@ -512,13 +521,13 @@ export default function RoomPage() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {roomQuestions.length === 0 ? (
           /* No Questions in Room State */
-          <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+          <div className="text-center py-12 art-deco-border bg-card/30 backdrop-blur-sm art-deco-glow">
             <div className="mb-4">
-              <div className="text-6xl mb-4">❓</div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <div className="text-6xl mb-4 filter drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]">❓</div>
+              <h3 className="text-lg font-semibold text-foreground mb-2 art-deco-text art-deco-shadow">
                 No Questions Yet
               </h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 {room?.ownerId === currentUserId
                   ? "Get the conversation started by adding some spicy questions for your group!"
                   : "Waiting for questions to be added to this room."}
@@ -528,7 +537,7 @@ export default function RoomPage() {
               <Button
                 onClick={() => router.push(`/admin?room=${roomId}`)}
                 size="lg"
-                className="rounded-xl"
+                className="art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 art-deco-glow"
               >
                 Add Questions to Room
               </Button>
@@ -540,11 +549,14 @@ export default function RoomPage() {
             {/* Unanswered Questions (3 at a time) */}
             {displayedQuestions.length > 0 && (
               <div>
-                <div className="mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">
+                <div className="art-deco-divider mb-6">
+                  <span>◆ ◆ ◆</span>
+                </div>
+                <div className="mb-6 text-center">
+                  <h2 className="text-2xl font-serif text-foreground art-deco-text art-deco-shadow">
                     Answer Questions to Share Secrets
                   </h2>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-muted-foreground mt-2">
                     Click a question to flip it and share your answer
                   </p>
                 </div>
@@ -572,18 +584,18 @@ export default function RoomPage() {
                   className="w-full"
                 >
                   <Card
-                    className="relative w-full rounded-2xl p-5 border-2 border-dashed border-gray-300 bg-white hover:border-blue-400 hover:shadow-[0_16px_40px_rgba(0,0,0,0.12)] transition-all duration-200 cursor-pointer"
+                    className="relative w-full art-deco-border p-5 border-2 border-dashed bg-card/30 backdrop-blur-sm hover:border-primary hover:art-deco-glow transition-all duration-200 cursor-pointer"
                     onClick={() => setIsCustomQuestionModalOpen(true)}
                   >
                     <div className="flex items-center justify-center gap-4">
-                      <div className="rounded-full p-3 bg-blue-50">
-                        <Plus className="w-5 h-5 text-blue-600" />
+                      <div className="rounded-full p-3 bg-primary/10 border border-primary/30">
+                        <Plus className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-gray-900">
+                        <h3 className="font-medium text-foreground art-deco-text text-sm">
                           Create Custom Question
                         </h3>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           Add your own question to the room
                         </p>
                       </div>
@@ -595,12 +607,12 @@ export default function RoomPage() {
 
             {/* All Questions Answered State */}
             {displayedQuestions.length === 0 && roomQuestions.length > 0 && (
-              <div className="text-center py-8 bg-blue-50 rounded-xl border border-blue-200">
-                <div className="text-4xl mb-3">🎉</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">
+              <div className="text-center py-8 art-deco-border bg-card/30 backdrop-blur-sm art-deco-glow">
+                <div className="text-4xl mb-3 filter drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]">🎉</div>
+                <h3 className="text-lg font-semibold text-foreground mb-1 art-deco-text art-deco-shadow">
                   All Questions Answered!
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   You&apos;ve answered or skipped all available questions.
                 </p>
               </div>
@@ -609,11 +621,14 @@ export default function RoomPage() {
             {/* Secrets Feed */}
             {secrets.length > 0 && (
               <div>
-                <div className="mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">
+                <div className="art-deco-divider my-8">
+                  <span>◆ ◆ ◆</span>
+                </div>
+                <div className="mb-6 text-center">
+                  <h2 className="text-2xl font-serif text-foreground art-deco-text art-deco-shadow">
                     Secrets ({secrets.length})
                   </h2>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-muted-foreground mt-2">
                     Your secrets appear unlocked. Unlock others&apos; by sharing secrets of equal or higher spiciness.
                   </p>
                 </div>
@@ -633,11 +648,14 @@ export default function RoomPage() {
             {/* No Secrets Yet State - Show Example */}
             {secrets.length === 0 && roomQuestions.length > 0 && (
               <div>
-                <div className="mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">
+                <div className="art-deco-divider my-8">
+                  <span>◆ ◆ ◆</span>
+                </div>
+                <div className="mb-6 text-center">
+                  <h2 className="text-2xl font-serif text-foreground art-deco-text art-deco-shadow">
                     Secrets (0)
                   </h2>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-muted-foreground mt-2">
                     Example of how secrets will appear - answer a question to share yours!
                   </p>
                 </div>

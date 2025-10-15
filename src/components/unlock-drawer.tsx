@@ -52,19 +52,19 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
   return (
     <Drawer.Root open={isOpen} onOpenChange={onOpenChange}>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-white flex flex-col rounded-t-2xl h-[90vh] mt-24 fixed bottom-0 left-0 right-0">
-          <div className="p-4 bg-white rounded-t-2xl flex-1">
+        <Drawer.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+        <Drawer.Content className="bg-card/95 backdrop-blur-sm flex flex-col art-deco-border border-t-2 h-[90vh] mt-24 fixed bottom-0 left-0 right-0">
+          <div className="p-6 bg-card/95 backdrop-blur-sm flex-1 overflow-y-auto">
             {/* Handle */}
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-8" />
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-primary/40 mb-8" />
 
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <Drawer.Title className="text-xl font-semibold">
+                <Drawer.Title className="text-2xl font-serif text-foreground art-deco-text art-deco-shadow">
                   Submit a Level {requiredRating}+ Secret
                 </Drawer.Title>
-                <p className="text-gray-600 text-sm mt-1">
+                <p className="text-muted-foreground text-sm mt-2">
                   Share a secret to unlock this one
                 </p>
               </div>
@@ -72,26 +72,31 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
                 variant="ghost"
                 size="sm"
                 onClick={() => onOpenChange(false)}
-                className="rounded-full"
+                className="rounded-full hover:bg-primary/10"
               >
                 <X className="w-4 h-4" />
               </Button>
+            </div>
+
+            {/* Art Deco Divider */}
+            <div className="art-deco-divider my-6">
+              <span>◆</span>
             </div>
 
             {/* Form */}
             <div className="space-y-6">
               {/* Secret Body */}
               <div className="space-y-2">
-                <Label htmlFor="secret-body">Your Secret</Label>
+                <Label htmlFor="secret-body" className="text-foreground art-deco-text text-sm">Your Secret</Label>
                 <Textarea
                   id="secret-body"
                   placeholder="Share something personal, embarrassing, or surprising..."
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
-                  className="min-h-32 resize-none"
+                  className="min-h-32 resize-none bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
                 />
                 <div className="flex justify-between text-sm">
-                  <span className={wordCount > 100 ? 'text-red-500' : 'text-gray-500'}>
+                  <span className={wordCount > 100 ? 'text-red-500' : 'text-muted-foreground'}>
                     {wordCount}/100 words
                   </span>
                   {!isValidWordCount && wordCount > 0 && (
@@ -102,7 +107,7 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
 
               {/* Rating Slider */}
               <div className="space-y-3">
-                <Label>Secrecy Level: {selfRating}/5</Label>
+                <Label className="text-foreground art-deco-text text-sm">Spiciness Level: {selfRating}/5</Label>
                 <Slider
                   value={[selfRating]}
                   onValueChange={(value) => setSelfRating(value[0])}
@@ -111,13 +116,13 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
                   step={1}
                   className="w-1/4"
                 />
-                <div className="flex justify-between text-xs text-gray-500">
+                <div className="flex justify-between text-xs text-muted-foreground">
                   <span>Not secret</span>
                   <span>Very secret</span>
                 </div>
                 {!isValidRating && (
                   <div className="flex items-center gap-2">
-                    <Badge variant="destructive" className="text-xs">
+                    <Badge variant="destructive" className="text-xs bg-red-600 text-white">
                       Must be level {requiredRating} or higher
                     </Badge>
                   </div>
@@ -126,7 +131,7 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
 
               {/* Importance Slider */}
               <div className="space-y-3">
-                <Label>Keep-it-private: {importance}/5</Label>
+                <Label className="text-foreground art-deco-text text-sm">Keep-it-private: {importance}/5</Label>
                 <Slider
                   value={[importance]}
                   onValueChange={(value) => setImportance(value[0])}
@@ -135,16 +140,16 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
                   step={1}
                   className="w-1/4"
                 />
-                <div className="flex justify-between text-xs text-gray-500">
+                <div className="flex justify-between text-xs text-muted-foreground">
                   <span>Shareable</span>
                   <span>Very private</span>
                 </div>
               </div>
 
               {/* Warning */}
-              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm text-yellow-800">
-                  ⚠️ <strong>No edits in V0—post carefully.</strong> Your secret will be visible to others who unlock it.
+              <div className="p-4 art-deco-border bg-secondary/30 backdrop-blur-sm">
+                <p className="text-sm text-foreground">
+                  <span className="text-primary">⚠️</span> <strong className="art-deco-text">No edits in V0—post carefully.</strong> Your secret will be visible to others who unlock it.
                 </p>
               </div>
 
@@ -152,7 +157,7 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
               <Button
                 onClick={handleSubmit}
                 disabled={!isValidWordCount || !isValidRating || isSubmitting}
-                className="w-full rounded-xl h-12 text-base font-medium"
+                className="w-full art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium art-deco-text art-deco-glow"
               >
                 {isSubmitting ? (
                   'Submitting...'
