@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Royal Purple Velvet - Luxury Variation 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Garamond', 'Baskerville', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #1a0f29 0%, #2d1b4e 50%, #1a0f29 100%);
+            min-height: 100vh;
+            color: #e6d5f0;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 30% 40%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(75, 0, 130, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .header {
+            background: linear-gradient(180deg, rgba(45, 27, 78, 0.9) 0%, rgba(26, 15, 41, 0.9) 100%);
+            border-bottom: 3px solid #c084fc;
+            padding: 3rem 2rem;
+            position: relative;
+            box-shadow: 0 8px 40px rgba(192, 132, 252, 0.2);
+        }
+
+        .header::before {
+            content: '♔';
+            position: absolute;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.5rem;
+            color: #c084fc;
+            opacity: 0.3;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid #c084fc;
+            color: #c084fc;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.75rem 2rem;
+            margin-bottom: 2rem;
+            display: inline-block;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: all 0.4s ease;
+            border-radius: 0;
+        }
+
+        .back-btn:hover {
+            background: #c084fc;
+            color: #1a0f29;
+            box-shadow: 0 0 20px rgba(192, 132, 252, 0.5);
+        }
+
+        h1 {
+            font-size: 3.8rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: #e6d5f0;
+            letter-spacing: 0.1em;
+            font-style: italic;
+            text-shadow: 0 0 30px rgba(192, 132, 252, 0.4);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #c084fc;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .member-badge {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(75, 0, 130, 0.3));
+            border: 2px solid #c084fc;
+            font-size: 0.85rem;
+            color: #e6d5f0;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        .invite-section {
+            margin-top: 2.5rem;
+            padding: 2rem;
+            background: rgba(45, 27, 78, 0.6);
+            border: 2px solid #c084fc;
+            border-left-width: 8px;
+            position: relative;
+        }
+
+        .invite-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, #c084fc, transparent);
+        }
+
+        .invite-label {
+            font-size: 0.75rem;
+            color: #c084fc;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .invite-url {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #e6d5f0;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: #ffffff;
+            border: 2px solid #c084fc;
+            padding: 0.75rem 2.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(192, 132, 252, 0.3);
+        }
+
+        .copy-btn:hover {
+            box-shadow: 0 6px 25px rgba(192, 132, 252, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            color: #e6d5f0;
+            font-style: italic;
+            letter-spacing: 0.08em;
+            text-shadow: 0 0 20px rgba(192, 132, 252, 0.3);
+        }
+
+        .section-subtitle {
+            font-size: 0.95rem;
+            color: #c084fc;
+            margin-bottom: 3rem;
+            letter-spacing: 0.15em;
+            font-weight: 300;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 5rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(45, 27, 78, 0.6) 0%, rgba(26, 15, 41, 0.6) 100%);
+            border: 2px solid #c084fc;
+            padding: 3rem;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(192, 132, 252, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, transparent, #c084fc, transparent);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(192, 132, 252, 0.3), inset 0 1px 0 rgba(192, 132, 252, 0.4);
+            border-color: #e9d5ff;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #e6d5f0;
+            font-weight: 300;
+            margin-bottom: 2.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(192, 132, 252, 0.3);
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            color: #c084fc;
+            background: rgba(138, 43, 226, 0.2);
+            padding: 0.5rem 1.5rem;
+            border: 1px solid #c084fc;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .spiciness {
+            font-size: 1.2rem;
+        }
+
+        .add-question-card {
+            background: rgba(45, 27, 78, 0.3);
+            border: 2px dashed #c084fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .add-question-card:hover {
+            background: rgba(45, 27, 78, 0.6);
+            transform: translateY(-8px);
+            border-style: solid;
+            box-shadow: 0 16px 48px rgba(192, 132, 252, 0.2);
+        }
+
+        .add-icon {
+            font-size: 3rem;
+            color: #c084fc;
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+
+        .add-text {
+            font-size: 1rem;
+            color: #c084fc;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .secret-card {
+            background: linear-gradient(135deg, rgba(45, 27, 78, 0.6) 0%, rgba(26, 15, 41, 0.6) 100%);
+            border: 2px solid #c084fc;
+            padding: 3rem;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(192, 132, 252, 0.2);
+        }
+
+        .secret-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, #8b5cf6, #c084fc, #8b5cf6);
+        }
+
+        .secret-author {
+            font-size: 0.85rem;
+            color: #c084fc;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .secret-question {
+            font-size: 0.95rem;
+            color: #e6d5f0;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+
+        .secret-body {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #e6d5f0;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(192, 132, 252, 0.3);
+        }
+
+        .rating {
+            font-size: 0.85rem;
+            color: #c084fc;
+            letter-spacing: 0.08em;
+            font-weight: 300;
+        }
+
+        .unlock-btn {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            border: 2px solid #c084fc;
+            color: #ffffff;
+            padding: 0.7rem 2rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(192, 132, 252, 0.3);
+        }
+
+        .unlock-btn:hover {
+            box-shadow: 0 6px 25px rgba(192, 132, 252, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .locked-overlay {
+            background: linear-gradient(135deg, rgba(26, 15, 41, 0.97) 0%, rgba(45, 27, 78, 0.97) 100%);
+            border: 2px solid #c084fc;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: inset 0 0 40px rgba(192, 132, 252, 0.15);
+        }
+
+        .lock-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn">← Return</button>
+            <h1>The Royal Circle</h1>
+            <p class="subtitle">An Elite Assembly</p>
+            <div class="member-badge">Eight Nobles</div>
+
+            <div class="invite-section">
+                <div class="invite-label">Exclusive Invitation</div>
+                <div class="invite-url">localhost:3000/invite/abc123xyz</div>
+                <button class="copy-btn">Copy Invitation</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="section-title">Royal Inquiries</h2>
+        <p class="section-subtitle">Share your noble truth to unveil others</p>
+
+        <div class="grid">
+            <div class="card">
+                <div class="question-text">What's a secret talent you have that nobody knows about?</div>
+                <div class="card-footer">
+                    <span class="tag">Growth</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's the most embarrassing thing that happened to you in public?</div>
+                <div class="card-footer">
+                    <span class="tag">Social</span>
+                    <span class="spiciness">🌶️🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's something you believe that most people disagree with?</div>
+                <div class="card-footer">
+                    <span class="tag">Beliefs</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="add-question-card">
+                <div style="text-align: center;">
+                    <div class="add-icon">+</div>
+                    <div class="add-text">Compose</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Royal Confidences</h2>
+        <p class="section-subtitle">Three revelations shared · Reciprocity grants access</p>
+
+        <div class="grid">
+            <div class="secret-card">
+                <div class="secret-author">Lady Sarah M. · Two Hours Past</div>
+                <div class="secret-question">"What's a secret talent you have?"</div>
+                <div class="secret-body">I can solve a Rubik's cube in under 30 seconds, but I've never told anyone because I don't want to be seen as a show-off.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️ Self-Assessed</div>
+                    <div class="rating">⭐ 4.2 Merit</div>
+                </div>
+            </div>
+
+            <div class="secret-card" style="position: relative;">
+                <div class="secret-author">Anonymous Noble · One Day Past</div>
+                <div class="secret-question">"What's your greatest fear?"</div>
+                <div class="secret-body" style="filter: blur(8px);">This confidence remains sealed until you share one of equal depth...</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️🌶️🌶️ Profound</div>
+                    <div class="rating">Three Access</div>
+                </div>
+                <div class="locked-overlay">
+                    <div class="lock-icon">🔒</div>
+                    <button class="unlock-btn">Unlock</button>
+                </div>
+            </div>
+
+            <div class="secret-card">
+                <div class="secret-author">Lord Michael K. · Three Days Past</div>
+                <div class="secret-question">"An unpopular conviction?"</div>
+                <div class="secret-body">I genuinely think pineapple on pizza is one of the greatest food combinations ever invented. Fight me.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️ Mild</div>
+                    <div class="rating">⭐ 3.8 Merit</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

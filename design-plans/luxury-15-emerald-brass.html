@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emerald & Brass - Luxury Variation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Garamond', 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #022c22 0%, #064e3b 50%, #022c22 100%);
+            min-height: 100vh;
+            color: #d4d4a8;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                url('data:image/svg+xml,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><path d="M30 15 L35 25 L45 25 L37 32 L40 42 L30 35 L20 42 L23 32 L15 25 L25 25 Z" fill="rgba(180,83,9,0.03)"/></svg>'),
+                radial-gradient(circle at 30% 40%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+            background-repeat: repeat, no-repeat;
+            pointer-events: none;
+        }
+
+        .header {
+            background: linear-gradient(180deg, rgba(6, 78, 59, 0.9) 0%, rgba(2, 44, 34, 0.9) 100%);
+            border-bottom: 3px solid #b45309;
+            border-top: 1px solid rgba(180, 83, 9, 0.3);
+            padding: 3rem 2rem;
+            position: relative;
+            box-shadow: 0 8px 40px rgba(180, 83, 9, 0.2);
+        }
+
+        .header::before {
+            content: '❦';
+            position: absolute;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            color: #b45309;
+            opacity: 0.4;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid #b45309;
+            color: #ca8a04;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.75rem 2rem;
+            margin-bottom: 2rem;
+            display: inline-block;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .back-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            background: rgba(180, 83, 9, 0.2);
+            border-radius: 50%;
+            transition: all 0.4s ease;
+        }
+
+        .back-btn:hover {
+            border-color: #ca8a04;
+            color: #fbbf24;
+            box-shadow: 0 0 20px rgba(180, 83, 9, 0.4);
+        }
+
+        .back-btn:hover::after {
+            width: 100%;
+            height: 100%;
+        }
+
+        h1 {
+            font-size: 3.8rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.08em;
+            font-style: italic;
+            text-shadow: 0 2px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #b45309;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .member-badge {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(20, 184, 166, 0.2));
+            border: 2px solid #10b981;
+            border-left-color: #b45309;
+            border-right-color: #b45309;
+            font-size: 0.8rem;
+            color: #d4d4a8;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        .invite-section {
+            margin-top: 2.5rem;
+            padding: 2.5rem;
+            background: rgba(6, 78, 59, 0.6);
+            border: 2px solid #b45309;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .invite-section::before,
+        .invite-section::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #10b981;
+        }
+
+        .invite-section::before {
+            top: -2px;
+            left: -2px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .invite-section::after {
+            bottom: -2px;
+            right: -2px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .invite-label {
+            font-size: 0.75rem;
+            color: #ca8a04;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .invite-url {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #d4d4a8;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.03em;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #b45309, #ca8a04);
+            color: #fef3c7;
+            border: 2px solid #fbbf24;
+            padding: 0.75rem 2.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4);
+        }
+
+        .copy-btn:hover {
+            box-shadow: 0 6px 25px rgba(180, 83, 9, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.08em;
+            font-style: italic;
+        }
+
+        .section-subtitle {
+            font-size: 0.9rem;
+            color: #b45309;
+            margin-bottom: 3rem;
+            letter-spacing: 0.15em;
+            font-weight: 400;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 5rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.7) 0%, rgba(2, 44, 34, 0.7) 100%);
+            border: 2px solid #10b981;
+            border-radius: 16px 0 16px 0;
+            padding: 3rem;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(16, 185, 129, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 40px;
+            height: 40px;
+            border-top: 2px solid #b45309;
+            border-right: 2px solid #b45309;
+            border-radius: 0 16px 0 0;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.3), inset 0 1px 0 rgba(180, 83, 9, 0.3);
+            border-color: #14b8a6;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #d4d4a8;
+            font-weight: 400;
+            margin-bottom: 2.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(180, 83, 9, 0.4);
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            color: #fbbf24;
+            background: rgba(180, 83, 9, 0.3);
+            padding: 0.5rem 1.5rem;
+            border: 1px solid #b45309;
+            border-radius: 0 8px 0 8px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .spiciness {
+            font-size: 1.2rem;
+        }
+
+        .add-question-card {
+            background: rgba(6, 78, 59, 0.4);
+            border: 2px dashed #10b981;
+            border-radius: 16px 0 16px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .add-question-card:hover {
+            background: rgba(6, 78, 59, 0.7);
+            transform: translateY(-10px);
+            border-color: #14b8a6;
+            border-style: solid;
+            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.2);
+        }
+
+        .add-icon {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #10b981, #b45309);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+
+        .add-text {
+            font-size: 0.9rem;
+            color: #ca8a04;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .secret-card {
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.7) 0%, rgba(2, 44, 34, 0.7) 100%);
+            border: 2px solid #10b981;
+            border-radius: 16px 0 16px 0;
+            padding: 3rem;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(16, 185, 129, 0.2);
+        }
+
+        .secret-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, #b45309, #10b981, #b45309);
+        }
+
+        .secret-author {
+            font-size: 0.8rem;
+            color: #ca8a04;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .secret-question {
+            font-size: 0.95rem;
+            color: #10b981;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+
+        .secret-body {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #d4d4a8;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(180, 83, 9, 0.4);
+        }
+
+        .rating {
+            font-size: 0.8rem;
+            color: #ca8a04;
+            letter-spacing: 0.08em;
+            font-weight: 400;
+        }
+
+        .unlock-btn {
+            background: linear-gradient(135deg, #b45309, #ca8a04);
+            border: 2px solid #fbbf24;
+            color: #fef3c7;
+            padding: 0.7rem 2rem;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(180, 83, 9, 0.4);
+        }
+
+        .unlock-btn:hover {
+            box-shadow: 0 6px 25px rgba(180, 83, 9, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .locked-overlay {
+            background: linear-gradient(135deg, rgba(2, 44, 34, 0.97) 0%, rgba(6, 78, 59, 0.97) 100%);
+            border: 2px solid #10b981;
+            border-radius: 12px 0 12px 0;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: inset 0 0 40px rgba(16, 185, 129, 0.15);
+        }
+
+        .lock-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.6;
+            filter: hue-rotate(90deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn">← Return</button>
+            <h1>The Emerald Salon</h1>
+            <p class="subtitle">Where Nature Meets Nobility</p>
+            <div class="member-badge">Eight Patrons</div>
+
+            <div class="invite-section">
+                <div class="invite-label">Private Entry</div>
+                <div class="invite-url">localhost:3000/invite/abc123xyz</div>
+                <button class="copy-btn">Copy Invitation</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="section-title">Garden of Inquiries</h2>
+        <p class="section-subtitle">Share your truth to cultivate connection</p>
+
+        <div class="grid">
+            <div class="card">
+                <div class="question-text">What's a secret talent you have that nobody knows about?</div>
+                <div class="card-footer">
+                    <span class="tag">Growth</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's the most embarrassing thing that happened to you in public?</div>
+                <div class="card-footer">
+                    <span class="tag">Social</span>
+                    <span class="spiciness">🌶️🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's something you believe that most people disagree with?</div>
+                <div class="card-footer">
+                    <span class="tag">Beliefs</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="add-question-card">
+                <div style="text-align: center;">
+                    <div class="add-icon">+</div>
+                    <div class="add-text">Plant Seed</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Confidential Archive</h2>
+        <p class="section-subtitle">Three treasures preserved · Exchange yours to access</p>
+
+        <div class="grid">
+            <div class="secret-card">
+                <div class="secret-author">Sarah M. · Two Hours Past</div>
+                <div class="secret-question">"What's a secret talent you have?"</div>
+                <div class="secret-body">I can solve a Rubik's cube in under 30 seconds, but I've never told anyone because I don't want to be seen as a show-off.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️ Self-Assessed</div>
+                    <div class="rating">⭐ 4.2 Merit</div>
+                </div>
+            </div>
+
+            <div class="secret-card" style="position: relative;">
+                <div class="secret-author">Anonymous Patron · One Day Past</div>
+                <div class="secret-question">"What's your greatest fear?"</div>
+                <div class="secret-body" style="filter: blur(8px);">This treasure remains sealed until you offer one of equal value...</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️🌶️🌶️ Profound</div>
+                    <div class="rating">3 Keys</div>
+                </div>
+                <div class="locked-overlay">
+                    <div class="lock-icon">🔒</div>
+                    <button class="unlock-btn">Unlock</button>
+                </div>
+            </div>
+
+            <div class="secret-card">
+                <div class="secret-author">Michael K. · Three Days Past</div>
+                <div class="secret-question">"An unpopular conviction?"</div>
+                <div class="secret-body">I genuinely think pineapple on pizza is one of the greatest food combinations ever invented. Fight me.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️ Mild</div>
+                    <div class="rating">⭐ 3.8 Merit</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

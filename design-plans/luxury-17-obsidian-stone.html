@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obsidian Stone - Luxury Variation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes glossShine {
+            0% { transform: translateX(-200%) translateY(-200%) rotate(45deg); }
+            100% { transform: translateX(200%) translateY(200%) rotate(45deg); }
+        }
+
+        body {
+            font-family: 'Helvetica Neue', 'Arial', sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            color: #ffffff;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 30% 40%, rgba(64, 64, 64, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 70% 60%, rgba(96, 96, 96, 0.1) 0%, transparent 35%);
+            pointer-events: none;
+        }
+
+        .glossy-accent {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), transparent);
+            filter: blur(60px);
+            pointer-events: none;
+            animation: glossShine 8s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        .header {
+            background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%);
+            border-bottom: 1px solid #333333;
+            padding: 3rem 2rem;
+            position: relative;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8), 0 2px 0 rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 20%;
+            right: 20%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+            border: 1px solid #333333;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.75rem 2rem;
+            margin-bottom: 2rem;
+            display: inline-block;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .back-btn:hover {
+            border-color: #666666;
+            box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 100;
+            margin-bottom: 1rem;
+            color: #ffffff;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            text-shadow: 0 2px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #999999;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .member-badge {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+            border: 1px solid #333333;
+            font-size: 0.7rem;
+            color: #cccccc;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            font-weight: 300;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .invite-section {
+            margin-top: 2.5rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #0a0a0a, #000000);
+            border: 1px solid #333333;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .invite-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent);
+            pointer-events: none;
+        }
+
+        .invite-label {
+            font-size: 0.65rem;
+            color: #999999;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .invite-url {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+            color: #ffffff;
+            border: 1px solid #666666;
+            padding: 0.75rem 2.5rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .copy-btn:hover {
+            box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 100;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .section-subtitle {
+            font-size: 0.85rem;
+            color: #999999;
+            margin-bottom: 3rem;
+            letter-spacing: 0.2em;
+            font-weight: 300;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 5rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
+            border: 1px solid #333333;
+            padding: 3rem;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.9),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.02);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            border-color: #666666;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: #ffffff;
+            font-weight: 300;
+            margin-bottom: 2.5rem;
+            letter-spacing: 0.01em;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid #222222;
+        }
+
+        .tag {
+            font-size: 0.65rem;
+            color: #cccccc;
+            background: #1a1a1a;
+            padding: 0.5rem 1.5rem;
+            border: 1px solid #333333;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 400;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .spiciness {
+            font-size: 1.2rem;
+            filter: grayscale(1) brightness(0.8);
+        }
+
+        .add-question-card {
+            background: linear-gradient(135deg, #050505, #000000);
+            border: 1px dashed #333333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .add-question-card:hover {
+            background: linear-gradient(135deg, #0a0a0a, #000000);
+            transform: translateY(-10px);
+            border-color: #666666;
+            border-style: solid;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .add-icon {
+            font-size: 3.5rem;
+            color: #666666;
+            margin-bottom: 1rem;
+            font-weight: 100;
+        }
+
+        .add-text {
+            font-size: 0.9rem;
+            color: #999999;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .secret-card {
+            background: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
+            border: 1px solid #333333;
+            padding: 3rem;
+            position: relative;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.9),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.02);
+            overflow: hidden;
+        }
+
+        .secret-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+        }
+
+        .secret-author {
+            font-size: 0.75rem;
+            color: #999999;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .secret-question {
+            font-size: 0.9rem;
+            color: #cccccc;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        .secret-body {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #ffffff;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.005em;
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid #222222;
+        }
+
+        .rating {
+            font-size: 0.75rem;
+            color: #999999;
+            letter-spacing: 0.1em;
+            font-weight: 300;
+        }
+
+        .unlock-btn {
+            background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+            border: 1px solid #666666;
+            color: #ffffff;
+            padding: 0.7rem 2rem;
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .unlock-btn:hover {
+            box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .locked-overlay {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(10, 10, 10, 0.98) 100%);
+            border: 1px solid #333333;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .lock-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="glossy-accent"></div>
+
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn">← Exit</button>
+            <h1>Obsidian</h1>
+            <p class="subtitle">Pure · Absolute · Uncompromising</p>
+            <div class="member-badge">Eight</div>
+
+            <div class="invite-section">
+                <div class="invite-label">Access</div>
+                <div class="invite-url">localhost:3000/invite/abc123xyz</div>
+                <button class="copy-btn">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="section-title">Entries</h2>
+        <p class="section-subtitle">Contribute to view</p>
+
+        <div class="grid">
+            <div class="card">
+                <div class="question-text">What's a secret talent you have that nobody knows about?</div>
+                <div class="card-footer">
+                    <span class="tag">Personal</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's the most embarrassing thing that happened to you in public?</div>
+                <div class="card-footer">
+                    <span class="tag">Social</span>
+                    <span class="spiciness">🌶️🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's something you believe that most people disagree with?</div>
+                <div class="card-footer">
+                    <span class="tag">Beliefs</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="add-question-card">
+                <div style="text-align: center;">
+                    <div class="add-icon">+</div>
+                    <div class="add-text">Add</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Archive</h2>
+        <p class="section-subtitle">Three entries · Exchange required</p>
+
+        <div class="grid">
+            <div class="secret-card">
+                <div class="secret-author">S.M. · 2h</div>
+                <div class="secret-question">"Secret talent?"</div>
+                <div class="secret-body">I can solve a Rubik's cube in under 30 seconds, but I've never told anyone because I don't want to be seen as a show-off.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️</div>
+                    <div class="rating">4.2</div>
+                </div>
+            </div>
+
+            <div class="secret-card" style="position: relative;">
+                <div class="secret-author">Anon · 1d</div>
+                <div class="secret-question">"Greatest fear?"</div>
+                <div class="secret-body" style="filter: blur(8px);">Sealed...</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️🌶️🌶️</div>
+                    <div class="rating">3</div>
+                </div>
+                <div class="locked-overlay">
+                    <div class="lock-icon">🔒</div>
+                    <button class="unlock-btn">Unlock</button>
+                </div>
+            </div>
+
+            <div class="secret-card">
+                <div class="secret-author">M.K. · 3d</div>
+                <div class="secret-question">"Unpopular opinion?"</div>
+                <div class="secret-body">I genuinely think pineapple on pizza is one of the greatest food combinations ever invented. Fight me.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️</div>
+                    <div class="rating">3.8</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

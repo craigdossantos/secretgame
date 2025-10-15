@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platinum Silver - Luxury Variation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes shimmerMove {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        body {
+            font-family: 'Futura', 'Avenir Next', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 30% 20%, rgba(148, 163, 184, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(203, 213, 225, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .chrome-line {
+            position: fixed;
+            height: 1px;
+            background: linear-gradient(
+                to right,
+                transparent,
+                #cbd5e1,
+                #e2e8f0,
+                #cbd5e1,
+                transparent
+            );
+            animation: shimmerMove 3s linear infinite;
+            background-size: 200% auto;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .line-top { top: 0; left: 0; right: 0; }
+        .line-bottom { bottom: 0; left: 0; right: 0; animation-delay: 1.5s; }
+
+        .header {
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border-bottom: 1px solid #475569;
+            padding: 3rem 2rem;
+            position: relative;
+            box-shadow: 0 4px 30px rgba(148, 163, 184, 0.1);
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #cbd5e1, transparent);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 1px solid #94a3b8;
+            color: #cbd5e1;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.75rem 2rem;
+            margin-bottom: 2rem;
+            display: inline-block;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(203, 213, 225, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .back-btn:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 0 20px rgba(203, 213, 225, 0.3);
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 200;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #cbd5e1 0%, #e2e8f0 50%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .member-badge {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: transparent;
+            border: 1px solid #475569;
+            font-size: 0.7rem;
+            color: #cbd5e1;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            font-weight: 300;
+            position: relative;
+        }
+
+        .member-badge::before,
+        .member-badge::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border: 1px solid #94a3b8;
+        }
+
+        .member-badge::before { top: -4px; left: -4px; border-right: none; border-bottom: none; }
+        .member-badge::after { bottom: -4px; right: -4px; border-left: none; border-top: none; }
+
+        .invite-section {
+            margin-top: 2.5rem;
+            padding: 2rem;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #475569;
+            position: relative;
+        }
+
+        .invite-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                135deg,
+                transparent 0%,
+                rgba(203, 213, 225, 0.03) 50%,
+                transparent 100%
+            );
+            pointer-events: none;
+        }
+
+        .invite-label {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin-bottom: 1rem;
+            font-weight: 400;
+        }
+
+        .invite-url {
+            font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #475569, #64748b);
+            color: #f8fafc;
+            border: 1px solid #94a3b8;
+            padding: 0.75rem 2.5rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .copy-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(226, 232, 240, 0.1),
+                transparent
+            );
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .copy-btn:hover {
+            box-shadow: 0 4px 20px rgba(148, 163, 184, 0.3);
+        }
+
+        .copy-btn:hover::before {
+            animation: shimmerMove 1s linear;
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 200;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #cbd5e1 0%, #e2e8f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .section-subtitle {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 3rem;
+            letter-spacing: 0.2em;
+            font-weight: 300;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 5rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.6) 100%);
+            border: 1px solid #475569;
+            padding: 3rem;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(203, 213, 225, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                135deg,
+                transparent 0%,
+                rgba(203, 213, 225, 0.05) 50%,
+                transparent 100%
+            );
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(148, 163, 184, 0.2), inset 0 1px 0 rgba(226, 232, 240, 0.2);
+            border-color: #94a3b8;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            line-height: 1.8;
+            color: #e2e8f0;
+            font-weight: 300;
+            margin-bottom: 2.5rem;
+            letter-spacing: 0.01em;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(71, 85, 105, 0.5);
+        }
+
+        .tag {
+            font-size: 0.65rem;
+            color: #cbd5e1;
+            background: rgba(148, 163, 184, 0.1);
+            padding: 0.5rem 1.5rem;
+            border: 1px solid #475569;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        .spiciness {
+            font-size: 1.2rem;
+            filter: grayscale(0.5) brightness(1.2);
+        }
+
+        .add-question-card {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px dashed #475569;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .add-question-card:hover {
+            background: rgba(30, 41, 59, 0.6);
+            transform: translateY(-10px);
+            border-color: #94a3b8;
+            border-style: solid;
+            box-shadow: 0 20px 60px rgba(148, 163, 184, 0.15);
+        }
+
+        .add-icon {
+            font-size: 3.5rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            font-weight: 100;
+        }
+
+        .add-text {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .secret-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.6) 100%);
+            border: 1px solid #475569;
+            padding: 3rem;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(203, 213, 225, 0.1);
+        }
+
+        .secret-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #94a3b8, transparent);
+        }
+
+        .secret-author {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .secret-question {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        .secret-body {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #e2e8f0;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.005em;
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(71, 85, 105, 0.5);
+        }
+
+        .rating {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            letter-spacing: 0.1em;
+            font-weight: 300;
+        }
+
+        .unlock-btn {
+            background: linear-gradient(135deg, #475569, #64748b);
+            border: 1px solid #94a3b8;
+            color: #f8fafc;
+            padding: 0.7rem 2rem;
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .unlock-btn:hover {
+            box-shadow: 0 4px 20px rgba(148, 163, 184, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .locked-overlay {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.97) 0%, rgba(30, 41, 59, 0.97) 100%);
+            border: 1px solid #475569;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: inset 0 0 40px rgba(148, 163, 184, 0.1);
+        }
+
+        .lock-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+            filter: grayscale(0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="chrome-line line-top"></div>
+    <div class="chrome-line line-bottom"></div>
+
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn">← Return</button>
+            <h1>Platinum</h1>
+            <p class="subtitle">Precision · Elegance · Modernity</p>
+            <div class="member-badge">Eight Members</div>
+
+            <div class="invite-section">
+                <div class="invite-label">Access Code</div>
+                <div class="invite-url">localhost:3000/invite/abc123xyz</div>
+                <button class="copy-btn">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="section-title">Inquiries</h2>
+        <p class="section-subtitle">Share your perspective</p>
+
+        <div class="grid">
+            <div class="card">
+                <div class="question-text">What's a secret talent you have that nobody knows about?</div>
+                <div class="card-footer">
+                    <span class="tag">Growth</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's the most embarrassing thing that happened to you in public?</div>
+                <div class="card-footer">
+                    <span class="tag">Social</span>
+                    <span class="spiciness">🌶️🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's something you believe that most people disagree with?</div>
+                <div class="card-footer">
+                    <span class="tag">Beliefs</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="add-question-card">
+                <div style="text-align: center;">
+                    <div class="add-icon">+</div>
+                    <div class="add-text">Compose</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Archive</h2>
+        <p class="section-subtitle">Three entries · Access via exchange</p>
+
+        <div class="grid">
+            <div class="secret-card">
+                <div class="secret-author">Sarah M. · 2h</div>
+                <div class="secret-question">"What's a secret talent you have?"</div>
+                <div class="secret-body">I can solve a Rubik's cube in under 30 seconds, but I've never told anyone because I don't want to be seen as a show-off.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️ Self</div>
+                    <div class="rating">⭐ 4.2</div>
+                </div>
+            </div>
+
+            <div class="secret-card" style="position: relative;">
+                <div class="secret-author">Anonymous · 1d</div>
+                <div class="secret-question">"What's your greatest fear?"</div>
+                <div class="secret-body" style="filter: blur(8px);">This entry remains sealed until you share one of equal depth...</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️🌶️🌶️</div>
+                    <div class="rating">3 Access</div>
+                </div>
+                <div class="locked-overlay">
+                    <div class="lock-icon">🔒</div>
+                    <button class="unlock-btn">Unlock</button>
+                </div>
+            </div>
+
+            <div class="secret-card">
+                <div class="secret-author">Michael K. · 3d</div>
+                <div class="secret-question">"An unpopular opinion?"</div>
+                <div class="secret-body">I genuinely think pineapple on pizza is one of the greatest food combinations ever invented. Fight me.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️ Mild</div>
+                    <div class="rating">⭐ 3.8</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

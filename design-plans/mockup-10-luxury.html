@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxury Premium - Room Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        body {
+            font-family: 'Didot', 'Bodoni MT', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #d4af37;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 20%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(184, 134, 11, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f1419 100%);
+            border-bottom: 2px solid #d4af37;
+            padding: 3rem 2rem;
+            position: relative;
+            box-shadow: 0 4px 30px rgba(212, 175, 55, 0.2);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #d4af37, transparent);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid #d4af37;
+            color: #d4af37;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.75rem 2rem;
+            margin-bottom: 2rem;
+            display: inline-block;
+            font-family: 'Didot', serif;
+            letter-spacing: 0.15em;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #d4af37;
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+
+        .back-btn:hover {
+            color: #1a1a2e;
+        }
+
+        .back-btn:hover::before {
+            left: 0;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 400;
+            margin-bottom: 1rem;
+            color: #d4af37;
+            letter-spacing: 0.05em;
+            font-style: italic;
+            background: linear-gradient(135deg, #d4af37 0%, #f4e5c2 50%, #d4af37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #b8860b;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .member-badge {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: transparent;
+            border: 1px solid #d4af37;
+            font-size: 0.85rem;
+            color: #d4af37;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .invite-section {
+            margin-top: 2.5rem;
+            padding: 2rem;
+            background: rgba(26, 26, 46, 0.6);
+            border: 1px solid #d4af37;
+            position: relative;
+        }
+
+        .invite-section::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 20%;
+            right: 20%;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #f4e5c2, transparent);
+        }
+
+        .invite-label {
+            font-size: 0.75rem;
+            color: #b8860b;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+
+        .invite-url {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #d4af37;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .copy-btn {
+            background: transparent;
+            color: #d4af37;
+            border: 1px solid #d4af37;
+            padding: 0.75rem 2.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-family: 'Didot', serif;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .copy-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #d4af37;
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+
+        .copy-btn:hover {
+            color: #1a1a2e;
+        }
+
+        .copy-btn:hover::before {
+            left: 0;
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            color: #d4af37;
+            font-style: italic;
+            letter-spacing: 0.05em;
+        }
+
+        .section-subtitle {
+            font-size: 0.95rem;
+            color: #b8860b;
+            margin-bottom: 3rem;
+            letter-spacing: 0.1em;
+            font-weight: 300;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 5rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(15, 20, 25, 0.8) 100%);
+            border: 1px solid #d4af37;
+            padding: 3rem;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(212, 175, 55, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(212, 175, 55, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(212, 175, 55, 0.4);
+            border-color: #f4e5c2;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #f4e5c2;
+            font-weight: 300;
+            margin-bottom: 2.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            color: #d4af37;
+            background: transparent;
+            padding: 0.5rem 1.5rem;
+            border: 1px solid #d4af37;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .spiciness {
+            font-size: 1.2rem;
+            filter: grayscale(0.3) brightness(1.2);
+        }
+
+        .add-question-card {
+            background: rgba(26, 26, 46, 0.4);
+            border: 1px dashed #d4af37;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .add-question-card:hover {
+            background: rgba(26, 26, 46, 0.7);
+            transform: translateY(-8px);
+            border-style: solid;
+        }
+
+        .add-icon {
+            font-size: 3rem;
+            color: #d4af37;
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+
+        .add-text {
+            font-size: 1rem;
+            color: #d4af37;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .secret-card {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(15, 20, 25, 0.8) 100%);
+            border: 1px solid #d4af37;
+            padding: 3rem;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(212, 175, 55, 0.2);
+        }
+
+        .secret-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #d4af37, transparent);
+        }
+
+        .secret-author {
+            font-size: 0.85rem;
+            color: #b8860b;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .secret-question {
+            font-size: 0.95rem;
+            color: #d4af37;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+
+        .secret-body {
+            font-size: 1.05rem;
+            line-height: 1.9;
+            color: #f4e5c2;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .rating {
+            font-size: 0.85rem;
+            color: #b8860b;
+            letter-spacing: 0.05em;
+            font-weight: 300;
+        }
+
+        .unlock-btn {
+            background: transparent;
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            padding: 0.7rem 2rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            font-family: 'Didot', serif;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .unlock-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #d4af37;
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+
+        .unlock-btn:hover {
+            color: #1a1a2e;
+        }
+
+        .unlock-btn:hover::before {
+            left: 0;
+        }
+
+        .locked-overlay {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(15, 20, 25, 0.95) 100%);
+            border: 1px solid #d4af37;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: inset 0 0 30px rgba(212, 175, 55, 0.1);
+        }
+
+        .lock-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.6;
+            filter: grayscale(0.3) brightness(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn">← RETURN</button>
+            <h1>The Confidante</h1>
+            <p class="subtitle">An Intimate Circle of Trust</p>
+            <div class="member-badge">Eight Distinguished Members</div>
+
+            <div class="invite-section">
+                <div class="invite-label">Private Invitation</div>
+                <div class="invite-url">localhost:3000/invite/abc123xyz</div>
+                <button class="copy-btn">Copy Invitation</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="section-title">Contemplations</h2>
+        <p class="section-subtitle">Share your truth to unveil others</p>
+
+        <div class="grid">
+            <div class="card">
+                <div class="question-text">What's a secret talent you have that nobody knows about?</div>
+                <div class="card-footer">
+                    <span class="tag">Growth</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's the most embarrassing thing that happened to you in public?</div>
+                <div class="card-footer">
+                    <span class="tag">Social</span>
+                    <span class="spiciness">🌶️🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's something you believe that most people disagree with?</div>
+                <div class="card-footer">
+                    <span class="tag">Beliefs</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="add-question-card">
+                <div style="text-align: center;">
+                    <div class="add-icon">+</div>
+                    <div class="add-text">Compose Question</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Confidences</h2>
+        <p class="section-subtitle">Three revelations · Reciprocity unlocks access</p>
+
+        <div class="grid">
+            <div class="secret-card">
+                <div class="secret-author">Sarah M. · Two Hours Past</div>
+                <div class="secret-question">"What's a secret talent you have?"</div>
+                <div class="secret-body">I can solve a Rubik's cube in under 30 seconds, but I've never told anyone because I don't want to be seen as a show-off.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️ Self-Assessed</div>
+                    <div class="rating">⭐ 4.2 Distinction</div>
+                </div>
+            </div>
+
+            <div class="secret-card" style="position: relative;">
+                <div class="secret-author">Anonymous · One Day Past</div>
+                <div class="secret-question">"What's your greatest fear?"</div>
+                <div class="secret-body" style="filter: blur(8px);">This confidence remains sealed until you share one of equal or greater depth...</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️🌶️🌶️ Profound</div>
+                    <div class="rating">Three Accesses</div>
+                </div>
+                <div class="locked-overlay">
+                    <div class="lock-icon">🔒</div>
+                    <button class="unlock-btn">Unlock</button>
+                </div>
+            </div>
+
+            <div class="secret-card">
+                <div class="secret-author">Michael K. · Three Days Past</div>
+                <div class="secret-question">"An unpopular conviction?"</div>
+                <div class="secret-body">I genuinely think pineapple on pizza is one of the greatest food combinations ever invented. Fight me.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️ Mild</div>
+                    <div class="rating">⭐ 3.8 Distinction</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

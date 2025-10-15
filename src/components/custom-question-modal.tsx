@@ -62,6 +62,9 @@ export function CustomQuestionModal({
   const [mcOptions, setMcOptions] = useState<string[]>(['Option 1', 'Option 2', 'Option 3']);
   const [mcAllowMultiple, setMcAllowMultiple] = useState(false);
 
+  // Anonymous answer configuration
+  const [allowAnonymous, setAllowAnonymous] = useState(false);
+
   const wordCount = questionText.trim().split(/\s+/).filter(word => word.length > 0).length;
   const isValidLength = questionText.trim().length >= 10 && questionText.trim().length <= 200;
   const isValidWordCount = wordCount >= 5 && wordCount <= 50;
@@ -116,6 +119,9 @@ export function CustomQuestionModal({
         newQuestion.answerConfig = getDefaultAnswerConfig(questionType);
       }
 
+      // Set anonymous answer permission
+      newQuestion.allowAnonymous = allowAnonymous;
+
       onCreateQuestion(newQuestion);
 
       // Reset form
@@ -131,6 +137,7 @@ export function CustomQuestionModal({
       setSliderPreviewValue(5);
       setMcOptions(['Option 1', 'Option 2', 'Option 3']);
       setMcAllowMultiple(false);
+      setAllowAnonymous(false);
     } catch {
       setError('Failed to create question. Please try again.');
     } finally {
@@ -153,6 +160,7 @@ export function CustomQuestionModal({
     setSliderPreviewValue(5);
     setMcOptions(['Option 1', 'Option 2', 'Option 3']);
     setMcAllowMultiple(false);
+    setAllowAnonymous(false);
     setError('');
     onClose();
   };
@@ -249,6 +257,27 @@ export function CustomQuestionModal({
                 {spiciness === 4 && 'Very Hot - Quite personal'}
                 {spiciness === 5 && 'Extreme - Very private/sensitive'}
               </div>
+            </div>
+          </div>
+
+          {/* Allow Anonymous Answers */}
+          <div className="flex items-center space-x-3 p-4 bg-purple-50 rounded-xl border border-purple-200">
+            <Checkbox
+              id="allow-anonymous"
+              checked={allowAnonymous}
+              onCheckedChange={(checked) => setAllowAnonymous(checked as boolean)}
+              className="h-5 w-5"
+            />
+            <div className="flex-1">
+              <label
+                htmlFor="allow-anonymous"
+                className="text-sm font-medium text-gray-900 cursor-pointer block"
+              >
+                Allow anonymous answers
+              </label>
+              <p className="text-xs text-gray-600 mt-0.5">
+                Users can choose to answer without revealing their identity
+              </p>
             </div>
           </div>
 
