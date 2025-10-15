@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neumorphism Soft - Room Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #e0e5ec;
+            min-height: 100vh;
+            color: #5a6c7d;
+        }
+
+        .header {
+            background: #e0e5ec;
+            padding: 2rem;
+            box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff;
+            border-radius: 0 0 40px 40px;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: #e0e5ec;
+            border: none;
+            color: #5a6c7d;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-bottom: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:active {
+            box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #4a5968;
+        }
+
+        .member-badge {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #e0e5ec;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: #5a6c7d;
+            font-weight: 500;
+            box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff;
+        }
+
+        .invite-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: #e0e5ec;
+            border-radius: 24px;
+            box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff;
+        }
+
+        .invite-label {
+            font-size: 0.85rem;
+            color: #8492a6;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+        }
+
+        .invite-url {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            color: #5a6c7d;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #e0e5ec;
+            border-radius: 12px;
+            box-shadow: inset 2px 2px 4px #a3b1c6, inset -2px -2px 4px #ffffff;
+        }
+
+        .copy-btn {
+            background: #e0e5ec;
+            color: #5a6c7d;
+            border: none;
+            border-radius: 16px;
+            padding: 0.75rem 2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:active {
+            box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff;
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4a5968;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            color: #8492a6;
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2rem;
+            margin-bottom: 5rem;
+        }
+
+        .card {
+            background: #e0e5ec;
+            border-radius: 32px;
+            padding: 2.5rem;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 12px 12px 24px #a3b1c6, -12px -12px 24px #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 16px 16px 32px #a3b1c6, -16px -16px 32px #ffffff;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #4a5968;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tag {
+            font-size: 0.85rem;
+            color: #5a6c7d;
+            background: #e0e5ec;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 500;
+            box-shadow: 4px 4px 8px #a3b1c6, -4px -4px 8px #ffffff;
+        }
+
+        .spiciness {
+            font-size: 1.3rem;
+        }
+
+        .add-question-card {
+            background: #e0e5ec;
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: inset 6px 6px 12px #a3b1c6, inset -6px -6px 12px #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .add-question-card:hover {
+            box-shadow: inset 8px 8px 16px #a3b1c6, inset -8px -8px 16px #ffffff;
+        }
+
+        .add-icon {
+            font-size: 3rem;
+            color: #5a6c7d;
+            margin-bottom: 0.5rem;
+        }
+
+        .add-text {
+            font-size: 1rem;
+            color: #5a6c7d;
+            font-weight: 500;
+        }
+
+        .secret-card {
+            background: #e0e5ec;
+            border-radius: 32px;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: 12px 12px 24px #a3b1c6, -12px -12px 24px #ffffff;
+        }
+
+        .secret-author {
+            font-size: 0.9rem;
+            color: #8492a6;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .secret-question {
+            font-size: 0.95rem;
+            color: #5a6c7d;
+            margin-bottom: 1rem;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .secret-body {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #4a5968;
+            margin-bottom: 2rem;
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid #c5ccd6;
+        }
+
+        .rating {
+            font-size: 0.9rem;
+            color: #5a6c7d;
+            font-weight: 500;
+        }
+
+        .unlock-btn {
+            background: #e0e5ec;
+            border: none;
+            color: #5a6c7d;
+            border-radius: 16px;
+            padding: 0.6rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff;
+            transition: all 0.2s ease;
+        }
+
+        .unlock-btn:active {
+            box-shadow: inset 3px 3px 6px #a3b1c6, inset -3px -3px 6px #ffffff;
+        }
+
+        .locked-overlay {
+            background: #e0e5ec;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: inset 8px 8px 16px #a3b1c6, inset -8px -8px 16px #ffffff;
+        }
+
+        .lock-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn">←</button>
+            <h1>Friend Circle Secrets</h1>
+            <div class="member-badge">8 members</div>
+
+            <div class="invite-section">
+                <div class="invite-label">Invite Link</div>
+                <div class="invite-url">localhost:3000/invite/abc123xyz</div>
+                <button class="copy-btn">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="section-title">Answer Questions to Share Secrets</h2>
+        <p class="section-subtitle">Click a question to flip it and share your answer</p>
+
+        <div class="grid">
+            <div class="card">
+                <div class="question-text">What's a secret talent you have that nobody knows about?</div>
+                <div class="card-footer">
+                    <span class="tag">Personal Growth</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's the most embarrassing thing that happened to you in public?</div>
+                <div class="card-footer">
+                    <span class="tag">Social</span>
+                    <span class="spiciness">🌶️🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">What's something you believe that most people disagree with?</div>
+                <div class="card-footer">
+                    <span class="tag">Beliefs</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="add-question-card">
+                <div style="text-align: center;">
+                    <div class="add-icon">+</div>
+                    <div class="add-text">Create Custom Question</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Secrets (3)</h2>
+        <p class="section-subtitle">Your secrets appear unlocked. Unlock others' by sharing secrets of equal or higher spiciness.</p>
+
+        <div class="grid">
+            <div class="secret-card">
+                <div class="secret-author">Sarah M. · 2 hours ago</div>
+                <div class="secret-question">"What's a secret talent you have?"</div>
+                <div class="secret-body">I can solve a Rubik's cube in under 30 seconds, but I've never told anyone because I don't want to be seen as a show-off.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️ self-rated</div>
+                    <div class="rating">⭐ 4.2 avg</div>
+                </div>
+            </div>
+
+            <div class="secret-card" style="position: relative;">
+                <div class="secret-author">Anonymous · 1 day ago</div>
+                <div class="secret-question">"What's your biggest fear?"</div>
+                <div class="secret-body" style="filter: blur(8px);">This content is locked until you share a secret of equal or higher spiciness level...</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️🌶️🌶️ self-rated</div>
+                    <div class="rating">3 unlocks</div>
+                </div>
+                <div class="locked-overlay">
+                    <div class="lock-icon">🔒</div>
+                    <button class="unlock-btn">Unlock</button>
+                </div>
+            </div>
+
+            <div class="secret-card">
+                <div class="secret-author">Michael K. · 3 days ago</div>
+                <div class="secret-question">"What's something you believe?"</div>
+                <div class="secret-body">I genuinely think pineapple on pizza is one of the greatest food combinations ever invented. Fight me.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️ self-rated</div>
+                    <div class="rating">⭐ 3.8 avg</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

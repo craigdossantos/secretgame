@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro 80s Vaporwave - Room Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(20px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff, 0 0 60px #ff00ff; }
+            50% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff, 0 0 30px #ff00ff; }
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(180deg, #1a0033 0%, #330066 50%, #ff006e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 255, 255, 0.03) 0px,
+                    transparent 2px,
+                    transparent 4px
+                );
+            pointer-events: none;
+            animation: scanlines 2s linear infinite;
+            z-index: 1000;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(255, 0, 255, 0.05) 0px,
+                    transparent 2px,
+                    rgba(0, 255, 255, 0.05) 4px,
+                    transparent 6px
+                );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.3), rgba(0, 255, 255, 0.3));
+            border-bottom: 4px solid #ff00ff;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.5), 0 8px 0 #00ffff;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #ff00ff, #ff0080);
+            border: 3px solid #00ffff;
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0.5rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.6), 0 4px 0 #ff0080;
+            text-shadow: 0 0 10px #ffffff;
+            transform: skew(-5deg);
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8), 0 6px 0 #ff0080;
+            transform: skew(-5deg) translateY(-2px);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            color: #00ffff;
+            text-shadow:
+                0 0 10px #00ffff,
+                0 0 20px #00ffff,
+                0 0 40px #ff00ff,
+                4px 4px 0 #ff00ff;
+            animation: glow 2s ease-in-out infinite;
+            letter-spacing: 0.1em;
+        }
+
+        .member-badge {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, #ff00ff, #00ffff);
+            border: 3px solid #ffffff;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #ffffff;
+            text-transform: uppercase;
+            text-shadow: 2px 2px 0 #000000;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+            transform: skew(-5deg);
+        }
+
+        .invite-section {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.2), rgba(0, 255, 255, 0.2));
+            border: 3px solid #00ffff;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), inset 0 0 30px rgba(255, 0, 255, 0.2);
+            position: relative;
+        }
+
+        .invite-section::before {
+            content: '▼ ▼ ▼';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00ffff;
+            font-size: 1.5rem;
+            background: #1a0033;
+            padding: 0 1rem;
+        }
+
+        .invite-label {
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 1rem;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .invite-url {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: bold;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border: 2px solid #ff00ff;
+            margin-bottom: 1rem;
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #00ffff, #0080ff);
+            color: #000000;
+            border: 3px solid #ff00ff;
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6), 0 4px 0 #0080ff;
+            transform: skew(-5deg);
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.8), 0 6px 0 #0080ff;
+            transform: skew(-5deg) translateY(-2px);
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            color: #ff00ff;
+            text-shadow: 0 0 20px #ff00ff, 3px 3px 0 #00ffff;
+            letter-spacing: 0.1em;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            margin-bottom: 3rem;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2rem;
+            margin-bottom: 5rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.2), rgba(0, 255, 255, 0.2));
+            border: 3px solid #ff00ff;
+            padding: 2.5rem;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.4), inset 0 0 30px rgba(0, 255, 255, 0.1);
+            transition: all 0.3s;
+            transform: perspective(1000px) rotateX(0deg);
+        }
+
+        .card:hover {
+            transform: perspective(1000px) rotateX(5deg) translateY(-8px);
+            box-shadow: 0 0 50px rgba(255, 0, 255, 0.6), inset 0 0 40px rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: 10px;
+            bottom: 10px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            pointer-events: none;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 2px 2px 0 #ff00ff;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid rgba(0, 255, 255, 0.5);
+            padding-top: 1rem;
+        }
+
+        .tag {
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem 1rem;
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .spiciness {
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 5px #ff0000);
+        }
+
+        .add-question-card {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
+            border: 3px dashed #00ffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3), inset 0 0 30px rgba(255, 0, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .add-question-card:hover {
+            border-color: #ff00ff;
+            box-shadow: 0 0 40px rgba(255, 0, 255, 0.5), inset 0 0 40px rgba(0, 255, 255, 0.2);
+            transform: translateY(-8px);
+        }
+
+        .add-icon {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff;
+            margin-bottom: 1rem;
+        }
+
+        .add-text {
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+        }
+
+        .secret-card {
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.2), rgba(0, 255, 255, 0.2));
+            border: 3px solid #00ffff;
+            padding: 2.5rem;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), inset 0 0 30px rgba(255, 0, 255, 0.1);
+        }
+
+        .secret-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(to right, #ff00ff, #00ffff);
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
+        }
+
+        .secret-author {
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .secret-question {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #ff00ff;
+            text-shadow: 0 0 10px #ff00ff;
+            font-style: italic;
+        }
+
+        .secret-body {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            color: #ffffff;
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .secret-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 2px solid rgba(255, 0, 255, 0.5);
+        }
+
+        .rating {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 5px #00ffff;
+        }
+
+        .unlock-btn {
+            background: linear-gradient(135deg, #ff00ff, #ff0080);
+            border: 3px solid #00ffff;
+            color: #ffffff;
+            padding: 0.75rem 2rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+            text-shadow: 0 0 10px #ffffff;
+            transform: skew(-5deg);
+            transition: all 0.2s;
+        }
+
+        .unlock-btn:hover {
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+            transform: skew(-5deg) translateY(-2px);
+        }
+
+        .locked-overlay {
+            background: linear-gradient(135deg, rgba(26, 0, 51, 0.95), rgba(51, 0, 102, 0.95));
+            border: 3px solid #ff00ff;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: inset 0 0 40px rgba(255, 0, 255, 0.3);
+        }
+
+        .lock-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 20px #ff00ff);
+        }
+
+        .triangle-accent {
+            position: fixed;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            z-index: 5;
+        }
+
+        .triangle-1 {
+            top: 100px;
+            right: 50px;
+            border-width: 0 50px 86.6px 50px;
+            border-color: transparent transparent rgba(255, 0, 255, 0.3) transparent;
+        }
+
+        .triangle-2 {
+            bottom: 150px;
+            left: 100px;
+            border-width: 86.6px 50px 0 50px;
+            border-color: rgba(0, 255, 255, 0.3) transparent transparent transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="triangle-accent triangle-1"></div>
+    <div class="triangle-accent triangle-2"></div>
+
+    <div class="header">
+        <div class="header-content">
+            <button class="back-btn">← BACK</button>
+            <h1>S E C R E T S</h1>
+            <div class="member-badge">8 MEMBERS</div>
+
+            <div class="invite-section">
+                <div class="invite-label">► INVITE LINK ◄</div>
+                <div class="invite-url">localhost:3000/invite/abc123xyz</div>
+                <button class="copy-btn">COPY</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h2 class="section-title">▶ QUESTIONS ◀</h2>
+        <p class="section-subtitle">ANSWER TO UNLOCK SECRETS</p>
+
+        <div class="grid">
+            <div class="card">
+                <div class="question-text">WHAT'S YOUR SECRET TALENT THAT NOBODY KNOWS?</div>
+                <div class="card-footer">
+                    <span class="tag">GROWTH</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">MOST EMBARRASSING PUBLIC MOMENT?</div>
+                <div class="card-footer">
+                    <span class="tag">SOCIAL</span>
+                    <span class="spiciness">🌶️🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="question-text">YOUR MOST UNPOPULAR OPINION?</div>
+                <div class="card-footer">
+                    <span class="tag">BELIEFS</span>
+                    <span class="spiciness">🌶️🌶️</span>
+                </div>
+            </div>
+
+            <div class="add-question-card">
+                <div style="text-align: center;">
+                    <div class="add-icon">+</div>
+                    <div class="add-text">NEW QUESTION</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">▶ SECRETS ◀</h2>
+        <p class="section-subtitle">3 TOTAL · UNLOCK TO VIEW</p>
+
+        <div class="grid">
+            <div class="secret-card">
+                <div class="secret-author">SARAH M. · 2H AGO</div>
+                <div class="secret-question">"WHAT'S YOUR SECRET TALENT?"</div>
+                <div class="secret-body">I can solve a Rubik's cube in under 30 seconds, but I've never told anyone because I don't want to be seen as a show-off.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️ SELF</div>
+                    <div class="rating">⭐ 4.2 AVG</div>
+                </div>
+            </div>
+
+            <div class="secret-card" style="position: relative;">
+                <div class="secret-author">ANON · 1D AGO</div>
+                <div class="secret-question">"BIGGEST FEAR?"</div>
+                <div class="secret-body" style="filter: blur(8px);">LOCKED CONTENT APPEARS HERE...</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️🌶️🌶️🌶️</div>
+                    <div class="rating">3 UNLOCKS</div>
+                </div>
+                <div class="locked-overlay">
+                    <div class="lock-icon">🔒</div>
+                    <button class="unlock-btn">UNLOCK</button>
+                </div>
+            </div>
+
+            <div class="secret-card">
+                <div class="secret-author">MICHAEL K. · 3D AGO</div>
+                <div class="secret-question">"UNPOPULAR OPINION?"</div>
+                <div class="secret-body">I genuinely think pineapple on pizza is one of the greatest food combinations ever invented. Fight me.</div>
+                <div class="secret-footer">
+                    <div class="rating">🌶️ SELF</div>
+                    <div class="rating">⭐ 3.8 AVG</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

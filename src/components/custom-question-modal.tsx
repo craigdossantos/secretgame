@@ -16,6 +16,8 @@ import { Badge } from '@/components/ui/badge';
 import { ChiliRating } from '@/components/chili-rating';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
+import { Checkbox } from '@/components/ui/checkbox';
+import { X, Plus } from 'lucide-react';
 import {
   QuestionPrompt,
   QuestionCategory,
@@ -56,6 +58,10 @@ export function CustomQuestionModal({
   const [sliderMaxLabel, setSliderMaxLabel] = useState('Extremely');
   const [sliderPreviewValue, setSliderPreviewValue] = useState(5);
 
+  // Multiple choice configuration state
+  const [mcOptions, setMcOptions] = useState<string[]>(['Option 1', 'Option 2', 'Option 3']);
+  const [mcAllowMultiple, setMcAllowMultiple] = useState(false);
+
   const wordCount = questionText.trim().split(/\s+/).filter(word => word.length > 0).length;
   const isValidLength = questionText.trim().length >= 10 && questionText.trim().length <= 200;
   const isValidWordCount = wordCount >= 5 && wordCount <= 50;
@@ -85,7 +91,7 @@ export function CustomQuestionModal({
       // Add question type and answer config
       newQuestion.questionType = questionType;
 
-      // Use custom slider config if slider type
+      // Use custom config based on question type
       if (questionType === 'slider') {
         newQuestion.answerConfig = {
           type: 'slider',
@@ -95,6 +101,15 @@ export function CustomQuestionModal({
             minLabel: sliderMinLabel,
             maxLabel: sliderMaxLabel,
             step: 1
+          }
+        };
+      } else if (questionType === 'multipleChoice') {
+        newQuestion.answerConfig = {
+          type: 'multipleChoice',
+          config: {
+            options: mcOptions.filter(opt => opt.trim().length > 0),
+            allowMultiple: mcAllowMultiple,
+            showDistribution: true
           }
         };
       } else {
@@ -114,6 +129,8 @@ export function CustomQuestionModal({
       setSliderMinLabel('Not at all');
       setSliderMaxLabel('Extremely');
       setSliderPreviewValue(5);
+      setMcOptions(['Option 1', 'Option 2', 'Option 3']);
+      setMcAllowMultiple(false);
     } catch {
       setError('Failed to create question. Please try again.');
     } finally {
@@ -134,6 +151,8 @@ export function CustomQuestionModal({
     setSliderMinLabel('Not at all');
     setSliderMaxLabel('Extremely');
     setSliderPreviewValue(5);
+    setMcOptions(['Option 1', 'Option 2', 'Option 3']);
+    setMcAllowMultiple(false);
     setError('');
     onClose();
   };
@@ -336,6 +355,76 @@ export function CustomQuestionModal({
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Multiple Choice Configuration - Only show for MC type */}
+          {questionType === 'multipleChoice' && (
+            <div className="space-y-4 p-4 bg-green-50 rounded-xl border border-green-200">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-gray-900">Multiple Choice Configuration</h4>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="allow-multiple"
+                    checked={mcAllowMultiple}
+                    onCheckedChange={(checked) => setMcAllowMultiple(checked as boolean)}
+                    className="h-4 w-4"
+                  />
+                  <label htmlFor="allow-multiple" className="text-xs text-gray-700 cursor-pointer">
+                    Allow multiple selections
+                  </label>
+                </div>
+              </div>
+
+              {/* Options List */}
+              <div className="space-y-2">
+                <Label className="text-xs">Options (minimum 2):</Label>
+                {mcOptions.map((option, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      value={option}
+                      onChange={(e) => {
+                        const newOptions = [...mcOptions];
+                        newOptions[index] = e.target.value;
+                        setMcOptions(newOptions);
+                      }}
+                      placeholder={`Option ${index + 1}`}
+                      maxLength={100}
+                      className="h-9 flex-1"
+                    />
+                    {mcOptions.length > 2 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setMcOptions(mcOptions.filter((_, i) => i !== index))}
+                        className="h-9 w-9 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Add Option Button */}
+              {mcOptions.length < 6 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMcOptions([...mcOptions, `Option ${mcOptions.length + 1}`])}
+                  className="w-full h-9 text-xs border-green-300 text-green-700 hover:bg-green-100"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add Option
+                </Button>
+              )}
+
+              <p className="text-xs text-gray-500">
+                {mcOptions.length} option{mcOptions.length !== 1 ? 's' : ''} •
+                {mcAllowMultiple ? ' Multi-select' : ' Single-select'}
+              </p>
             </div>
           )}
 
