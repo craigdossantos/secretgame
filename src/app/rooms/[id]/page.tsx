@@ -212,6 +212,9 @@ export default function RoomPage() {
     body: string;
     selfRating: number;
     importance: number;
+    answerType?: string;
+    answerData?: unknown;
+    isAnonymous?: boolean;
   }) => {
     try {
       // Submit answer as a secret
@@ -226,6 +229,9 @@ export default function RoomPage() {
           body: answer.body,
           selfRating: answer.selfRating,
           importance: answer.importance,
+          answerType: answer.answerType,
+          answerData: answer.answerData,
+          isAnonymous: answer.isAnonymous,
         }),
       });
 
