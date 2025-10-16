@@ -166,7 +166,7 @@ export function QuestionCard({
           <div className="h-full flex flex-col">
             {/* Question Text */}
             <div className="mb-4">
-              <p className="text-foreground leading-relaxed text-center text-base font-medium art-deco-shadow">
+              <p className="text-[#f4e5c2] leading-[1.8] text-center font-light" style={{ fontSize: '1.3rem' }}>
                 {question.question}
               </p>
             </div>
@@ -176,8 +176,8 @@ export function QuestionCard({
               {question.tags?.map((tag, index) => (
                 <Badge
                   key={index}
-                  variant="outline"
-                  className={`text-xs ${getTagStyles(tag)} bg-secondary/30 border-border`}
+                  variant="artdeco"
+                  className="text-xs"
                 >
                   {tag.name}
                 </Badge>
@@ -262,7 +262,7 @@ export function QuestionCard({
           <div className="h-full flex flex-col">
             {/* Question Text */}
             <div className="mb-4">
-              <p className="text-foreground leading-relaxed text-center text-base font-medium art-deco-shadow">
+              <p className="text-[#f4e5c2] leading-[1.8] text-center font-light" style={{ fontSize: '1.3rem' }}>
                 {question.question}
               </p>
             </div>
@@ -272,8 +272,8 @@ export function QuestionCard({
               {question.tags?.map((tag, index) => (
                 <Badge
                   key={index}
-                  variant="outline"
-                  className={`text-xs ${getTagStyles(tag)} bg-secondary/30 border-border`}
+                  variant="artdeco"
+                  className="text-xs"
                 >
                   {tag.name}
                 </Badge>
@@ -336,13 +336,6 @@ export function QuestionCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{
-        y: -4,
-        rotateY: isHovered ? 1 : 0,
-        rotateX: isHovered ? -1 : 0,
-      }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
       className="perspective-1000 h-[300px] relative z-20"
       data-testid="question-card"
       data-category={question.category}
@@ -353,6 +346,7 @@ export function QuestionCard({
         transition={{ duration: 0.6, ease: "easeInOut" }}
         onClick={handleFlip}
         style={{ transformStyle: 'preserve-3d' }}
+        whileHover={!isFlipped ? { scale: 1.02 } : {}}
       >
         {/* Front of Card - Question Display */}
         <Card
@@ -373,7 +367,7 @@ export function QuestionCard({
 
           {/* Question Text */}
           <div className="flex-1 flex items-center justify-center mb-4">
-            <p className="text-foreground leading-relaxed text-center text-base font-medium art-deco-shadow">
+            <p className="text-[#f4e5c2] leading-[1.8] text-center font-light" style={{ fontSize: '1.3rem' }}>
               {question.question}
             </p>
           </div>
@@ -383,7 +377,7 @@ export function QuestionCard({
             {/* Action Text */}
             <div className="text-center">
               {isAnswered ? (
-                <Badge variant="default" className="text-xs bg-primary/80 hover:bg-primary border border-primary">
+                <Badge variant="outline" className="text-xs bg-secondary/30 text-foreground border-border">
                   ✓ Answered - Click to Edit
                 </Badge>
               ) : (
@@ -398,8 +392,8 @@ export function QuestionCard({
               {question.tags?.map((tag, index) => (
                 <Badge
                   key={index}
-                  variant="outline"
-                  className={`text-xs ${getTagStyles(tag)} bg-secondary/30 border-border`}
+                  variant="artdeco"
+                  className="text-xs"
                 >
                   {tag.name}
                 </Badge>
