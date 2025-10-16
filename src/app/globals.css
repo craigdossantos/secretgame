@@ -191,3 +191,22 @@
   background-color: #000000;
   background-image: none; /* Clean black background */
 }
+
+/* Art Deco Tag Styling for category/topic badges */
+.art-deco-tag {
+  font-size: 0.75rem;
+  color: #c5995f;
+  background: transparent;
+  padding: 0.5rem 1.5rem;
+  border: 1px solid #c5995f;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 300;
+  border-radius: 0;
+  transition: all 0.3s ease;
+}
+
+.art-deco-tag:hover {
+  background: rgba(197, 153, 95, 0.1);
+  box-shadow: 0 0 10px rgba(197, 153, 95, 0.2);
+}

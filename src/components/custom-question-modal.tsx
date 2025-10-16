@@ -43,31 +43,41 @@ export function CustomQuestionModal({
   onClose,
   onCreateQuestion
 }: CustomQuestionModalProps) {
+  // 1. Question Text (first field)
   const [questionText, setQuestionText] = useState('');
-  const [category, setCategory] = useState<QuestionCategory>('Personal');
-  const [questionType, setQuestionType] = useState<QuestionType>('text');
-  const [spiciness, setSpiciness] = useState(3);
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
-  const [isCreating, setIsCreating] = useState(false);
-  const [error, setError] = useState('');
 
-  // Slider configuration state
+  // 2. Question Answer Type (second field)
+  const [questionType, setQuestionType] = useState<QuestionType>('text');
+
+  // 3. Type-specific configuration
+  // Slider configuration
   const [sliderMin, setSliderMin] = useState(1);
   const [sliderMax, setSliderMax] = useState(10);
   const [sliderMinLabel, setSliderMinLabel] = useState('Not at all');
   const [sliderMaxLabel, setSliderMaxLabel] = useState('Extremely');
   const [sliderPreviewValue, setSliderPreviewValue] = useState(5);
 
-  // Multiple choice configuration state
+  // Multiple choice configuration
   const [mcOptions, setMcOptions] = useState<string[]>(['Option 1', 'Option 2', 'Option 3']);
   const [mcAllowMultiple, setMcAllowMultiple] = useState(false);
+  const [mcUseRoomMembers, setMcUseRoomMembers] = useState(false);
 
-  // Anonymous answer configuration
+  // 4. Type-specific checkboxes
   const [allowAnonymous, setAllowAnonymous] = useState(false);
+  const [allowImageUpload, setAllowImageUpload] = useState(false);
+
+  // 5. Category and Spiciness (last fields)
+  const [category, setCategory] = useState<QuestionCategory>('Personal');
+  const [spiciness, setSpiciness] = useState(3);
+
+  // Other state
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState('');
 
   const wordCount = questionText.trim().split(/\s+/).filter(word => word.length > 0).length;
   const isValidLength = questionText.trim().length >= 10 && questionText.trim().length <= 200;
-  const isValidWordCount = wordCount >= 5 && wordCount <= 50;
+  const isValidWordCount = wordCount <= 50; // NO minimum, only maximum
   const isFormValid = questionText.trim() && isValidLength && isValidWordCount;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -110,8 +120,9 @@ export function CustomQuestionModal({
         newQuestion.answerConfig = {
           type: 'multipleChoice',
           config: {
-            options: mcOptions.filter(opt => opt.trim().length > 0),
+            options: mcUseRoomMembers ? [] : mcOptions.filter(opt => opt.trim().length > 0),
             allowMultiple: mcAllowMultiple,
+            useRoomMembers: mcUseRoomMembers,
             showDistribution: true
           }
         };
@@ -121,6 +132,11 @@ export function CustomQuestionModal({
 
       // Set anonymous answer permission
       newQuestion.allowAnonymous = allowAnonymous;
+
+      // Set image upload permission (for text answers)
+      if (questionType === 'text') {
+        newQuestion.allowImageUpload = allowImageUpload;
+      }
 
       onCreateQuestion(newQuestion);
 
@@ -137,7 +153,9 @@ export function CustomQuestionModal({
       setSliderPreviewValue(5);
       setMcOptions(['Option 1', 'Option 2', 'Option 3']);
       setMcAllowMultiple(false);
+      setMcUseRoomMembers(false);
       setAllowAnonymous(false);
+      setAllowImageUpload(false);
     } catch {
       setError('Failed to create question. Please try again.');
     } finally {
@@ -160,77 +178,323 @@ export function CustomQuestionModal({
     setSliderPreviewValue(5);
     setMcOptions(['Option 1', 'Option 2', 'Option 3']);
     setMcAllowMultiple(false);
+    setMcUseRoomMembers(false);
     setAllowAnonymous(false);
+    setAllowImageUpload(false);
     setError('');
     onClose();
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto art-deco-border bg-card/95 backdrop-blur-sm">
         <DialogHeader>
-          <DialogTitle>Create Custom Question</DialogTitle>
+          <DialogTitle className="text-foreground art-deco-text text-xl">Create Custom Question</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Question Type Selection */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* 1. Question Text - FIRST FIELD */}
           <div className="space-y-2">
-            <Label>Question Type *</Label>
-            <Select value={questionType} onValueChange={(value: QuestionType) => setQuestionType(value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(QUESTION_TYPE_LABELS) as QuestionType[]).map((type) => (
-                  <SelectItem key={type} value={type}>
-                    <div className="flex flex-col gap-1">
-                      <span className="font-medium">{QUESTION_TYPE_LABELS[type]}</span>
-                      <span className="text-xs text-gray-500">{QUESTION_TYPE_DESCRIPTIONS[type]}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-gray-500">
-              {QUESTION_TYPE_DESCRIPTIONS[questionType]}
-            </p>
-          </div>
-
-          {/* Question Text */}
-          <div className="space-y-2">
-            <Label htmlFor="question-text">Question *</Label>
+            <Label htmlFor="question-text" className="text-foreground art-deco-text text-sm">Question *</Label>
             <Textarea
               id="question-text"
               placeholder="What would you like to ask? Keep it engaging and thoughtful..."
               value={questionText}
               onChange={(e) => setQuestionText(e.target.value)}
-              className="min-h-[100px] resize-none"
+              className="min-h-[100px] resize-none bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
               maxLength={200}
             />
             <div className="flex justify-between text-xs">
-              <span className={wordCount < 5 || wordCount > 50 ? 'text-red-500' : 'text-gray-500'}>
-                {wordCount}/50 words
+              <span className={wordCount > 50 ? 'text-destructive' : 'text-muted-foreground'}>
+                {wordCount}/50 words {wordCount > 50 && '(max exceeded)'}
               </span>
-              <span className={questionText.length > 200 ? 'text-red-500' : 'text-gray-500'}>
+              <span className={questionText.length > 200 ? 'text-destructive' : 'text-muted-foreground'}>
                 {questionText.length}/200 characters
               </span>
             </div>
           </div>
 
-          {/* Category Selection */}
+          {/* 2. Question Answer Type - SECOND FIELD */}
           <div className="space-y-2">
-            <Label>Category *</Label>
-            <Select value={category} onValueChange={(value: QuestionCategory) => setCategory(value)}>
-              <SelectTrigger>
+            <Label className="text-foreground art-deco-text text-sm">Question Answer Type *</Label>
+            <Select value={questionType} onValueChange={(value: QuestionType) => setQuestionType(value)}>
+              <SelectTrigger className="bg-secondary/30 border-border text-foreground">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-card border-border">
+                {(Object.keys(QUESTION_TYPE_LABELS) as QuestionType[]).map((type) => (
+                  <SelectItem key={type} value={type} className="text-foreground">
+                    <div className="flex flex-col gap-1">
+                      <span className="font-medium">{QUESTION_TYPE_LABELS[type]}</span>
+                      <span className="text-xs text-muted-foreground">{QUESTION_TYPE_DESCRIPTIONS[type]}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* 3. TYPE-SPECIFIC CONFIGURATION */}
+
+          {/* Slider Configuration */}
+          {questionType === 'slider' && (
+            <div className="space-y-4 p-4 art-deco-border bg-card/30 backdrop-blur-sm">
+              <h4 className="text-sm font-semibold text-foreground art-deco-text">Slider Configuration</h4>
+
+              {/* Min/Max Values */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="slider-min" className="text-xs text-foreground">Min Value</Label>
+                  <Input
+                    id="slider-min"
+                    type="number"
+                    value={sliderMin}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      setSliderMin(val);
+                      if (sliderPreviewValue < val) setSliderPreviewValue(val);
+                    }}
+                    className="h-9 bg-secondary/30 border-border text-foreground"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="slider-max" className="text-xs text-foreground">Max Value</Label>
+                  <Input
+                    id="slider-max"
+                    type="number"
+                    value={sliderMax}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 1;
+                      setSliderMax(val);
+                      if (sliderPreviewValue > val) setSliderPreviewValue(val);
+                    }}
+                    className="h-9 bg-secondary/30 border-border text-foreground"
+                  />
+                </div>
+              </div>
+
+              {/* Labels */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="slider-min-label" className="text-xs text-foreground">Min Label</Label>
+                  <Input
+                    id="slider-min-label"
+                    placeholder="e.g., Cold"
+                    value={sliderMinLabel}
+                    onChange={(e) => setSliderMinLabel(e.target.value)}
+                    maxLength={30}
+                    className="h-9 bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="slider-max-label" className="text-xs text-foreground">Max Label</Label>
+                  <Input
+                    id="slider-max-label"
+                    placeholder="e.g., Hot"
+                    value={sliderMaxLabel}
+                    onChange={(e) => setSliderMaxLabel(e.target.value)}
+                    maxLength={30}
+                    className="h-9 bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
+                  />
+                </div>
+              </div>
+
+              {/* Slider Preview */}
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-foreground">Preview</Label>
+                  <span className="text-sm font-bold text-primary">{sliderPreviewValue}</span>
+                </div>
+                <Slider
+                  value={[sliderPreviewValue]}
+                  onValueChange={(val) => setSliderPreviewValue(val[0])}
+                  min={sliderMin}
+                  max={sliderMax}
+                  step={1}
+                  className="w-full"
+                />
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-foreground">{sliderMin}</span>
+                    <span>{sliderMinLabel}</span>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="font-medium text-foreground">{sliderMax}</span>
+                    <span>{sliderMaxLabel}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Multiple Choice Configuration */}
+          {questionType === 'multipleChoice' && (
+            <div className="space-y-4 p-4 art-deco-border bg-card/30 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-foreground art-deco-text">Multiple Choice Configuration</h4>
+              </div>
+
+              {/* Use Room Members Checkbox */}
+              <div className="flex items-center space-x-3 p-3 art-deco-border bg-card/20">
+                <Checkbox
+                  id="use-room-members"
+                  checked={mcUseRoomMembers}
+                  onCheckedChange={(checked) => setMcUseRoomMembers(checked as boolean)}
+                  className="h-5 w-5"
+                />
+                <div className="flex-1">
+                  <label
+                    htmlFor="use-room-members"
+                    className="text-sm font-medium text-foreground cursor-pointer block"
+                  >
+                    Use room members as options
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Auto-populate with member names (you can still edit them)
+                  </p>
+                </div>
+              </div>
+
+              {/* Options List - Only show if not using room members */}
+              {!mcUseRoomMembers && (
+                <div className="space-y-2">
+                  <Label className="text-xs text-foreground">Options (minimum 2):</Label>
+                  {mcOptions.map((option, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        value={option}
+                        onChange={(e) => {
+                          const newOptions = [...mcOptions];
+                          newOptions[index] = e.target.value;
+                          setMcOptions(newOptions);
+                        }}
+                        placeholder={`Option ${index + 1}`}
+                        maxLength={100}
+                        className="h-9 flex-1 bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
+                      />
+                      {mcOptions.length > 2 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setMcOptions(mcOptions.filter((_, i) => i !== index))}
+                          className="h-9 w-9 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Add Option Button */}
+                  {mcOptions.length < 6 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setMcOptions([...mcOptions, `Option ${mcOptions.length + 1}`])}
+                      className="w-full h-9 text-xs border-border text-foreground hover:bg-primary/10"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Add Option
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              <p className="text-xs text-muted-foreground">
+                {mcUseRoomMembers
+                  ? 'Options will be populated from room members'
+                  : `${mcOptions.length} option${mcOptions.length !== 1 ? 's' : ''}`
+                }
+              </p>
+            </div>
+          )}
+
+          {/* 4. TYPE-SPECIFIC CHECKBOXES */}
+          <div className="space-y-3">
+            {/* Allow Multiple Selections - For Multiple Choice only */}
+            {questionType === 'multipleChoice' && (
+              <div className="flex items-center space-x-3 p-3 art-deco-border bg-card/20">
+                <Checkbox
+                  id="allow-multiple"
+                  checked={mcAllowMultiple}
+                  onCheckedChange={(checked) => setMcAllowMultiple(checked as boolean)}
+                  className="h-5 w-5"
+                />
+                <div className="flex-1">
+                  <label
+                    htmlFor="allow-multiple"
+                    className="text-sm font-medium text-foreground cursor-pointer block"
+                  >
+                    Allow multiple selections
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Users can select more than one option
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Allow Anonymous Answers - For all types */}
+            <div className="flex items-center space-x-3 p-3 art-deco-border bg-card/20">
+              <Checkbox
+                id="allow-anonymous"
+                checked={allowAnonymous}
+                onCheckedChange={(checked) => setAllowAnonymous(checked as boolean)}
+                className="h-5 w-5"
+              />
+              <div className="flex-1">
+                <label
+                  htmlFor="allow-anonymous"
+                  className="text-sm font-medium text-foreground cursor-pointer block"
+                >
+                  Allow anonymous answers
+                </label>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Users can choose to answer without revealing their identity
+                </p>
+              </div>
+            </div>
+
+            {/* Allow Image Upload - For Text answers only */}
+            {questionType === 'text' && (
+              <div className="flex items-center space-x-3 p-3 art-deco-border bg-card/20">
+                <Checkbox
+                  id="allow-image-upload"
+                  checked={allowImageUpload}
+                  onCheckedChange={(checked) => setAllowImageUpload(checked as boolean)}
+                  className="h-5 w-5"
+                />
+                <div className="flex-1">
+                  <label
+                    htmlFor="allow-image-upload"
+                    className="text-sm font-medium text-foreground cursor-pointer block"
+                  >
+                    Allow image upload
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Users can optionally upload an image with their text answer
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 5. CATEGORY - Fifth field */}
+          <div className="space-y-2">
+            <Label className="text-foreground art-deco-text text-sm">Category *</Label>
+            <Select value={category} onValueChange={(value: QuestionCategory) => setCategory(value)}>
+              <SelectTrigger className="bg-secondary/30 border-border text-foreground">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-card border-border">
                 {QUESTION_CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
+                  <SelectItem key={cat} value={cat} className="text-foreground">
                     <div className="flex items-center gap-2">
                       <Badge
-                        variant="outline"
-                        className={`text-xs ${getTagStyles(categoryToTag(cat))}`}
+                        variant="artdeco"
+                        className="text-xs"
                       >
                         {cat}
                       </Badge>
@@ -241,16 +505,16 @@ export function CustomQuestionModal({
             </Select>
           </div>
 
-          {/* Spiciness Level */}
+          {/* 6. SPICINESS LEVEL - Sixth field (last) */}
           <div className="space-y-2">
-            <Label>Spiciness Level: {spiciness}/5</Label>
+            <Label className="text-foreground art-deco-text text-sm">Spiciness Level: {spiciness}/5</Label>
             <div className="flex items-center gap-4">
               <ChiliRating
                 rating={spiciness}
                 onRatingChange={setSpiciness}
                 size="md"
               />
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 {spiciness === 1 && 'Mild - Safe topics'}
                 {spiciness === 2 && 'Medium - Slightly personal'}
                 {spiciness === 3 && 'Hot - Personal but comfortable'}
@@ -260,220 +524,23 @@ export function CustomQuestionModal({
             </div>
           </div>
 
-          {/* Allow Anonymous Answers */}
-          <div className="flex items-center space-x-3 p-4 bg-purple-50 rounded-xl border border-purple-200">
-            <Checkbox
-              id="allow-anonymous"
-              checked={allowAnonymous}
-              onCheckedChange={(checked) => setAllowAnonymous(checked as boolean)}
-              className="h-5 w-5"
-            />
-            <div className="flex-1">
-              <label
-                htmlFor="allow-anonymous"
-                className="text-sm font-medium text-gray-900 cursor-pointer block"
-              >
-                Allow anonymous answers
-              </label>
-              <p className="text-xs text-gray-600 mt-0.5">
-                Users can choose to answer without revealing their identity
-              </p>
-            </div>
-          </div>
-
-          {/* Difficulty Level - Hidden for now */}
-          {/* <div className="space-y-2">
-            <Label>Response Difficulty</Label>
-            <Select value={difficulty} onValueChange={(value: 'easy' | 'medium' | 'hard') => setDifficulty(value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="easy">Easy - Quick to answer</SelectItem>
-                <SelectItem value="medium">Medium - Requires some thought</SelectItem>
-                <SelectItem value="hard">Hard - Deep reflection needed</SelectItem>
-              </SelectContent>
-            </Select>
-          </div> */}
-
-          {/* Slider Configuration - Only show for slider type */}
-          {questionType === 'slider' && (
-            <div className="space-y-4 p-4 bg-blue-50 rounded-xl border border-blue-200">
-              <h4 className="text-sm font-semibold text-gray-900">Slider Configuration</h4>
-
-              {/* Min/Max Values */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="slider-min" className="text-xs">Min Value</Label>
-                  <Input
-                    id="slider-min"
-                    type="number"
-                    value={sliderMin}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value) || 0;
-                      setSliderMin(val);
-                      if (sliderPreviewValue < val) setSliderPreviewValue(val);
-                    }}
-                    className="h-9"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="slider-max" className="text-xs">Max Value</Label>
-                  <Input
-                    id="slider-max"
-                    type="number"
-                    value={sliderMax}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value) || 1;
-                      setSliderMax(val);
-                      if (sliderPreviewValue > val) setSliderPreviewValue(val);
-                    }}
-                    className="h-9"
-                  />
-                </div>
-              </div>
-
-              {/* Labels */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label htmlFor="slider-min-label" className="text-xs">Min Label</Label>
-                  <Input
-                    id="slider-min-label"
-                    placeholder="e.g., Cold"
-                    value={sliderMinLabel}
-                    onChange={(e) => setSliderMinLabel(e.target.value)}
-                    maxLength={30}
-                    className="h-9"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="slider-max-label" className="text-xs">Max Label</Label>
-                  <Input
-                    id="slider-max-label"
-                    placeholder="e.g., Hot"
-                    value={sliderMaxLabel}
-                    onChange={(e) => setSliderMaxLabel(e.target.value)}
-                    maxLength={30}
-                    className="h-9"
-                  />
-                </div>
-              </div>
-
-              {/* Slider Preview */}
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs">Preview</Label>
-                  <span className="text-sm font-bold text-blue-600">{sliderPreviewValue}</span>
-                </div>
-                <Slider
-                  value={[sliderPreviewValue]}
-                  onValueChange={(val) => setSliderPreviewValue(val[0])}
-                  min={sliderMin}
-                  max={sliderMax}
-                  step={1}
-                  className="w-full"
-                />
-                <div className="flex items-center justify-between text-xs text-gray-600">
-                  <div className="flex flex-col">
-                    <span className="font-medium">{sliderMin}</span>
-                    <span>{sliderMinLabel}</span>
-                  </div>
-                  <div className="flex flex-col items-end">
-                    <span className="font-medium">{sliderMax}</span>
-                    <span>{sliderMaxLabel}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Multiple Choice Configuration - Only show for MC type */}
-          {questionType === 'multipleChoice' && (
-            <div className="space-y-4 p-4 bg-green-50 rounded-xl border border-green-200">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-gray-900">Multiple Choice Configuration</h4>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="allow-multiple"
-                    checked={mcAllowMultiple}
-                    onCheckedChange={(checked) => setMcAllowMultiple(checked as boolean)}
-                    className="h-4 w-4"
-                  />
-                  <label htmlFor="allow-multiple" className="text-xs text-gray-700 cursor-pointer">
-                    Allow multiple selections
-                  </label>
-                </div>
-              </div>
-
-              {/* Options List */}
-              <div className="space-y-2">
-                <Label className="text-xs">Options (minimum 2):</Label>
-                {mcOptions.map((option, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input
-                      value={option}
-                      onChange={(e) => {
-                        const newOptions = [...mcOptions];
-                        newOptions[index] = e.target.value;
-                        setMcOptions(newOptions);
-                      }}
-                      placeholder={`Option ${index + 1}`}
-                      maxLength={100}
-                      className="h-9 flex-1"
-                    />
-                    {mcOptions.length > 2 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setMcOptions(mcOptions.filter((_, i) => i !== index))}
-                        className="h-9 w-9 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Add Option Button */}
-              {mcOptions.length < 6 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setMcOptions([...mcOptions, `Option ${mcOptions.length + 1}`])}
-                  className="w-full h-9 text-xs border-green-300 text-green-700 hover:bg-green-100"
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add Option
-                </Button>
-              )}
-
-              <p className="text-xs text-gray-500">
-                {mcOptions.length} option{mcOptions.length !== 1 ? 's' : ''} •
-                {mcAllowMultiple ? ' Multi-select' : ' Single-select'}
-              </p>
-            </div>
-          )}
-
           {/* Preview */}
           {questionText.trim() && (
-            <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Preview:</h4>
-              <div className="bg-white rounded-xl p-4 border border-gray-200">
-                <p className="text-gray-900 text-sm font-medium mb-3">
+            <div className="art-deco-border bg-card/30 backdrop-blur-sm p-4">
+              <h4 className="text-sm font-medium text-foreground mb-2 art-deco-text">Preview:</h4>
+              <div className="art-deco-border bg-card/50 p-4">
+                <p className="text-foreground text-sm font-medium mb-3">
                   {questionText.trim()}
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 flex-wrap">
                     <Badge
-                      variant="outline"
-                      className={`text-xs ${getTagStyles(categoryToTag(category))}`}
+                      variant="artdeco"
+                      className="text-xs"
                     >
                       {category}
                     </Badge>
-                    <Badge variant="outline" className="text-xs bg-gray-100 text-gray-800 border-gray-200">
+                    <Badge variant="outline" className="text-xs bg-secondary/30 text-foreground border-border">
                       Custom
                     </Badge>
                   </div>
@@ -484,7 +551,7 @@ export function CustomQuestionModal({
           )}
 
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg border border-red-200">
+            <div className="p-3 text-sm text-destructive bg-destructive/10 rounded-lg border border-destructive/20">
               {error}
             </div>
           )}
@@ -495,13 +562,14 @@ export function CustomQuestionModal({
               variant="outline"
               onClick={handleClose}
               disabled={isCreating}
+              className="border-border text-foreground hover:bg-primary/10"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={!isFormValid || isCreating}
-              className="min-w-[100px]"
+              className="min-w-[100px] art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 art-deco-text"
             >
               {isCreating ? 'Creating...' : 'Create Question'}
             </Button>

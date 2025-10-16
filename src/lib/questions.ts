@@ -8,10 +8,7 @@ export interface Tag {
 export type QuestionType =
   | 'text'              // Traditional text answer (current default)
   | 'slider'            // Numeric slider with custom labels
-  | 'multipleChoice'    // Single or multi-select options
-  | 'personPicker'      // Select person(s) from room members
-  | 'imageUpload'       // Upload image as answer
-  | 'anonymousSurvey';  // Anonymous aggregate-only responses
+  | 'multipleChoice';   // Single or multi-select options
 
 // Type-specific configuration for questions
 export interface SliderConfig {
@@ -25,32 +22,14 @@ export interface SliderConfig {
 export interface MultipleChoiceConfig {
   options: string[];
   allowMultiple: boolean;
+  useRoomMembers?: boolean; // Use room member names as options
   showDistribution?: boolean; // Show % breakdown in results
-}
-
-export interface PersonPickerConfig {
-  allowMultiple: boolean;
-  excludeSelf?: boolean;
-}
-
-export interface ImageUploadConfig {
-  maxSizeMB: number;
-  allowedFormats: string[]; // e.g., ['jpg', 'png', 'gif']
-  prompt?: string; // Additional instruction (e.g., "Take a screenshot of...")
-}
-
-export interface AnonymousSurveyConfig {
-  showOnlyAggregate: boolean; // If true, never show individual responses
-  aggregationType?: 'count' | 'average' | 'distribution';
 }
 
 export type AnswerConfig =
   | { type: 'text' }
   | { type: 'slider'; config: SliderConfig }
-  | { type: 'multipleChoice'; config: MultipleChoiceConfig }
-  | { type: 'personPicker'; config: PersonPickerConfig }
-  | { type: 'imageUpload'; config: ImageUploadConfig }
-  | { type: 'anonymousSurvey'; config: AnonymousSurveyConfig };
+  | { type: 'multipleChoice'; config: MultipleChoiceConfig };
 
 // Unlock requirements for bounty system
 export interface UnlockRequirement {
@@ -73,6 +52,7 @@ export interface QuestionPrompt {
   answerConfig?: AnswerConfig; // Type-specific configuration
   unlockRequirement?: UnlockRequirement; // Custom unlock logic (defaults to matchSpiciness)
   allowAnonymous?: boolean; // Allow users to answer anonymously
+  allowImageUpload?: boolean; // Allow image upload for text answers
 }
 
 export type QuestionCategory =
@@ -94,15 +74,6 @@ export const QUESTION_CATEGORIES: QuestionCategory[] = [
   'Random'
 ];
 
-// Tag type colors following research-based best practices
-export const TAG_TYPE_COLORS = {
-  category: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-200' },
-  topic: { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-200' },
-  priority: { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-200' },
-  mood: { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-200' },
-  format: { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-200' }
-};
-
 // Convert category to tag
 export function categoryToTag(category: string): Tag {
   return {
@@ -111,10 +82,10 @@ export function categoryToTag(category: string): Tag {
   };
 }
 
-// Get tag styling classes
+// Get tag styling classes - simplified for Art Deco uniform styling
 export function getTagStyles(tag: Tag): string {
-  const colors = TAG_TYPE_COLORS[tag.type];
-  return `${colors.bg} ${colors.text} ${colors.border}`;
+  // All tags now use the art-deco-tag class for uniform gold styling
+  return 'art-deco-tag';
 }
 
 // Parse questions from markdown format
@@ -431,19 +402,13 @@ export const mockQuestions: QuestionPrompt[] = [
 export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   text: 'Text Answer',
   slider: 'Slider Scale',
-  multipleChoice: 'Multiple Choice',
-  personPicker: 'Pick a Person',
-  imageUpload: 'Image Upload',
-  anonymousSurvey: 'Anonymous Survey'
+  multipleChoice: 'Multiple Choice'
 };
 
 export const QUESTION_TYPE_DESCRIPTIONS: Record<QuestionType, string> = {
   text: 'Traditional text-based answer (up to 100 words)',
   slider: 'Numeric scale with custom labels (e.g., 1-10)',
-  multipleChoice: 'Select from predefined options',
-  personPicker: 'Choose person(s) from the room',
-  imageUpload: 'Upload an image as your answer',
-  anonymousSurvey: 'Anonymous responses with aggregate results only'
+  multipleChoice: 'Select from predefined options'
 };
 
 // Helper: Get default config for a question type
@@ -468,32 +433,8 @@ export function getDefaultAnswerConfig(type: QuestionType): AnswerConfig {
         config: {
           options: ['Option 1', 'Option 2', 'Option 3'],
           allowMultiple: false,
+          useRoomMembers: false,
           showDistribution: true
-        }
-      };
-    case 'personPicker':
-      return {
-        type: 'personPicker',
-        config: {
-          allowMultiple: false,
-          excludeSelf: true
-        }
-      };
-    case 'imageUpload':
-      return {
-        type: 'imageUpload',
-        config: {
-          maxSizeMB: 5,
-          allowedFormats: ['jpg', 'jpeg', 'png', 'gif'],
-          prompt: 'Upload an image'
-        }
-      };
-    case 'anonymousSurvey':
-      return {
-        type: 'anonymousSurvey',
-        config: {
-          showOnlyAggregate: true,
-          aggregationType: 'count'
         }
       };
   }
