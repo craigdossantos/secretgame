@@ -83,8 +83,9 @@ export function categoryToTag(category: string): Tag {
 }
 
 // Get tag styling classes - simplified for Art Deco uniform styling
-export function getTagStyles(tag: Tag): string {
-  // All tags now use the art-deco-tag class for uniform gold styling
+// Note: Currently unused as we apply variant="artdeco" directly to Badge components
+// Kept for backward compatibility if needed
+export function getTagStyles(): string {
   return 'art-deco-tag';
 }
 

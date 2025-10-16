@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CustomQuestionModal } from '@/components/custom-question-modal';
 import { ChiliRating } from '@/components/chili-rating';
-import { QuestionPrompt, getTagStyles } from '@/lib/questions';
+import { QuestionPrompt } from '@/lib/questions';
 
 interface QuestionSelectorProps {
   questions: QuestionPrompt[];

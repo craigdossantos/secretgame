@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ChiliRating } from '@/components/chili-rating';
 import { AnswerInputSlider } from '@/components/answer-input-slider';
 import { AnswerInputMultipleChoice } from '@/components/answer-input-multiple-choice';
-import { QuestionPrompt, getTagStyles, SliderConfig, MultipleChoiceConfig } from '@/lib/questions';
+import { QuestionPrompt, SliderConfig, MultipleChoiceConfig } from '@/lib/questions';
 
 interface QuestionCardProps {
   question: QuestionPrompt;
@@ -41,7 +41,6 @@ export function QuestionCard({
   isAnswered = false
 }: QuestionCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const [body, setBody] = useState('');
   const [selfRating, setSelfRating] = useState(question.suggestedLevel);
   const [importance, setImportance] = useState(3);

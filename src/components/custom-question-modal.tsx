@@ -26,8 +26,6 @@ import {
   QUESTION_TYPE_LABELS,
   QUESTION_TYPE_DESCRIPTIONS,
   createNewQuestion,
-  categoryToTag,
-  getTagStyles,
   getDefaultAnswerConfig,
   Tag
 } from '@/lib/questions';
