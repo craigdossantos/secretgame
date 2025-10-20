@@ -156,6 +156,13 @@
   border-radius: 0;
 }
 
+/* Dialog-safe border (no pseudo-element to prevent overflow issues in fixed position dialogs) */
+.art-deco-dialog-border {
+  border: 1px solid #c5995f;
+  border-radius: 0;
+  position: relative;
+}
+
 .art-deco-divider {
   display: flex;
   align-items: center;

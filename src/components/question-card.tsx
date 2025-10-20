@@ -333,8 +333,6 @@ export function QuestionCard({
   // Text questions use flip card
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
       className="perspective-1000 h-[300px] relative z-20"
       data-testid="question-card"
       data-category={question.category}
