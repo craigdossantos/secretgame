@@ -5,7 +5,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { QuestionCard } from '@/components/question-card';
 import { SecretCard } from '@/components/secret-card';
 import { UnlockDrawer } from '@/components/unlock-drawer';
+import { UnlockQuestionModal } from '@/components/unlock-question-modal';
 import { CustomQuestionModal } from '@/components/custom-question-modal';
+import { WelcomeModal } from '@/components/welcome-modal';
+import { UserIdentityHeader } from '@/components/user-identity-header';
 import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -54,6 +57,8 @@ export default function RoomPage() {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [unlockDrawerOpen, setUnlockDrawerOpen] = useState(false);
   const [selectedSecretToUnlock, setSelectedSecretToUnlock] = useState<Secret | null>(null);
+  const [unlockQuestionModalOpen, setUnlockQuestionModalOpen] = useState(false);
+  const [questionForUnlock, setQuestionForUnlock] = useState<QuestionPrompt | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [isCustomQuestionModalOpen, setIsCustomQuestionModalOpen] = useState(false);
   const [userSpicinessRatings, setUserSpicinessRatings] = useState<Record<string, number>>({});
@@ -263,9 +268,85 @@ export default function RoomPage() {
 
   const handleUnlock = (secretId: string) => {
     const secret = secrets.find(s => s.id === secretId);
-    if (secret) {
-      setSelectedSecretToUnlock(secret);
-      setUnlockDrawerOpen(true);
+    if (secret && secret.questionId) {
+      // Find the question for this secret
+      const question = roomQuestions.find(q => q.id === secret.questionId);
+
+      if (question) {
+        // Show question-based unlock modal
+        setSelectedSecretToUnlock(secret);
+        setQuestionForUnlock(question);
+        setUnlockQuestionModalOpen(true);
+      } else {
+        // Fallback to generic unlock drawer if question not found
+        setSelectedSecretToUnlock(secret);
+        setUnlockDrawerOpen(true);
+      }
+    } else {
+      // No questionId - use generic unlock drawer
+      if (secret) {
+        setSelectedSecretToUnlock(secret);
+        setUnlockDrawerOpen(true);
+      }
+    }
+  };
+
+  const handleUnlockQuestionSubmit = async (answer: {
+    questionId: string;
+    body: string;
+    selfRating: number;
+    importance: number;
+    answerType?: string;
+    answerData?: unknown;
+    isAnonymous?: boolean;
+  }) => {
+    if (!selectedSecretToUnlock) return;
+
+    try {
+      // Submit answer to unlock the target secret
+      const response = await fetch(`/api/secrets/${selectedSecretToUnlock.id}/unlock`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          roomId,
+          questionId: answer.questionId,
+          body: answer.body,
+          selfRating: answer.selfRating,
+          importance: answer.importance,
+          answerType: answer.answerType,
+          answerData: answer.answerData,
+          isAnonymous: answer.isAnonymous,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to unlock secret');
+      }
+
+      toast.success('Secret unlocked! Your answer has been shared.');
+
+      // Close modal
+      setUnlockQuestionModalOpen(false);
+      setQuestionForUnlock(null);
+      setSelectedSecretToUnlock(null);
+
+      // Mark question as answered
+      if (!answeredQuestionIds.includes(answer.questionId)) {
+        setAnsweredQuestionIds(prev => [...prev, answer.questionId]);
+      }
+
+      // Reload secrets to show both the new answer and unlocked secret
+      const secretsResponse = await fetch(`/api/rooms/${roomId}/secrets`);
+      if (secretsResponse.ok) {
+        const secretsData = await secretsResponse.json();
+        setSecrets(secretsData.secrets || []);
+      }
+    } catch (error) {
+      console.error('Failed to unlock secret:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to unlock secret');
     }
   };
 
@@ -283,6 +364,7 @@ export default function RoomPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          roomId,
           questionId: selectedSecretToUnlock.questionId || selectedSecretToUnlock.id, // Use secret's questionId
           body: unlockData.body,
           selfRating: unlockData.selfRating,
@@ -450,6 +532,9 @@ export default function RoomPage() {
 
   return (
     <div className="min-h-screen bg-background art-deco-pattern">
+      {/* Welcome Modal */}
+      <WelcomeModal roomName={room?.name} />
+
       {/* Header */}
       <div className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -475,6 +560,9 @@ export default function RoomPage() {
                   </Badge>
                 </div>
               </div>
+            </div>
+            <div>
+              <UserIdentityHeader />
             </div>
           </div>
 
@@ -683,7 +771,23 @@ export default function RoomPage() {
         )}
       </div>
 
-      {/* Unlock Drawer */}
+      {/* Unlock Question Modal - New question-based unlock */}
+      {selectedSecretToUnlock && questionForUnlock && (
+        <UnlockQuestionModal
+          isOpen={unlockQuestionModalOpen}
+          onClose={() => {
+            setUnlockQuestionModalOpen(false);
+            setQuestionForUnlock(null);
+            setSelectedSecretToUnlock(null);
+          }}
+          question={questionForUnlock}
+          requiredSpiciness={selectedSecretToUnlock.selfRating}
+          targetSecretAuthor={selectedSecretToUnlock.authorName}
+          onAnswerSubmit={handleUnlockQuestionSubmit}
+        />
+      )}
+
+      {/* Unlock Drawer - Fallback for secrets without questionId */}
       {selectedSecretToUnlock && (
         <UnlockDrawer
           isOpen={unlockDrawerOpen}

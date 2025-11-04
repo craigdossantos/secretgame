@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { QuestionSelector } from '@/components/question-selector';
+import { CustomQuestionModal } from '@/components/custom-question-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
@@ -16,6 +17,7 @@ export default function Home() {
   const [userName, setUserName] = useState('');
   const [roomName, setRoomName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  const [isCustomQuestionModalOpen, setIsCustomQuestionModalOpen] = useState(false);
 
   // Load questions on mount
   useEffect(() => {
@@ -42,6 +44,14 @@ export default function Home() {
   const handleSelectionChange = (selectedIds: string[], customQs: QuestionPrompt[]) => {
     setSelectedQuestionIds(selectedIds);
     setCustomQuestions(customQs);
+  };
+
+  const handleCreateCustomQuestion = (question: QuestionPrompt) => {
+    // Add to custom questions and auto-select it
+    setCustomQuestions(prev => [...prev, question]);
+    setSelectedQuestionIds(prev => [...prev, question.id]);
+    setIsCustomQuestionModalOpen(false);
+    toast.success('Custom question added to selection!');
   };
 
   const handleCreateRoom = async () => {
@@ -163,6 +173,13 @@ export default function Home() {
           maxSelections={null}
         />
       </main>
+
+      {/* Custom Question Modal */}
+      <CustomQuestionModal
+        isOpen={isCustomQuestionModalOpen}
+        onClose={() => setIsCustomQuestionModalOpen(false)}
+        onCreateQuestion={handleCreateCustomQuestion}
+      />
     </div>
   );
 }
