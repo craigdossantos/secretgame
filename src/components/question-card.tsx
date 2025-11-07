@@ -13,7 +13,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ChiliRating } from '@/components/chili-rating';
 import { AnswerInputSlider } from '@/components/answer-input-slider';
 import { AnswerInputMultipleChoice } from '@/components/answer-input-multiple-choice';
+import { ImageUploadInput } from '@/components/image-upload-input';
 import { QuestionPrompt, SliderConfig, MultipleChoiceConfig } from '@/lib/questions';
+import { ImageData } from '@/lib/image-utils';
 
 interface QuestionCardProps {
   question: QuestionPrompt;
@@ -46,6 +48,9 @@ export function QuestionCard({
   const [importance, setImportance] = useState(3);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Image upload state
+  const [imageData, setImageData] = useState<ImageData | null>(null);
+
   // Question type and configs
   const questionType = question.questionType || 'text';
 
@@ -70,10 +75,14 @@ export function QuestionCard({
   const wordCount = body.trim().split(/\s+/).filter(word => word.length > 0).length;
   const isValidWordCount = wordCount <= 100 && wordCount > 0;
 
+  // Check if question allows image upload
+  const allowsImageUpload = question.allowImageUpload || false;
+
   // Validation based on question type
   const isValidAnswer =
-    questionType === 'text' ? isValidWordCount :
-    questionType === 'multipleChoice' ? mcSelected.length > 0 :
+    questionType === 'text'
+      ? (allowsImageUpload ? (imageData !== null) : isValidWordCount)
+      : questionType === 'multipleChoice' ? mcSelected.length > 0 :
     true;
 
   const handleFlip = () => {
@@ -120,6 +129,11 @@ export function QuestionCard({
       } else if (questionType === 'multipleChoice') {
         answer.answerType = 'multipleChoice';
         answer.answerData = { selected: mcSelected };
+      } else if (imageData) {
+        // Image upload answer
+        answer.answerType = 'imageUpload';
+        answer.answerData = imageData;
+        answer.body = imageData.caption || 'Image answer';
       } else {
         answer.answerType = 'text';
       }
@@ -332,7 +346,7 @@ export function QuestionCard({
 
   // Text questions use flip card
   return (
-    <motion.div
+    <div
       className="perspective-1000 h-[300px] relative z-20"
       data-testid="question-card"
       data-category={question.category}
@@ -342,8 +356,11 @@ export function QuestionCard({
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{ duration: 0.6, ease: "easeInOut" }}
         onClick={handleFlip}
-        style={{ transformStyle: 'preserve-3d' }}
-        whileHover={!isFlipped ? { scale: 1.02 } : {}}
+        style={{
+          transformStyle: 'preserve-3d',
+          transformOrigin: 'center center',
+          width: '100%'
+        }}
       >
         {/* Front of Card - Question Display */}
         <Card
@@ -447,22 +464,36 @@ export function QuestionCard({
 
             {/* Answer Form */}
             <div className="flex-1 space-y-4 overflow-y-auto">
-              {/* Text Answer Textarea - Only text questions use flip cards */}
-              <div className="space-y-2">
-                <Label htmlFor="answer-body" className="text-xs text-foreground">Your Answer</Label>
-                <Textarea
-                  id="answer-body"
-                  placeholder="Share your honest answer..."
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  className="min-h-[80px] resize-none text-sm bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
-                />
-                <div className="text-xs text-right">
-                  <span className={wordCount > 100 ? 'text-red-500' : 'text-muted-foreground'}>
-                    {wordCount}/100 words
-                  </span>
+              {/* Image Upload or Text Answer based on question config */}
+              {allowsImageUpload ? (
+                <div className="space-y-2">
+                  <Label htmlFor="answer-image" className="text-xs text-foreground">
+                    Upload Image
+                  </Label>
+                  <ImageUploadInput
+                    value={imageData}
+                    onChange={setImageData}
+                    maxSizeMB={5}
+                    showCaption={true}
+                  />
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="answer-body" className="text-xs text-foreground">Your Answer</Label>
+                  <Textarea
+                    id="answer-body"
+                    placeholder="Share your honest answer..."
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    className="min-h-[80px] resize-none text-sm bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
+                  />
+                  <div className="text-xs text-right">
+                    <span className={wordCount > 100 ? 'text-red-500' : 'text-muted-foreground'}>
+                      {wordCount}/100 words
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Rating Sliders */}
               <div className="space-y-3">
@@ -526,6 +557,6 @@ export function QuestionCard({
           </div>
         </Card>
       </motion.div>
-    </motion.div>
+    </div>
   );
 }
