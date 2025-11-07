@@ -185,12 +185,13 @@ export function CustomQuestionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto art-deco-dialog-border bg-card/95 backdrop-blur-sm !top-[5vh] !translate-y-0">
-        <DialogHeader>
+      <DialogContent className="max-w-lg art-deco-dialog-border bg-card/95 backdrop-blur-sm p-0 max-h-[85vh] flex flex-col">
+        <DialogHeader className="px-6 pt-6 pb-4 flex-shrink-0">
           <DialogTitle className="text-foreground art-deco-text text-xl">Create Custom Question</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form id="custom-question-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 pb-6">
+          <div className="space-y-6">
           {/* 1. Question Text - FIRST FIELD */}
           <div className="space-y-2">
             <Label htmlFor="question-text" className="text-foreground art-deco-text text-sm">Question *</Label>
@@ -553,26 +554,28 @@ export function CustomQuestionModal({
               {error}
             </div>
           )}
-
-          <DialogFooter className="gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleClose}
-              disabled={isCreating}
-              className="border-border text-foreground hover:bg-primary/10"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={!isFormValid || isCreating}
-              className="min-w-[100px] art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 art-deco-text"
-            >
-              {isCreating ? 'Creating...' : 'Create Question'}
-            </Button>
-          </DialogFooter>
+          </div>
         </form>
+
+        <DialogFooter className="px-6 pb-6 pt-4 flex-shrink-0 gap-2 border-t border-border/30">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClose}
+            disabled={isCreating}
+            className="border-border text-foreground hover:bg-primary/10"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="custom-question-form"
+            disabled={!isFormValid || isCreating}
+            className="min-w-[100px] art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 art-deco-text"
+          >
+            {isCreating ? 'Creating...' : 'Create Question'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
