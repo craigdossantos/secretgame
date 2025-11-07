@@ -185,7 +185,7 @@ export function CustomQuestionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto art-deco-dialog-border bg-card/95 backdrop-blur-sm">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto art-deco-dialog-border bg-card/95 backdrop-blur-sm !top-[5vh] !translate-y-0">
         <DialogHeader>
           <DialogTitle className="text-foreground art-deco-text text-xl">Create Custom Question</DialogTitle>
         </DialogHeader>
