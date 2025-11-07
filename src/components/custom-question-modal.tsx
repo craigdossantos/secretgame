@@ -15,10 +15,14 @@ import { ChiliRating } from '@/components/chili-rating';
 import {
   QuestionPrompt,
   QuestionCategory,
+  QuestionType,
   QUESTION_CATEGORIES,
+  QUESTION_TYPE_LABELS,
+  QUESTION_TYPE_DESCRIPTIONS,
   createNewQuestion,
   Tag
 } from '@/lib/questions';
+import { MessageSquare, SlidersHorizontal, CheckSquare } from 'lucide-react';
 
 interface CustomQuestionModalProps {
   isOpen: boolean;
@@ -33,6 +37,7 @@ export function CustomQuestionModal({
 }: CustomQuestionModalProps) {
   // MVP state - only essentials
   const [questionText, setQuestionText] = useState('');
+  const [questionType, setQuestionType] = useState<QuestionType>('text');
   const [category, setCategory] = useState<QuestionCategory>('Personal');
   const [spiciness, setSpiciness] = useState(3);
   const [isCreating, setIsCreating] = useState(false);
@@ -65,13 +70,14 @@ export function CustomQuestionModal({
         additionalTags
       );
 
-      // Always text type for MVP
-      newQuestion.questionType = 'text';
+      // Set the selected question type
+      newQuestion.questionType = questionType;
 
       onCreateQuestion(newQuestion);
 
       // Reset form
       setQuestionText('');
+      setQuestionType('text');
       setCategory('Personal');
       setSpiciness(3);
       onClose();
@@ -85,10 +91,18 @@ export function CustomQuestionModal({
   const handleClose = () => {
     if (isCreating) return;
     setQuestionText('');
+    setQuestionType('text');
     setCategory('Personal');
     setSpiciness(3);
     setError('');
     onClose();
+  };
+
+  // Question type icon mapping
+  const typeIcons = {
+    text: MessageSquare,
+    slider: SlidersHorizontal,
+    multipleChoice: CheckSquare
   };
 
   return (
@@ -120,6 +134,46 @@ export function CustomQuestionModal({
                 <span className={questionText.length > 200 ? 'text-destructive' : ''}>
                   {questionText.length}/200 characters
                 </span>
+              </div>
+            </div>
+
+            {/* Question Type Selector */}
+            <div className="space-y-3">
+              <Label>Answer Type *</Label>
+              <div className="grid grid-cols-3 gap-3">
+                {(['text', 'slider', 'multipleChoice'] as QuestionType[]).map((type) => {
+                  const Icon = typeIcons[type];
+                  const isSelected = questionType === type;
+
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setQuestionType(type)}
+                      className={`
+                        relative p-4 rounded-lg border-2 transition-all
+                        flex flex-col items-center gap-2 text-center
+                        ${isSelected
+                          ? 'border-primary bg-primary/5 shadow-sm'
+                          : 'border-border hover:border-primary/50 hover:bg-accent/50'
+                        }
+                      `}
+                    >
+                      <Icon className={`w-6 h-6 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <div className="space-y-1">
+                        <div className={`text-sm font-medium ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          {QUESTION_TYPE_LABELS[type]}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {QUESTION_TYPE_DESCRIPTIONS[type]}
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

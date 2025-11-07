@@ -3,6 +3,7 @@
 import { SliderConfig, MultipleChoiceConfig } from '@/lib/questions';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2 } from 'lucide-react';
+import { ImageAnswerDisplay } from '@/components/image-answer-display';
 
 interface SecretAnswerDisplayProps {
   answerType: string;
@@ -70,6 +71,11 @@ export function SecretAnswerDisplay({
         <div className="text-sm text-gray-500">Slider answer</div>
       </div>
     );
+  }
+
+  // Handle image upload answer display
+  if (answerType === 'imageUpload' && answerData && typeof answerData === 'object') {
+    return <ImageAnswerDisplay imageData={answerData as { imageBase64?: string; caption?: string }} />;
   }
 
   // Handle multiple choice answer display

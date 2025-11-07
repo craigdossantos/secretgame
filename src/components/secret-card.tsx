@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { RatingStars } from '@/components/rating-stars';
 import { SecretAnswerDisplay } from '@/components/secret-answer-display';
+import { UnlockHelpTooltip } from '@/components/unlock-help-tooltip';
 import { SliderConfig } from '@/lib/questions';
 
 interface Secret {
@@ -158,13 +159,16 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
               />
             </div>
           ) : (
-            <Button
-              onClick={handleUnlock}
-              className="flex items-center gap-2 art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform art-deco-text text-xs"
-            >
-              <Lock className="w-4 h-4" />
-              Unlock (Level {secret.selfRating}+)
-            </Button>
+            <div className="relative flex-1">
+              <UnlockHelpTooltip spiciness={secret.selfRating} />
+              <Button
+                onClick={handleUnlock}
+                className="flex items-center gap-2 art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform art-deco-text text-xs"
+              >
+                <Lock className="w-4 h-4" />
+                Unlock (Level {secret.selfRating}+)
+              </Button>
+            </div>
           )}
 
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
