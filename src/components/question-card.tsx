@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Send, RotateCcw } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -344,21 +344,18 @@ export function QuestionCard({
     );
   }
 
-  // Text questions use flip card
+  // Text questions use accordion-style expand/collapse
   return (
     <div
-      className="perspective-1000 h-[300px] relative z-20"
+      className="relative z-20"
       data-testid="question-card"
       data-category={question.category}
     >
-      <div
-        className={`flip-container ${isFlipped ? 'flipped' : ''}`}
-        onClick={handleFlip}
-      >
-        {/* Front of Card - Question Display */}
-        <Card
-          className="absolute inset-0 w-full h-full art-deco-border p-5 bg-card/50 backdrop-blur-sm transition-all duration-200 hover:art-deco-glow backface-hidden"
-          style={{ backfaceVisibility: 'hidden', minHeight: '280px' }}
+      <Card className="art-deco-border bg-card/50 backdrop-blur-sm transition-all duration-200 hover:art-deco-glow">
+        {/* Question Display - Always Visible */}
+        <div
+          className={`p-5 cursor-pointer transition-all duration-300 ${isFlipped ? 'pb-3' : ''}`}
+          onClick={handleFlip}
         >
           {/* Skip Button */}
           {!isAnswered && onSkip && (
@@ -366,94 +363,67 @@ export function QuestionCard({
               variant="ghost"
               size="sm"
               onClick={handleSkip}
-              className="absolute top-2 right-2 text-muted-foreground hover:text-foreground text-xs"
+              className="absolute top-2 right-2 text-muted-foreground hover:text-foreground text-xs z-10"
             >
               Skip →
             </Button>
           )}
 
           {/* Question Text */}
-          <div className="flex-1 flex items-center justify-center mb-4">
+          <div className="mb-4">
             <p className="text-[#f4e5c2] leading-[1.8] text-center font-light" style={{ fontSize: '1.3rem' }}>
               {question.question}
             </p>
           </div>
 
-          {/* Footer */}
-          <div className="space-y-3">
-            {/* Action Text */}
-            <div className="text-center">
-              {isAnswered ? (
-                <Badge variant="outline" className="text-xs bg-secondary/30 text-foreground border-border">
-                  ✓ Answered - Click to Edit
-                </Badge>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Click to answer this question
-                </p>
-              )}
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-1 justify-center">
-              {question.tags?.map((tag, index) => (
-                <Badge
-                  key={index}
-                  variant="artdeco"
-                  className="text-xs"
-                >
-                  {tag.name}
-                </Badge>
-              ))}
-            </div>
-
-            {/* Spiciness Rating */}
-            <div className="flex flex-col items-center gap-1">
-              <div className="flex items-center gap-2">
-                <ChiliRating
-                  rating={question.suggestedLevel}
-                  userRating={userSpicinessRating}
-                  onRatingChange={(rating) => onRateSpiciness?.(question.id, rating)}
-                  size="sm"
-                  showAverage={true}
-                />
-              </div>
-              <span className="text-xs text-muted-foreground">
-                {userSpicinessRating ? 'Your rating' : `Tap to rate spiciness`}
-              </span>
-            </div>
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1 justify-center mb-3">
+            {question.tags?.map((tag, index) => (
+              <Badge
+                key={index}
+                variant="artdeco"
+                className="text-xs"
+              >
+                {tag.name}
+              </Badge>
+            ))}
           </div>
-        </Card>
 
-        {/* Back of Card - Answer Form */}
-        <Card
-          className="absolute inset-0 w-full h-full art-deco-border p-5 bg-card/95 backdrop-blur-sm backface-hidden"
-          style={{
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)'
-          }}
+          {/* Spiciness Rating & Action Text */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2">
+              <ChiliRating
+                rating={question.suggestedLevel}
+                userRating={userSpicinessRating}
+                onRatingChange={(rating) => onRateSpiciness?.(question.id, rating)}
+                size="sm"
+                showAverage={true}
+              />
+            </div>
+            {!isFlipped && (
+              <div className="text-center">
+                {isAnswered ? (
+                  <Badge variant="outline" className="text-xs bg-secondary/30 text-foreground border-border">
+                    ✓ Answered - Click to Edit
+                  </Badge>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Click to answer this question
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Answer Form - Expandable Section */}
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+            isFlipped ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+          }`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="h-full flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold text-foreground line-clamp-2 art-deco-shadow">
-                  {question.question}
-                </h3>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsFlipped(false);
-                }}
-                className="rounded-full flex-shrink-0 hover:bg-primary/10"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </Button>
-            </div>
+          <div className="px-5 pb-5 pt-2 border-t border-border/30">
 
             {/* Answer Form */}
             <div className="flex-1 space-y-4 overflow-y-auto">
@@ -548,8 +518,8 @@ export function QuestionCard({
               )}
             </Button>
           </div>
-        </Card>
-      </div>
+        </div>
+      </Card>
     </div>
   );
 }
