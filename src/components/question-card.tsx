@@ -351,16 +351,9 @@ export function QuestionCard({
       data-testid="question-card"
       data-category={question.category}
     >
-      <motion.div
-        className="relative w-full h-full preserve-3d cursor-pointer"
-        animate={{ rotateY: isFlipped ? 180 : 0 }}
-        transition={{ duration: 0.6, ease: "easeInOut" }}
+      <div
+        className={`flip-container ${isFlipped ? 'flipped' : ''}`}
         onClick={handleFlip}
-        style={{
-          transformStyle: 'preserve-3d',
-          transformOrigin: 'center center',
-          width: '100%'
-        }}
       >
         {/* Front of Card - Question Display */}
         <Card
@@ -556,7 +549,7 @@ export function QuestionCard({
             </Button>
           </div>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }
