@@ -173,7 +173,7 @@ export function CustomQuestionModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
         <DialogHeader className="p-6 pb-4">
           <DialogTitle className="text-xl font-serif">
-            Create Custom Question
+            Add a Question
           </DialogTitle>
         </DialogHeader>
 
@@ -434,7 +434,7 @@ export function CustomQuestionModal({
                 disabled={!isFormValid || isCreating}
                 className="flex-1"
               >
-                {isCreating ? 'Creating...' : 'Create Question'}
+                {isCreating ? 'Adding...' : 'Add Question'}
               </Button>
             </div>
           </form>

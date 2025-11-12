@@ -467,7 +467,7 @@ export default function RoomPage() {
       }
 
       const data = await response.json();
-      toast.success('Custom question added to room!');
+      toast.success('Question added to room!');
 
       // Add the new question to roomQuestions
       const newQuestion: QuestionPrompt = {
@@ -486,12 +486,14 @@ export default function RoomPage() {
         allowAnonymous: data.question.allowAnonymous || false
       };
 
-      setRoomQuestions(prev => [...prev, newQuestion]);
+      // Prepend to room questions (add to start)
+      setRoomQuestions(prev => [newQuestion, ...prev]);
 
-      // If there are less than 3 displayed questions, add it to displayed
-      if (displayedQuestions.length < 3) {
-        setDisplayedQuestions(prev => [...prev, newQuestion]);
-      }
+      // Prepend to displayed questions (add to start), pushing oldest off if needed
+      setDisplayedQuestions(prev => {
+        const updated = [newQuestion, ...prev];
+        return updated.slice(0, 3); // Keep only first 3
+      });
 
       setIsCustomQuestionModalOpen(false);
     } catch (error) {
@@ -681,10 +683,10 @@ export default function RoomPage() {
                       </div>
                       <div>
                         <h3 className="font-medium text-foreground art-deco-text text-sm">
-                          Create Custom Question
+                          Add a Question
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          Add your own question to the room
+                          Create your own question for the room
                         </p>
                       </div>
                     </div>
