@@ -12,11 +12,11 @@ export async function GET(request: NextRequest) {
     let questions;
 
     try {
-      // Try to load questions from markdown file
-      const questionsResponse = await fetch(new URL('/questions.md', process.env.NEXTAUTH_URL || 'http://localhost:3000'));
+      // Try to load questions from YAML file
+      const questionsResponse = await fetch(new URL('/questions.yaml', process.env.NEXTAUTH_URL || 'http://localhost:3000'));
       if (questionsResponse.ok) {
-        const markdownContent = await questionsResponse.text();
-        const parsedQuestions = parseQuestions(markdownContent);
+        const yamlContent = await questionsResponse.text();
+        const parsedQuestions = parseQuestions(yamlContent);
         questions = parsedQuestions;
       } else {
         questions = mockQuestions;

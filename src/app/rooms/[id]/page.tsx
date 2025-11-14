@@ -84,12 +84,12 @@ export default function RoomPage() {
           ?.split('=')[1];
         setCurrentUserId(userId || null);
 
-        // Load questions from markdown file
+        // Load questions from YAML file
         try {
-          const questionsResponse = await fetch('/questions.md');
+          const questionsResponse = await fetch('/questions.yaml');
           if (questionsResponse.ok) {
-            const markdownContent = await questionsResponse.text();
-            const parsedQuestions = parseQuestions(markdownContent);
+            const yamlContent = await questionsResponse.text();
+            const parsedQuestions = parseQuestions(yamlContent);
 
             // Filter questions for this room
             const roomQs: QuestionPrompt[] = [];
@@ -128,7 +128,7 @@ export default function RoomPage() {
             setRoomQuestions(roomQs);
           } else {
             // Fallback to mock questions
-            console.warn('Could not load questions.md, using mock questions');
+            console.warn('Could not load questions.yaml, using mock questions');
 
             const roomQs: QuestionPrompt[] = [];
 

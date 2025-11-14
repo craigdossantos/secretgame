@@ -89,49 +89,93 @@ export function getTagStyles(): string {
   return 'art-deco-tag';
 }
 
-// Parse questions from markdown format
-export function parseQuestions(markdownContent: string): QuestionPrompt[] {
-  const lines = markdownContent.split('\n');
-  const questions: QuestionPrompt[] = [];
-  let currentCategory = '';
+// YAML question structure
+interface YAMLQuestion {
+  question: string;
+  category?: string;
+  spiciness?: number;
+  difficulty?: string;
+  type?: string;
+  slider?: {
+    min?: number;
+    max?: number;
+    minLabel?: string;
+    maxLabel?: string;
+    step?: number;
+  };
+  multipleChoice?: {
+    options?: string[];
+    allowMultiple?: boolean;
+  };
+}
 
-  for (const line of lines) {
-    const trimmedLine = line.trim();
+// Parse questions from YAML format
+export function parseQuestions(yamlContent: string): QuestionPrompt[] {
+  // Dynamic import for js-yaml (client-side compatible)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const yaml = require('js-yaml');
 
-    // Check if line is a category header
-    if (trimmedLine.startsWith('## ')) {
-      currentCategory = trimmedLine.replace('## ', '');
-      continue;
+  try {
+    const parsed = yaml.load(yamlContent) as { questions?: YAMLQuestion[] };
+
+    if (!parsed || !parsed.questions || !Array.isArray(parsed.questions)) {
+      console.warn('Invalid YAML structure: missing questions array');
+      return [];
     }
 
-    // Check if line is a question
-    if (trimmedLine.startsWith('- ') && trimmedLine.includes('|')) {
-      const questionPart = trimmedLine.substring(2); // Remove "- "
-      const parts = questionPart.split(' | ');
+    const questions: QuestionPrompt[] = parsed.questions.map((q: YAMLQuestion, index: number) => {
+      const category = q.category || 'Random';
+      const questionType = q.type || 'text';
+      const spiciness = q.spiciness || 3;
+      const difficulty = q.difficulty || 'medium';
 
-      if (parts.length >= 3) {
-        const questionText = parts[0];
-        const levelMatch = parts[1].match(/level: (\d+)/);
-        const difficultyMatch = parts[2].match(/difficulty: (easy|medium|hard)/);
+      // Base question object
+      const questionPrompt: QuestionPrompt = {
+        id: `${category.toLowerCase().replace(/[^a-z0-9]/g, '')}_${index}_${Date.now()}`,
+        question: q.question,
+        category,
+        suggestedLevel: spiciness,
+        difficulty: difficulty as 'easy' | 'medium' | 'hard',
+        tags: [categoryToTag(category)],
+        archived: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        questionType: questionType as QuestionType
+      };
 
-        if (levelMatch && difficultyMatch) {
-          questions.push({
-            id: `${currentCategory.toLowerCase().replace(/[^a-z0-9]/g, '')}_${questions.length}`,
-            question: questionText,
-            category: currentCategory,
-            suggestedLevel: parseInt(levelMatch[1]),
-            difficulty: difficultyMatch[1] as 'easy' | 'medium' | 'hard',
-            tags: [categoryToTag(currentCategory)], // Auto-add category as tag
-            archived: false,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          });
-        }
+      // Add type-specific configuration
+      if (questionType === 'slider' && q.slider) {
+        questionPrompt.answerConfig = {
+          type: 'slider',
+          config: {
+            min: q.slider.min || 1,
+            max: q.slider.max || 10,
+            minLabel: q.slider.minLabel || '',
+            maxLabel: q.slider.maxLabel || '',
+            step: q.slider.step || 1
+          }
+        };
+      } else if (questionType === 'multipleChoice' && q.multipleChoice) {
+        questionPrompt.answerConfig = {
+          type: 'multipleChoice',
+          config: {
+            options: q.multipleChoice.options || [],
+            allowMultiple: q.multipleChoice.allowMultiple || false,
+            showDistribution: true
+          }
+        };
+      } else {
+        questionPrompt.answerConfig = { type: 'text' };
       }
-    }
-  }
 
-  return questions;
+      return questionPrompt;
+    });
+
+    return questions;
+  } catch (error) {
+    console.error('Error parsing YAML:', error);
+    return [];
+  }
 }
 
 // Filter questions by category

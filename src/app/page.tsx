@@ -23,13 +23,13 @@ export default function Home() {
   useEffect(() => {
     const loadQuestions = async () => {
       try {
-        const questionsResponse = await fetch('/questions.md');
+        const questionsResponse = await fetch('/questions.yaml');
         if (questionsResponse.ok) {
-          const markdownContent = await questionsResponse.text();
-          const parsedQuestions = parseQuestions(markdownContent);
+          const yamlContent = await questionsResponse.text();
+          const parsedQuestions = parseQuestions(yamlContent);
           setAllQuestions(parsedQuestions);
         } else {
-          console.warn('Could not load questions.md, using mock questions');
+          console.warn('Could not load questions.yaml, using mock questions');
           setAllQuestions(mockQuestions);
         }
       } catch (error) {

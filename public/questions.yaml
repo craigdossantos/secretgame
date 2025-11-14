@@ -1,0 +1,265 @@
+# ============================================================
+# The Secret Game - Question Bank
+# ============================================================
+#
+# HOW TO EDIT THIS FILE:
+#
+# 1. Each question is a YAML object with these fields:
+#    - question: The question text (required)
+#    - category: Personal, Relationships, Embarrassing, Fears & Dreams, Opinions, Work/School, Random
+#    - spiciness: 1-5 (how personal/sensitive the question is)
+#    - difficulty: easy, medium, hard
+#    - type: text, slider, or multipleChoice (default: text)
+#
+# 2. For SLIDER questions, add a 'slider' section:
+#    slider:
+#      min: 1
+#      max: 10
+#      minLabel: "Not at all"
+#      maxLabel: "Extremely"
+#
+# 3. For MULTIPLE CHOICE questions, add a 'multipleChoice' section:
+#    multipleChoice:
+#      options:
+#        - Option 1
+#        - Option 2
+#        - Option 3
+#      allowMultiple: false
+#
+# 4. To add a new question, copy an example below and modify it
+# 5. To remove a question, delete its entire block (or comment it out with #)
+#
+# ============================================================
+
+questions:
+  # ==================== TEXT QUESTIONS ====================
+  # Simple text-based answers (most common type)
+
+  - question: "What's a habit you have that you think is weird?"
+    category: Personal
+    spiciness: 2
+    difficulty: easy
+    type: text
+
+  - question: "Who was your first crush and what happened?"
+    category: Relationships
+    spiciness: 3
+    difficulty: medium
+    type: text
+
+  - question: "What's the most embarrassing thing that's happened to you in public?"
+    category: Embarrassing
+    spiciness: 4
+    difficulty: medium
+    type: text
+
+  - question: "What's your biggest regret in life so far?"
+    category: Fears & Dreams
+    spiciness: 5
+    difficulty: hard
+    type: text
+
+  - question: "What's an unpopular opinion you hold?"
+    category: Opinions
+    spiciness: 3
+    difficulty: medium
+    type: text
+
+  - question: "What's the worst mistake you've made at work/school?"
+    category: Work/School
+    spiciness: 4
+    difficulty: medium
+    type: text
+
+  - question: "What's your weirdest guilty pleasure?"
+    category: Random
+    spiciness: 2
+    difficulty: easy
+    type: text
+
+  - question: "What's something you've never told your best friend?"
+    category: Relationships
+    spiciness: 4
+    difficulty: hard
+    type: text
+
+  - question: "What did you want to be when you grew up vs. what you actually became?"
+    category: Personal
+    spiciness: 2
+    difficulty: easy
+    type: text
+
+  - question: "What's a lie you told that spiraled out of control?"
+    category: Embarrassing
+    spiciness: 4
+    difficulty: hard
+    type: text
+
+  - question: "What's a dream you've given up on?"
+    category: Fears & Dreams
+    spiciness: 4
+    difficulty: hard
+    type: text
+
+  - question: "What's something everyone seems to love but you just don't get?"
+    category: Opinions
+    spiciness: 2
+    difficulty: easy
+    type: text
+
+  - question: "Who's the worst boss/teacher you've ever had and why?"
+    category: Work/School
+    spiciness: 3
+    difficulty: medium
+    type: text
+
+  - question: "What's something you do when you're alone that you'd be embarrassed if people knew?"
+    category: Random
+    spiciness: 3
+    difficulty: medium
+    type: text
+
+  - question: "When was the last time you felt jealous but didn't say anything?"
+    category: Relationships
+    spiciness: 3
+    difficulty: medium
+    type: text
+
+  - question: "What's a character trait you hope you'd never pass down to your kids?"
+    category: Personal
+    spiciness: 4
+    difficulty: medium
+    type: text
+
+  - question: "What's something you pretend to understand at work but actually don't?"
+    category: Work/School
+    spiciness: 3
+    difficulty: medium
+    type: text
+
+
+  # ==================== SLIDER QUESTIONS ====================
+  # Numeric scale with custom labels (great for ratings, intensity, agreement)
+
+  - question: "How confident are you that you're living the life you want to live?"
+    category: Personal
+    spiciness: 3
+    difficulty: medium
+    type: slider
+    slider:
+      min: 1
+      max: 10
+      minLabel: "Not at all confident"
+      maxLabel: "Completely confident"
+
+  - question: "Rate your relationship with your parents"
+    category: Relationships
+    spiciness: 3
+    difficulty: medium
+    type: slider
+    slider:
+      min: 1
+      max: 10
+      minLabel: "Terrible"
+      maxLabel: "Perfect"
+
+  - question: "How much do you trust your gut instincts?"
+    category: Personal
+    spiciness: 2
+    difficulty: easy
+    type: slider
+    slider:
+      min: 1
+      max: 10
+      minLabel: "Never trust it"
+      maxLabel: "Always trust it"
+
+  - question: "How satisfied are you with your career path?"
+    category: Work/School
+    spiciness: 3
+    difficulty: medium
+    type: slider
+    slider:
+      min: 1
+      max: 10
+      minLabel: "Completely dissatisfied"
+      maxLabel: "Completely satisfied"
+
+
+  # ==================== MULTIPLE CHOICE QUESTIONS ====================
+  # Predefined options (great for preferences, scenarios, would-you-rather)
+
+  - question: "Which of these would you choose if you could only have one superpower?"
+    category: Random
+    spiciness: 1
+    difficulty: easy
+    type: multipleChoice
+    multipleChoice:
+      options:
+        - "Read minds"
+        - "Fly"
+        - "Invisibility"
+        - "Time travel"
+        - "Super strength"
+      allowMultiple: false
+
+  - question: "What quality matters most to you in a romantic partner?"
+    category: Relationships
+    spiciness: 2
+    difficulty: medium
+    type: multipleChoice
+    multipleChoice:
+      options:
+        - "Sense of humor"
+        - "Intelligence"
+        - "Kindness"
+        - "Ambition"
+        - "Physical attraction"
+        - "Emotional availability"
+      allowMultiple: false
+
+  - question: "If you could change one thing about yourself, what would it be?"
+    category: Personal
+    spiciness: 3
+    difficulty: medium
+    type: multipleChoice
+    multipleChoice:
+      options:
+        - "My appearance"
+        - "My personality"
+        - "My past decisions"
+        - "My career path"
+        - "My relationships"
+        - "Nothing - I'm happy as I am"
+      allowMultiple: false
+
+  - question: "Which of these fears resonates most with you?"
+    category: Fears & Dreams
+    spiciness: 3
+    difficulty: medium
+    type: multipleChoice
+    multipleChoice:
+      options:
+        - "Fear of failure"
+        - "Fear of being alone"
+        - "Fear of missing out"
+        - "Fear of not being good enough"
+        - "Fear of the unknown"
+        - "Fear of losing control"
+      allowMultiple: false
+
+  - question: "What's your guilty pleasure TV genre? (Select all that apply)"
+    category: Random
+    spiciness: 1
+    difficulty: easy
+    type: multipleChoice
+    multipleChoice:
+      options:
+        - "Reality TV"
+        - "Trashy dating shows"
+        - "Crime documentaries"
+        - "Soap operas"
+        - "Anime"
+        - "Teen dramas"
+      allowMultiple: true
+
