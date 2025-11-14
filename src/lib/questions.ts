@@ -109,6 +109,17 @@ interface YAMLQuestion {
   };
 }
 
+// Simple hash function for stable question IDs
+function hashString(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36); // Base36 for shorter IDs
+}
+
 // Parse questions from YAML format
 export function parseQuestions(yamlContent: string): QuestionPrompt[] {
   // Dynamic import for js-yaml (client-side compatible)
@@ -123,15 +134,15 @@ export function parseQuestions(yamlContent: string): QuestionPrompt[] {
       return [];
     }
 
-    const questions: QuestionPrompt[] = parsed.questions.map((q: YAMLQuestion, index: number) => {
+    const questions: QuestionPrompt[] = parsed.questions.map((q: YAMLQuestion) => {
       const category = q.category || 'Random';
       const questionType = q.type || 'text';
       const spiciness = q.spiciness || 3;
       const difficulty = q.difficulty || 'medium';
 
-      // Base question object
+      // Base question object with stable hash-based ID
       const questionPrompt: QuestionPrompt = {
-        id: `${category.toLowerCase().replace(/[^a-z0-9]/g, '')}_${index}_${Date.now()}`,
+        id: `q_${hashString(q.question)}`,
         question: q.question,
         category,
         suggestedLevel: spiciness,
