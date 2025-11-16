@@ -13,17 +13,7 @@ import {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name = 'Secret Room', userName, questionIds = [], customQuestions = [] } = body;
-
-    if (!userName || userName.trim().length === 0) {
-      return errorResponse('User name is required');
-    }
-
-    // Validate question selection
-    const totalQuestions = questionIds.length + customQuestions.length;
-    if (totalQuestions < 1) {
-      return errorResponse('At least 1 question must be selected');
-    }
+    const { name, userName, questionIds = [], customQuestions = [], setupMode = false } = body;
 
     // Get or create user
     let userId = await getCurrentUserId();
@@ -31,8 +21,9 @@ export async function POST(request: NextRequest) {
     let shouldSetCookie = false;
 
     if (!userId) {
-      // Create temporary user
-      user = await createTempUser(userName);
+      // Create temporary user with default name if not provided
+      const tempUserName = userName && userName.trim().length > 0 ? userName : 'Guest';
+      user = await createTempUser(tempUserName);
       await mockDb.insertUser(user);
       userId = user.id;
       shouldSetCookie = true;
@@ -40,7 +31,8 @@ export async function POST(request: NextRequest) {
       // Get existing user
       user = await mockDb.findUserById(userId);
       if (!user) {
-        user = await createTempUser(userName);
+        const tempUserName = userName && userName.trim().length > 0 ? userName : 'Guest';
+        user = await createTempUser(tempUserName);
         await mockDb.insertUser(user);
         userId = user.id;
         shouldSetCookie = true;
@@ -50,6 +42,21 @@ export async function POST(request: NextRequest) {
     // Create room
     const roomId = createId();
     const inviteCode = generateInviteCode();
+
+    // Auto-generate room name if not provided
+    const roomName = name || `Room ${inviteCode.slice(0, 6)}`;
+
+    // Validate question selection only if NOT in setup mode
+    if (!setupMode) {
+      if (!userName || userName.trim().length === 0) {
+        return errorResponse('User name is required');
+      }
+
+      const totalQuestions = questionIds.length + customQuestions.length;
+      if (totalQuestions < 1) {
+        return errorResponse('At least 1 question must be selected');
+      }
+    }
 
     // Process custom questions
     const processedCustomQuestions = customQuestions.map((q: {
@@ -71,13 +78,14 @@ export async function POST(request: NextRequest) {
 
     const newRoom = {
       id: roomId,
-      name,
+      name: roomName,
       ownerId: userId,
       inviteCode,
       maxMembers: 20,
       createdAt: new Date(),
       questionIds,
       customQuestions: processedCustomQuestions,
+      setupMode,
     };
 
     console.log(`🏗️ Creating room:`, newRoom.id);
@@ -97,7 +105,7 @@ export async function POST(request: NextRequest) {
       roomId,
       inviteCode,
       inviteUrl,
-      name,
+      name: roomName,
     };
 
     // Set cookie if we created a new user

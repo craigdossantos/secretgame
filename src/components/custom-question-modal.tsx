@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -31,12 +31,14 @@ interface CustomQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onCreateQuestion: (question: QuestionPrompt) => void;
+  initialQuestion?: QuestionPrompt;
 }
 
 export function CustomQuestionModal({
   isOpen,
   onClose,
-  onCreateQuestion
+  onCreateQuestion,
+  initialQuestion
 }: CustomQuestionModalProps) {
   // Basic question state
   const [questionText, setQuestionText] = useState('');
@@ -59,6 +61,32 @@ export function CustomQuestionModal({
   // Simple validation - only require question text and max 200 chars
   const isFormValid = questionText.trim().length > 0 && questionText.trim().length <= 200;
 
+  // Populate form when editing existing question
+  useEffect(() => {
+    if (initialQuestion) {
+      setQuestionText(initialQuestion.question);
+      setQuestionType(initialQuestion.questionType || 'text');
+      setCategory(initialQuestion.category as QuestionCategory);
+      setSpiciness(initialQuestion.suggestedLevel);
+
+      // Populate slider config if present
+      if (initialQuestion.answerConfig?.type === 'slider') {
+        const config = initialQuestion.answerConfig.config;
+        setSliderMin(config.min);
+        setSliderMax(config.max);
+        setSliderMinLabel(config.minLabel);
+        setSliderMaxLabel(config.maxLabel);
+      }
+
+      // Populate multiple choice config if present
+      if (initialQuestion.answerConfig?.type === 'multipleChoice') {
+        const config = initialQuestion.answerConfig.config;
+        setMcOptions(config.options);
+        setMcAllowMultiple(config.allowMultiple);
+      }
+    }
+  }, [initialQuestion]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
@@ -72,13 +100,20 @@ export function CustomQuestionModal({
         { name: 'custom', type: 'format' }
       ];
 
-      const newQuestion = createNewQuestion(
-        questionText.trim(),
-        category,
-        spiciness,
-        'medium',
-        additionalTags
-      );
+      const newQuestion = initialQuestion
+        ? { ...initialQuestion } // Preserve existing question properties when editing
+        : createNewQuestion(
+            questionText.trim(),
+            category,
+            spiciness,
+            'medium',
+            additionalTags
+          );
+
+      // Update the question text, category, and spiciness
+      newQuestion.question = questionText.trim();
+      newQuestion.category = category;
+      newQuestion.suggestedLevel = spiciness;
 
       // Set the selected question type
       newQuestion.questionType = questionType;
@@ -173,7 +208,7 @@ export function CustomQuestionModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
         <DialogHeader className="p-6 pb-4">
           <DialogTitle className="text-xl font-serif">
-            Add a Question
+            {initialQuestion ? 'Edit Question' : 'Add a Question'}
           </DialogTitle>
         </DialogHeader>
 
@@ -434,7 +469,7 @@ export function CustomQuestionModal({
                 disabled={!isFormValid || isCreating}
                 className="flex-1"
               >
-                {isCreating ? 'Adding...' : 'Add Question'}
+                {isCreating ? (initialQuestion ? 'Saving...' : 'Adding...') : (initialQuestion ? 'Save Question' : 'Add Question')}
               </Button>
             </div>
           </form>

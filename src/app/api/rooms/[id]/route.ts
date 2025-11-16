@@ -55,6 +55,7 @@ export async function GET(
         ownerId: room.ownerId,
         questionIds: room.questionIds || [],
         customQuestions: room.customQuestions || [],
+        setupMode: room.setupMode,
         isMember: true,
       },
     });

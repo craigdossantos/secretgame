@@ -1,76 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { QuestionSelector } from '@/components/question-selector';
-import { CustomQuestionModal } from '@/components/custom-question-modal';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
 import { toast } from 'sonner';
+import { TextIcon, SlidersHorizontal, CheckSquare, Lock, Unlock } from 'lucide-react';
 
 export default function Home() {
   const router = useRouter();
-  const [allQuestions, setAllQuestions] = useState<QuestionPrompt[]>([]);
-  const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
-  const [customQuestions, setCustomQuestions] = useState<QuestionPrompt[]>([]);
-  const [userName, setUserName] = useState('');
-  const [roomName, setRoomName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  const [isCustomQuestionModalOpen, setIsCustomQuestionModalOpen] = useState(false);
-
-  // Load questions on mount
-  useEffect(() => {
-    const loadQuestions = async () => {
-      try {
-        const questionsResponse = await fetch('/questions.yaml');
-        if (questionsResponse.ok) {
-          const yamlContent = await questionsResponse.text();
-          const parsedQuestions = parseQuestions(yamlContent);
-          setAllQuestions(parsedQuestions);
-        } else {
-          console.warn('Could not load questions.yaml, using mock questions');
-          setAllQuestions(mockQuestions);
-        }
-      } catch (error) {
-        console.warn('Error loading questions:', error);
-        setAllQuestions(mockQuestions);
-      }
-    };
-
-    loadQuestions();
-  }, []);
-
-  const handleSelectionChange = (selectedIds: string[], customQs: QuestionPrompt[]) => {
-    setSelectedQuestionIds(selectedIds);
-    setCustomQuestions(customQs);
-  };
-
-  const handleCreateCustomQuestion = (question: QuestionPrompt) => {
-    // Add to custom questions and auto-select it
-    setCustomQuestions(prev => [...prev, question]);
-    setSelectedQuestionIds(prev => [...prev, question.id]);
-    setIsCustomQuestionModalOpen(false);
-    toast.success('Custom question added to selection!');
-  };
 
   const handleCreateRoom = async () => {
-    // Validation
-    if (!userName.trim()) {
-      toast.error('Please enter your name');
-      return;
-    }
-
-    if (!roomName.trim()) {
-      toast.error('Please enter a room name');
-      return;
-    }
-
-    if (selectedQuestionIds.length === 0) {
-      toast.error('Please select at least one question');
-      return;
-    }
-
     setIsCreating(true);
 
     try {
@@ -78,17 +18,7 @@ export default function Home() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userName: userName.trim(),
-          name: roomName.trim(),
-          questionIds: selectedQuestionIds.filter(id =>
-            !customQuestions.some(cq => cq.id === id)
-          ),
-          customQuestions: customQuestions.map(cq => ({
-            question: cq.question,
-            category: cq.category,
-            suggestedLevel: cq.suggestedLevel,
-            difficulty: cq.difficulty || 'medium',
-          })),
+          setupMode: true,
         }),
       });
 
@@ -99,8 +29,7 @@ export default function Home() {
         return;
       }
 
-      // Immediately redirect to the room
-      toast.success(`Room "${data.name}" created successfully!`);
+      // Redirect to room in setup mode
       router.push(`/rooms/${data.roomId}`);
     } catch (error) {
       console.error('Failed to create room:', error);
@@ -111,75 +40,122 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background art-deco-pattern">
-      {/* Sticky Header with Room Creation Form */}
-      <header className="sticky top-0 z-10 bg-card/80 backdrop-blur-sm border-b border-border">
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="mb-6 text-center">
-            <h1 className="text-5xl font-serif mb-3 text-foreground art-deco-text art-deco-shadow">The Secret Game</h1>
-            <div className="art-deco-divider my-4">
-              <span>◆ ◆ ◆</span>
-            </div>
-            <p className="text-lg text-muted-foreground">
-              Select questions, create a room, and start sharing secrets with friends
-            </p>
+    <div className="min-h-screen bg-background art-deco-pattern flex items-center justify-center p-6">
+      <div className="max-w-2xl w-full">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-6xl font-serif mb-4 text-foreground art-deco-text art-deco-shadow">
+            The Secret Game
+          </h1>
+          <div className="art-deco-divider my-6">
+            <span>◆ ◆ ◆</span>
+          </div>
+          <p className="text-xl text-muted-foreground max-w-lg mx-auto">
+            Share secrets with friends. Unlock their answers by sharing yours.
+          </p>
+        </div>
+
+        {/* How It Works - Visual Explanation */}
+        <div className="space-y-8 mb-12">
+          <div className="text-center">
+            <h2 className="text-2xl font-serif mb-6 art-deco-text">How It Works</h2>
           </div>
 
-          <div className="flex gap-3 items-end">
-            <div className="flex-1">
-              <label htmlFor="userName" className="block text-sm font-medium text-foreground mb-2 art-deco-text">
-                Your Name
-              </label>
-              <Input
-                id="userName"
-                placeholder="Enter your name"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                className="w-full bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
-                disabled={isCreating}
-              />
+          {/* Step 1: Choose Questions */}
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg art-deco-border">
+              1
             </div>
             <div className="flex-1">
-              <label htmlFor="roomName" className="block text-sm font-medium text-foreground mb-2 art-deco-text">
-                Room Name
-              </label>
-              <Input
-                id="roomName"
-                placeholder="Enter room name"
-                value={roomName}
-                onChange={(e) => setRoomName(e.target.value)}
-                className="w-full bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
-                disabled={isCreating}
-              />
+              <h3 className="text-lg font-semibold mb-2">Choose Your Questions</h3>
+              <p className="text-muted-foreground mb-3">
+                Pick from different question types or create your own
+              </p>
+              <div className="flex gap-3">
+                <div className="flex-1 p-3 rounded-lg bg-card border border-border flex items-center gap-2">
+                  <TextIcon className="w-4 h-4 text-blue-500" />
+                  <span className="text-sm">Text</span>
+                </div>
+                <div className="flex-1 p-3 rounded-lg bg-card border border-border flex items-center gap-2">
+                  <SlidersHorizontal className="w-4 h-4 text-purple-500" />
+                  <span className="text-sm">Slider</span>
+                </div>
+                <div className="flex-1 p-3 rounded-lg bg-card border border-border flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-green-500" />
+                  <span className="text-sm">Choice</span>
+                </div>
+              </div>
             </div>
-            <Button
-              onClick={handleCreateRoom}
-              disabled={isCreating}
-              className="art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 px-6 h-10 art-deco-text art-deco-glow"
-              size="lg"
-            >
-              {isCreating ? 'Creating...' : 'Create Room'}
-            </Button>
+          </div>
+
+          {/* Step 2: Answer Questions */}
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg art-deco-border">
+              2
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold mb-2">Everyone Answers</h3>
+              <p className="text-muted-foreground">
+                Each person rates how vulnerable their answer is with 🌶️ chili peppers
+              </p>
+            </div>
+          </div>
+
+          {/* Step 3: Unlock with Matching Spiciness */}
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg art-deco-border">
+              3
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold mb-2">Unlock Others&apos; Secrets</h3>
+              <p className="text-muted-foreground mb-3">
+                Share a secret with matching spiciness to see someone else&apos;s answer
+              </p>
+              <div className="flex gap-3">
+                <div className="flex-1 p-4 rounded-lg bg-card border border-border text-center">
+                  <Lock className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                  <div className="text-sm text-muted-foreground">Locked</div>
+                  <div className="text-xs mt-1">Need 🌶️🌶️🌶️</div>
+                </div>
+                <div className="flex items-center justify-center text-2xl">→</div>
+                <div className="flex-1 p-4 rounded-lg bg-primary/10 border border-primary text-center">
+                  <Unlock className="w-6 h-6 mx-auto mb-2 text-primary" />
+                  <div className="text-sm font-medium">Unlocked!</div>
+                  <div className="text-xs mt-1 text-muted-foreground">You shared 🌶️🌶️🌶️</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 4: Connect Deeper */}
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg art-deco-border">
+              4
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold mb-2">Connect Deeper</h3>
+              <p className="text-muted-foreground">
+                The more vulnerable you are, the more you unlock. Build genuine connections.
+              </p>
+            </div>
           </div>
         </div>
-      </header>
 
-      {/* Main Content - Question Selection */}
-      <main className="max-w-7xl mx-auto p-6">
-        <QuestionSelector
-          questions={allQuestions}
-          selectedQuestionIds={selectedQuestionIds}
-          onSelectionChange={handleSelectionChange}
-          maxSelections={null}
-        />
-      </main>
-
-      {/* Custom Question Modal */}
-      <CustomQuestionModal
-        isOpen={isCustomQuestionModalOpen}
-        onClose={() => setIsCustomQuestionModalOpen(false)}
-        onCreateQuestion={handleCreateCustomQuestion}
-      />
+        {/* CTA Button */}
+        <div className="text-center">
+          <Button
+            onClick={handleCreateRoom}
+            disabled={isCreating}
+            className="art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 px-12 py-6 text-lg art-deco-text art-deco-glow h-auto"
+            size="lg"
+          >
+            {isCreating ? 'Creating Room...' : 'Create Room'}
+          </Button>
+          <p className="text-sm text-muted-foreground mt-4">
+            Free to use · No sign up required · Private by default
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

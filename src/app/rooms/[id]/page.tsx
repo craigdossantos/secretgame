@@ -9,6 +9,7 @@ import { UnlockQuestionModal } from '@/components/unlock-question-modal';
 import { CustomQuestionModal } from '@/components/custom-question-modal';
 import { WelcomeModal } from '@/components/welcome-modal';
 import { UserIdentityHeader } from '@/components/user-identity-header';
+import { SetupModeView } from '@/components/setup-mode-view';
 import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -24,6 +25,7 @@ interface Room {
   inviteCode: string;
   ownerId: string;
   questionIds?: string[];
+  setupMode?: boolean;
 }
 
 interface Secret {
@@ -502,6 +504,29 @@ export default function RoomPage() {
     }
   };
 
+  const handleSetupComplete = () => {
+    // Reload room data to get updated questions and exit setup mode
+    setLoading(true);
+    setRoom(null);
+    const loadRoomData = async () => {
+      try {
+        const roomResponse = await fetch(`/api/rooms/${roomId}`);
+        if (!roomResponse.ok) {
+          throw new Error('Room not found');
+        }
+        const roomData = await roomResponse.json();
+        setRoom(roomData.room);
+        setLoading(false);
+        // Force reload to get questions and secrets
+        window.location.reload();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load room');
+        setLoading(false);
+      }
+    };
+    loadRoomData();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background art-deco-pattern flex items-center justify-center">
@@ -530,6 +555,11 @@ export default function RoomPage() {
         </div>
       </div>
     );
+  }
+
+  // Setup mode view
+  if (room?.setupMode) {
+    return <SetupModeView roomId={roomId} onComplete={handleSetupComplete} />;
   }
 
   return (
@@ -577,10 +607,10 @@ export default function RoomPage() {
           {room && (
             <div className="art-deco-border bg-card/50 backdrop-blur-sm p-4 art-deco-glow">
               <div className="flex items-center gap-3">
-                <div className="flex-1">
-                  <p className="text-xs text-primary font-medium mb-2 art-deco-text">Invitation Code</p>
-                  <p className="text-lg font-mono text-foreground break-all tracking-widest">
-                    {room.inviteCode}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-primary font-medium mb-2 art-deco-text">Invite Link</p>
+                  <p className="text-sm font-mono text-foreground break-all">
+                    {`${typeof window !== 'undefined' ? window.location.origin : ''}/invite/${room.inviteCode}`}
                   </p>
                 </div>
                 <Button

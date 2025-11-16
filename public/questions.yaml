@@ -41,19 +41,13 @@ questions:
     difficulty: easy
     type: text
 
-  - question: "Who was your first crush and what happened?"
-    category: Relationships
-    spiciness: 3
-    difficulty: medium
-    type: text
-
   - question: "What's the most embarrassing thing that's happened to you in public?"
     category: Embarrassing
     spiciness: 4
     difficulty: medium
     type: text
 
-  - question: "What's your biggest regret in life so far?"
+  - question: "When you think of regret, what's the first situation in your life that comes to mind?"
     category: Fears & Dreams
     spiciness: 5
     difficulty: hard
@@ -77,24 +71,6 @@ questions:
     difficulty: easy
     type: text
 
-  - question: "What's something you've never told your best friend?"
-    category: Relationships
-    spiciness: 4
-    difficulty: hard
-    type: text
-
-  - question: "What did you want to be when you grew up vs. what you actually became?"
-    category: Personal
-    spiciness: 2
-    difficulty: easy
-    type: text
-
-  - question: "What's a lie you told that spiraled out of control?"
-    category: Embarrassing
-    spiciness: 4
-    difficulty: hard
-    type: text
-
   - question: "What's a dream you've given up on?"
     category: Fears & Dreams
     spiciness: 4
@@ -107,23 +83,12 @@ questions:
     difficulty: easy
     type: text
 
-  - question: "Who's the worst boss/teacher you've ever had and why?"
-    category: Work/School
-    spiciness: 3
-    difficulty: medium
-    type: text
-
   - question: "What's something you do when you're alone that you'd be embarrassed if people knew?"
     category: Random
     spiciness: 3
     difficulty: medium
     type: text
 
-  - question: "When was the last time you felt jealous but didn't say anything?"
-    category: Relationships
-    spiciness: 3
-    difficulty: medium
-    type: text
 
   - question: "What's a character trait you hope you'd never pass down to your kids?"
     category: Personal
@@ -218,7 +183,7 @@ questions:
         - "Emotional availability"
       allowMultiple: false
 
-  - question: "If you could change one thing about yourself, what would it be?"
+  - question: "If you could change one thing about the way you interact with other people, what would it be?"
     category: Personal
     spiciness: 3
     difficulty: medium
@@ -248,18 +213,4 @@ questions:
         - "Fear of losing control"
       allowMultiple: false
 
-  - question: "What's your guilty pleasure TV genre? (Select all that apply)"
-    category: Random
-    spiciness: 1
-    difficulty: easy
-    type: multipleChoice
-    multipleChoice:
-      options:
-        - "Reality TV"
-        - "Trashy dating shows"
-        - "Crime documentaries"
-        - "Soap operas"
-        - "Anime"
-        - "Teen dramas"
-      allowMultiple: true
 
