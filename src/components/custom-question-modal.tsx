@@ -58,6 +58,9 @@ export function CustomQuestionModal({
   const [mcOptions, setMcOptions] = useState<string[]>(['Option 1', 'Option 2', 'Option 3']);
   const [mcAllowMultiple, setMcAllowMultiple] = useState(false);
 
+  // Image upload configuration state (for text questions)
+  const [allowImageUpload, setAllowImageUpload] = useState(false);
+
   // Simple validation - only require question text and max 200 chars
   const isFormValid = questionText.trim().length > 0 && questionText.trim().length <= 200;
 
@@ -84,6 +87,9 @@ export function CustomQuestionModal({
         setMcOptions(config.options);
         setMcAllowMultiple(config.allowMultiple);
       }
+
+      // Populate image upload setting
+      setAllowImageUpload(initialQuestion.allowImageUpload || false);
     }
   }, [initialQuestion]);
 
@@ -143,6 +149,11 @@ export function CustomQuestionModal({
         newQuestion.answerConfig = { type: 'text' };
       }
 
+      // Add image upload permission for text questions
+      if (questionType === 'text') {
+        newQuestion.allowImageUpload = allowImageUpload;
+      }
+
       onCreateQuestion(newQuestion);
 
       // Reset form
@@ -156,6 +167,7 @@ export function CustomQuestionModal({
       setSliderMaxLabel('Extremely');
       setMcOptions(['Option 1', 'Option 2', 'Option 3']);
       setMcAllowMultiple(false);
+      setAllowImageUpload(false);
       onClose();
     } catch {
       setError('Failed to create question. Please try again.');
@@ -176,6 +188,7 @@ export function CustomQuestionModal({
     setSliderMaxLabel('Extremely');
     setMcOptions(['Option 1', 'Option 2', 'Option 3']);
     setMcAllowMultiple(false);
+    setAllowImageUpload(false);
     setError('');
     onClose();
   };
@@ -404,6 +417,46 @@ export function CustomQuestionModal({
                     />
                   </button>
                 </div>
+              </div>
+            )}
+
+            {/* Text Question Configuration (Image Upload Option) */}
+            {questionType === 'text' && (
+              <div className="space-y-3 p-4 rounded-lg border border-border bg-accent/20">
+                <div className="text-sm font-medium text-foreground">Text Answer Options</div>
+
+                {/* Allow Image Upload Toggle */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5 flex-1">
+                    <div className="text-xs font-medium">Allow Image Upload</div>
+                    <div className="text-[10px] text-muted-foreground">
+                      Users can upload an image instead of typing text
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAllowImageUpload(!allowImageUpload)}
+                    className={`
+                      relative inline-flex h-5 w-9 items-center rounded-full transition-colors
+                      ${allowImageUpload ? 'bg-primary' : 'bg-border'}
+                    `}
+                  >
+                    <span
+                      className={`
+                        inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform
+                        ${allowImageUpload ? 'translate-x-5' : 'translate-x-0.5'}
+                      `}
+                    />
+                  </button>
+                </div>
+
+                {allowImageUpload && (
+                  <div className="pt-2 border-t border-border/50">
+                    <div className="text-[10px] text-muted-foreground leading-relaxed">
+                      💡 Images will be limited to 5MB and support JPG, PNG, GIF, and WebP formats. Users can add an optional caption.
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

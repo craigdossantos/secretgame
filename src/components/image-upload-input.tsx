@@ -1,160 +1,202 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Image as ImageIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { DragDropZone } from '@/components/drag-drop-zone';
-import { validateImageFile, fileToBase64, formatFileSize, ImageData } from '@/lib/image-utils';
+import { X, Loader2 } from 'lucide-react';
+import { DragDropZone } from './drag-drop-zone';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
 import { toast } from 'sonner';
+import { validateImageFile, fileToBase64, formatFileSize, type ImageData } from '@/lib/image-utils';
 
 interface ImageUploadInputProps {
-  value: ImageData | null;
-  onChange: (data: ImageData | null) => void;
+  onImageSelected?: (imageData: ImageData) => void;
+  onChange?: (imageData: ImageData | null) => void;
+  value?: ImageData | null;
+  onClear?: () => void;
   maxSizeMB?: number;
   showCaption?: boolean;
   disabled?: boolean;
 }
 
 export function ImageUploadInput({
-  value,
+  onImageSelected,
   onChange,
+  value,
+  onClear,
   maxSizeMB = 5,
   showCaption = true,
   disabled = false,
 }: ImageUploadInputProps) {
-  const [preview, setPreview] = useState<string | null>(value?.imageBase64 || null);
-  const [caption, setCaption] = useState(value?.caption || '');
-  const [loading, setLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string>('');
+  const [fileSize, setFileSize] = useState<number>(0);
+  const [caption, setCaption] = useState<string>('');
+  const [processing, setProcessing] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const handleFile = async (file: File) => {
-    if (disabled) return;
-
-    // Validate file
+  const handleFileSelected = async (file: File) => {
+    // Validate the file
     const validationError = validateImageFile(file, maxSizeMB);
     if (validationError) {
       toast.error(validationError);
       return;
     }
 
-    try {
-      setLoading(true);
+    setProcessing(true);
 
-      // Convert to base64
+    try {
+      // Create preview URL
+      const preview = URL.createObjectURL(file);
+      setPreviewUrl(preview);
+      setFileName(file.name);
+      setFileSize(file.size);
+      setSelectedFile(file);
+
+      // Convert to Base64
       const base64 = await fileToBase64(file);
 
-      // Create image data
+      // Create ImageData object
       const imageData: ImageData = {
         imageBase64: base64,
-        caption: caption,
+        caption: caption.trim() || undefined,
         mimeType: file.type,
         fileSize: file.size,
         fileName: file.name,
       };
 
-      setPreview(base64);
-      onChange(imageData);
+      // Call the appropriate callback
+      if (onImageSelected) {
+        onImageSelected(imageData);
+      }
+      if (onChange) {
+        onChange(imageData);
+      }
+
       toast.success('Image uploaded successfully!');
     } catch (error) {
-      console.error('Failed to upload image:', error);
-      toast.error('Failed to upload image. Please try again.');
+      console.error('Failed to process image:', error);
+      toast.error('Failed to process image. Please try again.');
+      handleClearImage();
     } finally {
-      setLoading(false);
+      setProcessing(false);
     }
   };
 
-  const handleRemove = () => {
-    setPreview(null);
+  const handleClearImage = () => {
+    // Revoke the preview URL to free memory
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setPreviewUrl(null);
+    setFileName('');
+    setFileSize(0);
     setCaption('');
-    onChange(null);
-  };
+    setSelectedFile(null);
 
-  const handleCaptionChange = (newCaption: string) => {
-    setCaption(newCaption);
-    if (value) {
-      onChange({
-        ...value,
-        caption: newCaption,
-      });
+    if (onClear) {
+      onClear();
+    }
+    if (onChange) {
+      onChange(null);
     }
   };
 
-  // Show preview if image is uploaded
-  if (preview) {
+  const handleCaptionChange = async (newCaption: string) => {
+    setCaption(newCaption);
+
+    // Update the image data with new caption
+    if (selectedFile) {
+      try {
+        const base64 = await fileToBase64(selectedFile);
+        const imageData: ImageData = {
+          imageBase64: base64,
+          caption: newCaption.trim() || undefined,
+          mimeType: selectedFile.type,
+          fileSize: selectedFile.size,
+          fileName: selectedFile.name,
+        };
+        if (onImageSelected) {
+          onImageSelected(imageData);
+        }
+        if (onChange) {
+          onChange(imageData);
+        }
+      } catch (error) {
+        console.error('Failed to update caption:', error);
+      }
+    }
+  };
+
+  // Show upload zone if no image is selected
+  if (!previewUrl) {
     return (
       <div className="space-y-4">
-        {/* Image preview */}
-        <div className="relative rounded-2xl overflow-hidden bg-muted border-2 border-border">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={preview}
-            alt="Uploaded preview"
-            className="w-full h-auto max-h-96 object-contain"
-          />
+        <DragDropZone
+          onFileSelected={handleFileSelected}
+          maxSizeMB={maxSizeMB}
+          disabled={disabled || processing}
+        />
 
-          {/* Remove button */}
-          <Button
-            variant="destructive"
-            size="icon"
-            className="absolute top-2 right-2 rounded-full shadow-lg"
-            onClick={handleRemove}
-            disabled={disabled}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-
-          {/* File info overlay */}
-          {value && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-              <p className="text-white text-xs">
-                {value.fileName} • {formatFileSize(value.fileSize)}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Caption input */}
-        {showCaption && (
-          <div className="space-y-2">
-            <label htmlFor="image-caption" className="text-sm font-medium">
-              Caption <span className="text-muted-foreground">(optional)</span>
-            </label>
-            <Input
-              id="image-caption"
-              type="text"
-              placeholder="Add a caption to your image..."
-              value={caption}
-              onChange={(e) => handleCaptionChange(e.target.value)}
-              maxLength={200}
-              disabled={disabled}
-            />
-            {caption && (
-              <p className="text-xs text-muted-foreground text-right">
-                {caption.length}/200
-              </p>
-            )}
+        {processing && (
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Processing image...</span>
           </div>
         )}
       </div>
     );
   }
 
-  // Show upload zone if no image
+  // Show preview with caption if image is selected
   return (
     <div className="space-y-4">
-      {loading ? (
-        <div className="border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-            <ImageIcon className="w-8 h-8 text-primary animate-pulse" />
-          </div>
-          <p className="text-sm text-muted-foreground">Uploading image...</p>
-        </div>
-      ) : (
-        <DragDropZone
-          onFile={handleFile}
-          maxSizeMB={maxSizeMB}
-          disabled={disabled}
+      {/* Image Preview */}
+      <div className="relative rounded-xl border border-border overflow-hidden bg-muted">
+        <img
+          src={previewUrl}
+          alt="Preview"
+          className="w-full h-auto max-h-96 object-contain"
         />
+
+        {/* Remove button */}
+        <Button
+          variant="destructive"
+          size="sm"
+          className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full shadow-lg"
+          onClick={handleClearImage}
+          disabled={disabled}
+        >
+          <X className="w-4 h-4" />
+        </Button>
+
+        {/* File info */}
+        <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm text-white px-3 py-2">
+          <p className="text-xs truncate">{fileName}</p>
+          <p className="text-xs text-white/80">{formatFileSize(fileSize)}</p>
+        </div>
+      </div>
+
+      {/* Caption Input */}
+      {showCaption && (
+        <div className="space-y-2">
+          <label htmlFor="image-caption" className="text-sm font-medium text-foreground">
+            Caption (optional)
+          </label>
+          <Input
+            id="image-caption"
+            type="text"
+            placeholder="Add a caption to your image..."
+            value={caption}
+            onChange={(e) => handleCaptionChange(e.target.value)}
+            disabled={disabled}
+            maxLength={200}
+            className="text-sm"
+          />
+          <p className="text-xs text-muted-foreground">
+            {caption.length}/200 characters
+          </p>
+        </div>
       )}
     </div>
   );

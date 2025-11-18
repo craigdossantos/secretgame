@@ -1,12 +1,3 @@
 {
-  "mcpServers": {
-    "playwright-project": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "@playwright/mcp"
-      ],
-      "env": {}
-    }
-  }
+  "mcpServers": {}
 }

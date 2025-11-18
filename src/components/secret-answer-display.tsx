@@ -75,7 +75,8 @@ export function SecretAnswerDisplay({
 
   // Handle image upload answer display
   if (answerType === 'imageUpload' && answerData && typeof answerData === 'object') {
-    return <ImageAnswerDisplay imageData={answerData as { imageBase64?: string; caption?: string }} />;
+    const imageData = answerData as { imageBase64: string; caption?: string; mimeType: string; fileSize: number; fileName: string };
+    return <ImageAnswerDisplay imageData={imageData} />;
   }
 
   // Handle multiple choice answer display
