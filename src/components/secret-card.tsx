@@ -41,6 +41,7 @@ interface SecretCardProps {
 export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
+  const [isRevealed, setIsRevealed] = useState(false); // New state for click-to-reveal
 
   const handleUnlock = () => {
     onUnlock?.(secret.id);
@@ -51,6 +52,9 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
     onRate?.(secret.id, rating);
   };
 
+  const handleReveal = () => {
+    setIsRevealed(true);
+  };
 
   const blurredPreview = secret.body.slice(0, 50) + '...';
 
@@ -128,7 +132,7 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
           )}
 
           {/* Answer */}
-          {secret.isUnlocked ? (
+          {secret.isUnlocked || isRevealed ? (
             <SecretAnswerDisplay
               answerType={secret.answerType || 'text'}
               answerData={secret.answerData}
@@ -136,13 +140,20 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
               config={secret.questionConfig as SliderConfig | undefined}
             />
           ) : (
-            <div className="relative">
-              <p className="text-foreground/60 leading-relaxed blur-sm select-none">
-                {blurredPreview}
-              </p>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-card/30 to-card/60" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Lock className="w-8 h-8 text-primary/40 filter drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]" />
+            <div
+              className="relative cursor-pointer group"
+              onClick={handleReveal}
+            >
+              <div className="relative p-6 rounded-lg border-2 border-dashed border-border/50 bg-secondary/20 hover:border-primary/50 hover:bg-secondary/30 transition-all">
+                <div className="flex flex-col items-center justify-center gap-3 text-center">
+                  <Lock className="w-8 h-8 text-primary/60 group-hover:text-primary transition-colors filter drop-shadow-[0_0_10px_rgba(212,175,55,0.3)]" />
+                  <p className="text-sm font-medium text-foreground/70 group-hover:text-foreground transition-colors">
+                    Click to reveal answer
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Level {secret.selfRating} secret
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -150,7 +161,7 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-between">
-          {secret.isUnlocked ? (
+          {secret.isUnlocked || isRevealed ? (
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Rate this secret:</span>
               <RatingStars

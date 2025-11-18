@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { DragDropZone } from './drag-drop-zone';
 import { Input } from './ui/input';
@@ -33,6 +33,23 @@ export function ImageUploadInput({
   const [caption, setCaption] = useState<string>('');
   const [processing, setProcessing] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Sync with controlled value prop
+  useEffect(() => {
+    if (value && value.imageBase64) {
+      setPreviewUrl(value.imageBase64);
+      setFileName(value.fileName || '');
+      setFileSize(value.fileSize || 0);
+      setCaption(value.caption || '');
+    } else if (value === null) {
+      // Reset if value is explicitly set to null
+      setPreviewUrl(null);
+      setFileName('');
+      setFileSize(0);
+      setCaption('');
+      setSelectedFile(null);
+    }
+  }, [value]);
 
   const handleFileSelected = async (file: File) => {
     // Validate the file
