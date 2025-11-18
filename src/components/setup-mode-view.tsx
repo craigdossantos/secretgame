@@ -21,6 +21,7 @@ export function SetupModeView({ roomId, onComplete }: SetupModeViewProps) {
   const [isCompleting, setIsCompleting] = useState(false);
   const [inviteCode, setInviteCode] = useState<string>('');
   const [isCopied, setIsCopied] = useState(false);
+  const [visibleQuestionCount, setVisibleQuestionCount] = useState(10);
 
   // Load questions on mount
   useEffect(() => {
@@ -161,6 +162,11 @@ export function SetupModeView({ roomId, onComplete }: SetupModeViewProps) {
     selectedQuestionIds.includes(q.id)
   );
 
+  // Filter out selected questions and apply pagination
+  const unselectedQuestions = allQuestions.filter(q => !selectedQuestionIds.includes(q.id));
+  const visibleQuestions = unselectedQuestions.slice(0, visibleQuestionCount);
+  const hasMoreQuestions = unselectedQuestions.length > visibleQuestionCount;
+
   const getQuestionTypeIcon = (type?: string) => {
     switch (type) {
       case 'slider':
@@ -228,62 +234,67 @@ export function SetupModeView({ roomId, onComplete }: SetupModeViewProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column: Suggested Questions */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-serif art-deco-text">Suggested Questions</h2>
-              <Button
-                variant="outline"
-                size="sm"
+            <h2 className="text-2xl font-serif mb-4 art-deco-text">Suggested Questions</h2>
+            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+              {/* Create Custom Question Card - First Item */}
+              <div
                 onClick={() => {
                   setEditingQuestion(null);
                   setIsCustomQuestionModalOpen(true);
                 }}
-                className="art-deco-border"
+                className="p-4 rounded-xl border-2 border-dashed border-primary/50 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all group"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Create Custom
-              </Button>
-            </div>
-            <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-              {allQuestions.map(question => {
-                const isSelected = selectedQuestionIds.includes(question.id);
-                return (
-                  <div
-                    key={question.id}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-primary/10 border-primary shadow-md'
-                        : 'bg-card border-border hover:border-primary/50'
-                    }`}
-                    onClick={() => handleToggleQuestion(question.id)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`flex-shrink-0 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
-                          isSelected
-                            ? 'bg-primary border-primary'
-                            : 'border-border bg-background'
-                        }`}
-                      >
-                        {isSelected && <Check className="w-4 h-4 text-primary-foreground" />}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                    <Plus className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground mb-0.5">Create Custom Question</p>
+                    <p className="text-sm text-muted-foreground">
+                      Design your own question with any type
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Regular Suggested Questions - Filtered */}
+              {visibleQuestions.map(question => (
+                <div
+                  key={question.id}
+                  className="p-4 rounded-xl border bg-card border-border hover:border-primary/50 cursor-pointer transition-all"
+                  onClick={() => handleToggleQuestion(question.id)}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-md border-2 border-border bg-background flex items-center justify-center transition-all">
+                      {/* No check icon - questions move when selected */}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start gap-2 mb-2">
+                        {getQuestionTypeIcon(question.questionType)}
+                        <p className="text-sm font-medium text-foreground">
+                          {question.question}
+                        </p>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start gap-2 mb-2">
-                          {getQuestionTypeIcon(question.questionType)}
-                          <p className="text-sm font-medium text-foreground">
-                            {question.question}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span className="px-2 py-0.5 rounded-md bg-secondary">
-                            {question.category}
-                          </span>
-                          <span>{'🌶️'.repeat(question.suggestedLevel)}</span>
-                        </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="px-2 py-0.5 rounded-md bg-secondary">
+                          {question.category}
+                        </span>
+                        <span>{'🌶️'.repeat(question.suggestedLevel)}</span>
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
+
+              {/* Load More Link */}
+              {hasMoreQuestions && (
+                <button
+                  onClick={() => setVisibleQuestionCount(prev => prev + 10)}
+                  className="w-full text-center py-3 text-sm text-primary hover:text-primary/80 hover:underline transition-colors"
+                >
+                  Load more questions ({unselectedQuestions.length - visibleQuestionCount} remaining)
+                </button>
+              )}
             </div>
           </div>
 

@@ -51,7 +51,7 @@ export default function Home() {
             <span>◆ ◆ ◆</span>
           </div>
           <p className="text-xl text-muted-foreground max-w-lg mx-auto">
-            Share secrets with friends. Unlock their answers by sharing yours.
+            Ask about friend&apos;s secrets. Answer anonymously. Unlock their secrets by sharing your answers.
           </p>
         </div>
 
