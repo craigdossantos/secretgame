@@ -105,6 +105,9 @@ export default function RoomPage() {
             }
 
             // Add custom questions
+            console.log('🏠 LOADING CUSTOM QUESTIONS');
+            console.log('Custom questions from API:', roomData.room.customQuestions);
+
             if (roomData.room.customQuestions && roomData.room.customQuestions.length > 0) {
               const customQuestions = roomData.room.customQuestions.map((cq: {
                 id: string;
@@ -133,6 +136,7 @@ export default function RoomPage() {
                 allowAnonymous: cq.allowAnonymous,
                 allowImageUpload: cq.allowImageUpload  // Fixed: Include allowImageUpload
               }));
+              console.log('📋 MAPPED CUSTOM QUESTIONS:', customQuestions);
               roomQs.push(...customQuestions);
             }
 
@@ -152,6 +156,9 @@ export default function RoomPage() {
             }
 
             // Add custom questions
+            console.log('🏠 LOADING CUSTOM QUESTIONS');
+            console.log('Custom questions from API:', roomData.room.customQuestions);
+
             if (roomData.room.customQuestions && roomData.room.customQuestions.length > 0) {
               const customQuestions = roomData.room.customQuestions.map((cq: {
                 id: string;
@@ -180,6 +187,7 @@ export default function RoomPage() {
                 allowAnonymous: cq.allowAnonymous,
                 allowImageUpload: cq.allowImageUpload  // Fixed: Include allowImageUpload
               }));
+              console.log('📋 MAPPED CUSTOM QUESTIONS:', customQuestions);
               roomQs.push(...customQuestions);
             }
 
