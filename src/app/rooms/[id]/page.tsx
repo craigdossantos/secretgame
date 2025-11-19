@@ -113,6 +113,10 @@ export default function RoomPage() {
                 suggestedLevel: number;
                 difficulty: string;
                 createdAt: string | Date;
+                questionType?: string;
+                answerConfig?: unknown;
+                allowAnonymous?: boolean;
+                allowImageUpload?: boolean;
               }) => ({
                 id: cq.id,
                 question: cq.question,
@@ -122,7 +126,12 @@ export default function RoomPage() {
                 tags: [{ name: cq.category.toLowerCase(), type: 'category' as const }],
                 archived: false,
                 createdAt: cq.createdAt,
-                updatedAt: cq.createdAt
+                updatedAt: cq.createdAt,
+                // Include type-specific fields
+                questionType: cq.questionType,
+                answerConfig: cq.answerConfig,
+                allowAnonymous: cq.allowAnonymous,
+                allowImageUpload: cq.allowImageUpload
               }));
               roomQs.push(...customQuestions);
             }
@@ -151,6 +160,10 @@ export default function RoomPage() {
                 suggestedLevel: number;
                 difficulty: string;
                 createdAt: string | Date;
+                questionType?: string;
+                answerConfig?: unknown;
+                allowAnonymous?: boolean;
+                allowImageUpload?: boolean;
               }) => ({
                 id: cq.id,
                 question: cq.question,
@@ -160,7 +173,12 @@ export default function RoomPage() {
                 tags: [{ name: cq.category.toLowerCase(), type: 'category' as const }],
                 archived: false,
                 createdAt: cq.createdAt,
-                updatedAt: cq.createdAt
+                updatedAt: cq.createdAt,
+                // Include type-specific fields
+                questionType: cq.questionType,
+                answerConfig: cq.answerConfig,
+                allowAnonymous: cq.allowAnonymous,
+                allowImageUpload: cq.allowImageUpload
               }));
               roomQs.push(...customQuestions);
             }
