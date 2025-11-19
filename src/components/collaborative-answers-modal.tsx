@@ -13,7 +13,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Lock, Users, Loader2 } from 'lucide-react';
 import { SecretAnswerDisplay } from '@/components/secret-answer-display';
+import { MCCollaborativeDisplay } from '@/components/mc-collaborative-display';
 import { toast } from 'sonner';
+import { QuestionPrompt, MultipleChoiceConfig } from '@/lib/questions';
 
 interface CollaborativeAnswer {
   id: string;
@@ -24,6 +26,7 @@ interface CollaborativeAnswer {
   buyersCount: number;
   authorName: string;
   authorAvatar?: string;
+  authorId: string;
   isAnonymous: boolean;
   createdAt: string;
   isUnlocked: boolean;
@@ -37,6 +40,7 @@ interface CollaborativeAnswersModalProps {
   onOpenChange: (open: boolean) => void;
   questionId: string;
   questionText: string;
+  question?: QuestionPrompt;  // Optional full question object with config
   roomId: string;
   onUnlock?: (secretId: string) => void;
 }
@@ -46,12 +50,14 @@ export function CollaborativeAnswersModal({
   onOpenChange,
   questionId,
   questionText,
+  question,
   roomId,
   onUnlock,
 }: CollaborativeAnswersModalProps) {
   const [answers, setAnswers] = useState<CollaborativeAnswer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (open && questionId && roomId) {
@@ -63,6 +69,13 @@ export function CollaborativeAnswersModal({
     try {
       setLoading(true);
       setError(null);
+
+      // Get current user ID from cookies
+      const userId = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('userId='))
+        ?.split('=')[1];
+      setCurrentUserId(userId || null);
 
       const response = await fetch(
         `/api/questions/${questionId}/answers?roomId=${roomId}`
@@ -137,6 +150,29 @@ export function CollaborativeAnswersModal({
                 <p>No answers yet</p>
               </div>
             )}
+
+            {/* Multiple Choice Collaborative Display */}
+            {question?.questionType === 'multipleChoice' &&
+              question?.answerConfig &&
+              question.answerConfig.type === 'multipleChoice' &&
+              currentUserId &&
+              answers.every(a => a.isUnlocked) && (
+                <div className="border rounded-lg p-4 bg-card/50">
+                  <MCCollaborativeDisplay
+                    options={question.answerConfig.config.options}
+                    answers={answers
+                      .filter(a => a.answerData && a.isUnlocked)
+                      .map(a => ({
+                        userId: a.authorId,
+                        userName: a.authorName,
+                        userAvatar: a.authorAvatar,
+                        isAnonymous: a.isAnonymous,
+                        selected: ((a.answerData as { selected?: string[] })?.selected || []),
+                      }))}
+                    currentUserId={currentUserId}
+                  />
+                </div>
+              )}
 
             {/* Answer cards */}
             {answers.map((answer) => (

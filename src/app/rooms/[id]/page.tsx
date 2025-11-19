@@ -933,6 +933,7 @@ export default function RoomPage() {
           onOpenChange={setCollaborativeModalOpen}
           questionId={selectedCollaborativeQuestion.id}
           questionText={selectedCollaborativeQuestion.question}
+          question={selectedCollaborativeQuestion}
           roomId={roomId}
           onUnlock={handleUnlock}
         />

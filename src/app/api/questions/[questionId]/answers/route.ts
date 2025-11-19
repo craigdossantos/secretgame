@@ -79,6 +79,7 @@ export async function GET(
         buyersCount: secret.buyersCount,
         authorName: showAuthor ? (author?.name || 'Unknown') : 'Anonymous',
         authorAvatar: showAuthor ? author?.avatarUrl : undefined,
+        authorId: secret.authorId, // Include for collaborative display
         isAnonymous: secret.isAnonymous && !isCurrentUser,
         createdAt: secret.createdAt.toISOString(),
         isUnlocked,
