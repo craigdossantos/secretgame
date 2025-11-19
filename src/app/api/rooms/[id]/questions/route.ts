@@ -19,7 +19,7 @@ export async function POST(
 
     // Get request body
     const body = await request.json();
-    const { question, category, suggestedLevel, difficulty, questionType, answerConfig, allowAnonymous } = body;
+    const { question, category, suggestedLevel, difficulty, questionType, answerConfig, allowAnonymous, allowImageUpload } = body;
 
     // Validation
     if (!question || typeof question !== 'string') {
@@ -68,7 +68,8 @@ export async function POST(
       // Type-specific fields
       questionType: questionType || 'text',
       answerConfig: answerConfig || undefined,
-      allowAnonymous: allowAnonymous || false
+      allowAnonymous: allowAnonymous || false,
+      allowImageUpload: allowImageUpload || false
     };
 
     // Add to room's custom questions
