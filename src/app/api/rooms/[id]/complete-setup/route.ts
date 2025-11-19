@@ -55,6 +55,7 @@ export async function POST(
       type?: string;
       slider?: unknown;
       multipleChoice?: unknown;
+      allowImageUpload?: boolean;
     }) => ({
       id: q.id || createId(),
       roomId,
@@ -66,6 +67,7 @@ export async function POST(
       createdAt: new Date(),
       questionType: q.type,
       answerConfig: q.type === 'slider' ? q.slider : q.type === 'multipleChoice' ? q.multipleChoice : undefined,
+      allowImageUpload: q.allowImageUpload || false,
     }));
 
     // Update room: exit setup mode and set questions

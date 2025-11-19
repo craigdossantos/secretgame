@@ -136,6 +136,7 @@ export function SetupModeView({ roomId, onComplete }: SetupModeViewProps) {
             type: q.questionType || 'text',
             slider: q.answerConfig?.type === 'slider' ? q.answerConfig.config : undefined,
             multipleChoice: q.answerConfig?.type === 'multipleChoice' ? q.answerConfig.config : undefined,
+            allowImageUpload: q.allowImageUpload || false,
           })),
         }),
       });

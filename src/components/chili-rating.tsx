@@ -71,6 +71,7 @@ export function ChiliRating({
       {[1, 2, 3, 4, 5].map((index) => (
         <button
           key={index}
+          type="button"
           className={`${sizeClasses[size]} transition-all duration-200 ${
             readonly ? 'cursor-default' : 'cursor-pointer hover:scale-125'
           }`}

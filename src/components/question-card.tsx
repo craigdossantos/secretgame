@@ -435,14 +435,14 @@ export function QuestionCard({
         {/* Answer Form - Expandable Section */}
         <div
           className={`overflow-hidden transition-all duration-300 ease-in-out ${
-            isFlipped ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+            isFlipped ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="px-5 pb-5 pt-2 border-t border-border/30">
+          <div className="px-5 pb-5 pt-2 border-t border-border/30 max-h-[750px] overflow-y-auto">
 
             {/* Answer Form */}
-            <div className="flex-1 space-y-4 overflow-y-auto">
+            <div className="flex-1 space-y-4">
               {/* Image Upload or Text Answer based on question config */}
               {allowsImageUpload ? (
                 (() => {
