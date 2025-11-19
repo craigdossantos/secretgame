@@ -31,11 +31,17 @@ export async function POST(request: NextRequest) {
       // Get existing user
       user = await mockDb.findUserById(userId);
       if (!user) {
+        // Create user with the EXISTING userId from the cookie
         const tempUserName = userName && userName.trim().length > 0 ? userName : 'Guest';
-        user = await createTempUser(tempUserName);
+        user = {
+          id: userId,  // Use the existing userId from cookie!
+          email: `${userId}@temp.com`,
+          name: tempUserName,
+          avatarUrl: undefined,
+          createdAt: new Date(),
+        };
         await mockDb.insertUser(user);
-        userId = user.id;
-        shouldSetCookie = true;
+        // Don't overwrite userId - keep using the one from cookie
       }
     }
 

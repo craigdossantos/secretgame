@@ -131,7 +131,7 @@ export default function RoomPage() {
                 questionType: cq.questionType,
                 answerConfig: cq.answerConfig,
                 allowAnonymous: cq.allowAnonymous,
-                allowImageUpload: cq.allowImageUpload
+                allowImageUpload: cq.allowImageUpload  // Fixed: Include allowImageUpload
               }));
               roomQs.push(...customQuestions);
             }
@@ -178,7 +178,7 @@ export default function RoomPage() {
                 questionType: cq.questionType,
                 answerConfig: cq.answerConfig,
                 allowAnonymous: cq.allowAnonymous,
-                allowImageUpload: cq.allowImageUpload
+                allowImageUpload: cq.allowImageUpload  // Fixed: Include allowImageUpload
               }));
               roomQs.push(...customQuestions);
             }
@@ -465,20 +465,23 @@ export default function RoomPage() {
 
   const handleCreateCustomQuestion = async (customQuestion: QuestionPrompt) => {
     try {
+      const requestBody = {
+        question: customQuestion.question,
+        category: customQuestion.category,
+        suggestedLevel: customQuestion.suggestedLevel,
+        difficulty: customQuestion.difficulty || 'medium',
+        questionType: customQuestion.questionType || 'text',
+        answerConfig: customQuestion.answerConfig,
+        allowAnonymous: customQuestion.allowAnonymous || false,
+        allowImageUpload: customQuestion.allowImageUpload || false,  // Fixed: Include allowImageUpload
+      };
+
       const response = await fetch(`/api/rooms/${roomId}/questions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          question: customQuestion.question,
-          category: customQuestion.category,
-          suggestedLevel: customQuestion.suggestedLevel,
-          difficulty: customQuestion.difficulty || 'medium',
-          questionType: customQuestion.questionType || 'text',
-          answerConfig: customQuestion.answerConfig,
-          allowAnonymous: customQuestion.allowAnonymous || false,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -503,7 +506,8 @@ export default function RoomPage() {
         // Type-specific fields
         questionType: data.question.questionType || 'text',
         answerConfig: data.question.answerConfig,
-        allowAnonymous: data.question.allowAnonymous || false
+        allowAnonymous: data.question.allowAnonymous || false,
+        allowImageUpload: data.question.allowImageUpload || false  // Fixed: Include allowImageUpload
       };
 
       // Prepend to room questions (add to start)
