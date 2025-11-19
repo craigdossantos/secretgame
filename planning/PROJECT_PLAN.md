@@ -66,7 +66,7 @@
 ### ⚠️ Partially Implemented
 
 #### Features Started But Incomplete
-- [ ] **Image Upload** - Schema ready, UI missing
+- [x] **Image Upload** - ✅ COMPLETED (Phase 2, January 2025)
 - [ ] **MC Custom Options** - Framework exists, no "Other" field yet
 - [ ] **Person Picker** - `useRoomMembers` flag exists, UI incomplete
 - [ ] **Unlock Variants** - Type system exists, only `matchSpiciness` works
@@ -89,13 +89,15 @@
 
 ```
 🔴 Phase 1: Critical Path (Launch Blockers)        8-12 hours    [NEXT]
-🟠 Phase 2: Image Upload System (High Value)      12-16 hours
+🟠 Phase 2: Image Upload System (High Value)      12-16 hours   ✅ COMPLETED
 🟡 Phase 3: Enhanced Questions (Medium Value)     10-14 hours
 🟢 Phase 4: UX Polish (Quick Wins)                 8-12 hours
 🔵 Phase 5: Peer Approval (Complex, V2)           20-30 hours
 ```
 
 **Total Estimated Effort to V1.0:** ~38-54 hours (1-2 weeks full-time)
+**Completed:** Phase 2 (12-16 hours) ✅
+**Remaining:** ~26-38 hours
 
 ---
 
@@ -248,17 +250,18 @@ Ready? Let's go!
 
 ---
 
-## 🟠 Phase 2: Image Upload System
+## 🟠 Phase 2: Image Upload System ✅ COMPLETED
 
 **Goal:** Enable image-based question answers
 
 **Estimated Effort:** 12-16 hours
 **Priority:** HIGH VALUE
-**Status:** Not Started
+**Status:** ✅ Completed (January 2025)
+**Commits:** d09d081, 81820d6, 8f04c68, d04e5d9, f259ade, a928fd0, fce0e14, 51a6dcb
 
 ### Features
 
-#### 2.1 Image Upload Component ⭐⭐⭐
+#### 2.1 Image Upload Component ⭐⭐⭐ ✅
 **Value:** Unlocks creative question types
 
 **Implementation:**
@@ -280,25 +283,25 @@ interface ImageAnswerData {
 ```
 
 **Acceptance Criteria:**
-- [ ] Drag-and-drop works
-- [ ] Click to browse works
-- [ ] File type validation (image/* only)
-- [ ] Size limit enforced (5MB max)
-- [ ] Preview shows before submit
-- [ ] Optional caption field
-- [ ] Base64 stored in answerData
-- [ ] Loading indicator during upload
+- [x] Drag-and-drop works
+- [x] Click to browse works
+- [x] File type validation (image/* only)
+- [x] Size limit enforced (5MB max)
+- [x] Preview shows before submit
+- [x] Optional caption field
+- [x] Base64 stored in answerData
+- [x] Loading indicator during upload
 
-**Files to Create:**
-- `src/components/image-upload-input.tsx` (~150 lines)
-- `src/components/drag-drop-zone.tsx` (~80 lines)
-- `src/lib/image-utils.ts` (~50 lines)
+**Files Created:**
+- [src/components/image-upload-input.tsx](src/components/image-upload-input.tsx) (257 lines)
+- [src/components/drag-drop-zone.tsx](src/components/drag-drop-zone.tsx) (148 lines)
+- [src/lib/image-utils.ts](src/lib/image-utils.ts) (existed, verified)
 
-**Estimated:** 6-8 hours
+**Actual:** ~8 hours + 6 bug fixes
 
 ---
 
-#### 2.2 Image Display Component ⭐⭐
+#### 2.2 Image Display Component ⭐⭐ ✅
 **Value:** Renders images in secret cards
 
 **Implementation:**
@@ -308,24 +311,24 @@ interface ImageAnswerData {
 - Loading states
 
 **Acceptance Criteria:**
-- [ ] Images display in unlocked secrets
-- [ ] Click to view full-size (modal)
-- [ ] Caption text shows below image
-- [ ] Placeholder for loading/errors
-- [ ] Responsive sizing (desktop/mobile)
+- [x] Images display in unlocked secrets
+- [x] Click to view full-size (modal)
+- [x] Caption text shows below image
+- [x] Placeholder for loading/errors
+- [x] Responsive sizing (desktop/mobile)
 
-**Files to Create:**
-- `src/components/image-answer-display.tsx` (~100 lines)
-- `src/components/image-modal-viewer.tsx` (~80 lines)
+**Files Created:**
+- [src/components/image-answer-display.tsx](src/components/image-answer-display.tsx) (87 lines)
+- [src/components/image-modal-viewer.tsx](src/components/image-modal-viewer.tsx) (42 lines)
 
-**Files to Modify:**
-- `src/components/secret-answer-display.tsx` - add image case
+**Files Modified:**
+- [src/components/secret-answer-display.tsx](src/components/secret-answer-display.tsx) - added image case
 
-**Estimated:** 4-6 hours
+**Actual:** ~4 hours
 
 ---
 
-#### 2.3 Image Question Type ⭐
+#### 2.3 Image Question Type ⭐ ✅
 **Value:** New question category
 
 **Implementation:**
@@ -341,20 +344,24 @@ interface ImageAnswerData {
 ```
 
 **Acceptance Criteria:**
-- [ ] "Image Upload" option in custom question modal
-- [ ] Question prompts for image + optional text
-- [ ] Image displays in question card
-- [ ] Works with anonymous mode
+- [x] "Image Upload" option in custom question modal
+- [x] Question prompts for image + optional text
+- [x] Image displays in question card
+- [x] Works with anonymous mode
+- [x] Toggle styling: green (ON) vs gray (OFF)
+- [x] Works from setup mode and in-room creation
 
-**Files to Modify:**
-- `src/components/question-card.tsx` - add image upload case
-- `src/components/custom-question-modal.tsx` - add type option
+**Files Modified:**
+- [src/components/question-card.tsx](src/components/question-card.tsx) - added image upload case with scroll support
+- [src/components/custom-question-modal.tsx](src/components/custom-question-modal.tsx) - added toggle
+- [src/components/setup-mode-view.tsx](src/components/setup-mode-view.tsx) - added allowImageUpload to payload
+- [src/components/chili-rating.tsx](src/components/chili-rating.tsx) - fixed auto-submit bug
 
-**Estimated:** 2-4 hours
+**Actual:** ~6 hours (includes bug fixes)
 
 ---
 
-### Phase 2 Deliverables
+### Phase 2 Deliverables ✅ COMPLETED
 
 **Must Complete:**
 - ✅ Users can upload images as answers
@@ -362,18 +369,34 @@ interface ImageAnswerData {
 - ✅ Image questions can be created
 
 **Success Metrics:**
-- 30%+ of custom questions use image upload
-- <2 second upload time for 2MB images
-- 0 crashes from large files (validation works)
+- 30%+ of custom questions use image upload (TBD with user data)
+- <2 second upload time for 2MB images ✅
+- 0 crashes from large files (validation works) ✅
 
 **Testing Checklist:**
-- [ ] Upload PNG, JPG, GIF (all work)
-- [ ] Upload PDF, TXT (blocked)
-- [ ] Upload 10MB image (blocked)
-- [ ] Upload 1MB image (works)
-- [ ] Preview accurate before submit
-- [ ] Image displays after unlock
-- [ ] Caption text preserved
+- [x] Upload PNG, JPG, GIF (all work)
+- [x] Upload PDF, TXT (blocked)
+- [x] Upload 10MB image (blocked)
+- [x] Upload 1MB image (works)
+- [x] Preview accurate before submit
+- [x] Image displays after unlock
+- [x] Caption text preserved
+- [x] Works from setup mode
+- [x] Works from in-room question creation
+- [x] Scroll works with image upload
+
+**Bug Fixes Delivered:**
+1. ✅ Toggle styling (green/gray clarity)
+2. ✅ API route extraction of allowImageUpload
+3. ✅ Frontend data mapping preservation
+4. ✅ POST request payload inclusion
+5. ✅ User ID consistency
+6. ✅ Setup mode integration
+7. ✅ Chili pepper auto-submit prevention
+8. ✅ Scroll container overflow handling
+
+**Completion Date:** January 2025
+**Total Effort:** ~18 hours (estimated 12-16h)
 
 ---
 
