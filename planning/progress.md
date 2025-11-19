@@ -50,6 +50,8 @@ The Secret Game is a card-based secret sharing web app for small friend groups (
   - Custom question creation with tags
   - Generates unique invite code
   - Returns shareable invite URL
+  - Setup mode with pagination (10 questions visible, "Load more")
+  - Selected questions in dedicated column
 - [x] **Room Management**
   - 20 member cap enforced
   - Owner tracked
@@ -69,18 +71,40 @@ The Secret Game is a card-based secret sharing web app for small friend groups (
   - Admin interface at `/admin`
 - [x] **Question Selection**
   - Grid selector with categories
-  - Custom question modal
+  - Custom question modal with "Allow Image Upload" toggle
   - Preview selected questions
   - Validation (exactly 3 required)
 
+### Image Upload System (Phase 2) ✨
+- [x] **Image Upload Components**
+  - Drag-and-drop file upload zone ([drag-drop-zone.tsx](src/components/drag-drop-zone.tsx))
+  - Click to browse fallback
+  - Image preview before submit
+  - File validation (type, size limits)
+  - Base64 encoding for mock database
+- [x] **Image Display**
+  - Display uploaded images in secret cards ([image-answer-display.tsx](src/components/image-answer-display.tsx))
+  - Click-to-expand modal viewer ([image-modal-viewer.tsx](src/components/image-modal-viewer.tsx))
+  - Optional caption support
+  - Responsive sizing (desktop/mobile)
+- [x] **Image Question Type**
+  - "Allow Image Upload" toggle in custom question modal
+  - Toggle styling: green (ON) vs gray (OFF)
+  - Works from setup mode and in-room question creation
+  - Full data flow: modal → API → database → frontend → component
+
 ### UI Components
-- [x] **QuestionCard** - Whisk-styled cards with tags, chili ratings
+- [x] **QuestionCard** - Whisk-styled cards with tags, chili ratings, click-to-reveal pattern
 - [x] **QuestionGrid** - Responsive grid layout with categories
 - [x] **QuestionSelector** - Multi-select interface for room creation
-- [x] **CustomQuestionModal** - Form for creating custom questions
-- [x] **ChiliRating** - Visual 1-5 spiciness display (🌶️)
+- [x] **CustomQuestionModal** - Form for creating custom questions with image upload toggle
+- [x] **ChiliRating** - Visual 1-5 spiciness display (🌶️) with proper form button types
 - [x] **CategoryFilter** - Filter questions by category
 - [x] **RatingStars** - 1-5 star rating component (prepared)
+- [x] **ImageUploadInput** - Controlled component for image uploads
+- [x] **ImageAnswerDisplay** - Renders images in secret cards
+- [x] **ImageModalViewer** - Full-screen image viewer
+- [x] **DragDropZone** - Drag-and-drop interface for file uploads
 
 ### Pages Implemented
 - [x] **Homepage** (`/`) - 3 random questions with refresh
@@ -95,13 +119,23 @@ The Secret Game is a card-based secret sharing web app for small friend groups (
 
 ### What's Working
 - Full room creation flow with question selection
-- Custom question creation with tags
+- Custom question creation with tags and image upload toggle
 - Mock database persistence across hot reloads
-- Homepage with refreshable questions
+- Homepage with refreshable questions (redesigned with visual synopsis)
 - Admin interface for managing questions
 - Whisk-inspired card UI with hover effects
+- Click-to-reveal pattern for secrets
+- **Image upload system** - complete drag-and-drop with preview and modal viewer
 - Build passes TypeScript strict mode
 - Successfully deployed to Vercel
+
+### Recent Improvements (January 2025)
+- ✅ Homepage redesigned with visual synopsis and setup mode flow
+- ✅ Setup mode pagination (10 questions visible, "Load more" button)
+- ✅ Phase 2 image upload system fully implemented
+- ✅ Click-to-reveal UX pattern for secrets (replaced dark/blurred text)
+- ✅ 6 critical bugs fixed in image upload data flow pipeline
+- ✅ All fixes merged to main and deployed
 
 ### Development Environment
 - Multiple dev servers running (background processes)
@@ -113,9 +147,9 @@ The Secret Game is a card-based secret sharing web app for small friend groups (
 1. **Next.js 15 Async Params** - Using `(await params).id` pattern
 2. **Multiple Dev Servers** - Several npm run dev processes in background
 3. **No Real Auth** - Using cookies for temporary users
-4. **No Secret Features Yet** - Room shows questions but no secret submission/unlock
-5. **Mock Database Only** - Need to migrate back to Supabase for production
-6. **No Polling** - Static data, no real-time updates
+4. **Mock Database Only** - Need to migrate back to Supabase for production
+5. **No Polling** - Static data, no real-time updates
+6. **No Invite System Yet** - `/invite/[code]` route doesn't exist (Phase 1 blocker)
 
 ---
 
@@ -160,23 +194,27 @@ interface Secret {
 
 ## 🚀 Next Immediate Steps
 
-### Priority 1: Secret Submission & Unlock
-1. [ ] Implement secret submission form in room view
-2. [ ] Add unlock mechanism (matching spiciness required)
-3. [ ] Create SecretCard locked/unlocked states
-4. [ ] Implement rating system after viewing
+**Current Priority: Phase 1 - Critical Path to Launch**
 
-### Priority 2: Complete Room Features
-1. [ ] Show room members with avatars
-2. [ ] Add invite URL copy functionality
-3. [ ] Implement "answered questions" tracking
-4. [ ] Add empty states for no secrets
+### Priority 1: Invite System (Launch Blocker) 🔴
+Per PROJECT_PLAN.md Phase 1 (8-12 hours):
+1. [ ] Create `/invite/[code]` page and landing UI
+2. [ ] Create invite API endpoints (GET room info, POST join)
+3. [ ] Implement name prompt modal for new users
+4. [ ] Add user identity display in header
+5. [ ] Create basic onboarding/welcome modal
+6. [ ] Test complete invite flow end-to-end
 
-### Priority 3: Polish & UX
-1. [ ] Add loading skeletons
-2. [ ] Implement toast notifications
-3. [ ] Add word counter (100 word limit)
-4. [ ] Framer Motion animations for cards
+### Priority 2: Phase 1 Polish (Quick Wins)
+1. [ ] Show current user name in header with edit icon
+2. [ ] "How to Play" link with instructions
+3. [ ] Handle edge cases (invalid code, full room, existing user)
+
+### Priority 3: Phase 3 - Enhanced Questions (Post-Launch)
+Per PROJECT_PLAN.md Phase 3 (10-14 hours):
+1. [ ] Collaborative question view ("View All Answers" button)
+2. [ ] Multiple choice custom options ("Other" field)
+3. [ ] "Who picked what" results view with avatars
 
 ---
 
