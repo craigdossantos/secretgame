@@ -57,6 +57,7 @@ export function CustomQuestionModal({
   // Multiple choice configuration state
   const [mcOptions, setMcOptions] = useState<string[]>(['Option 1', 'Option 2', 'Option 3']);
   const [mcAllowMultiple, setMcAllowMultiple] = useState(false);
+  const [mcAllowCustomOptions, setMcAllowCustomOptions] = useState(false);
 
   // Image upload configuration state (for text questions)
   const [allowImageUpload, setAllowImageUpload] = useState(false);
@@ -86,6 +87,7 @@ export function CustomQuestionModal({
         const config = initialQuestion.answerConfig.config;
         setMcOptions(config.options);
         setMcAllowMultiple(config.allowMultiple);
+        setMcAllowCustomOptions(config.allowCustomOptions || false);
       }
 
       // Populate image upload setting
@@ -142,6 +144,7 @@ export function CustomQuestionModal({
           config: {
             options: mcOptions.filter(opt => opt.trim().length > 0),
             allowMultiple: mcAllowMultiple,
+            allowCustomOptions: mcAllowCustomOptions,
             showDistribution: true
           }
         };
@@ -167,6 +170,7 @@ export function CustomQuestionModal({
       setSliderMaxLabel('Extremely');
       setMcOptions(['Option 1', 'Option 2', 'Option 3']);
       setMcAllowMultiple(false);
+      setMcAllowCustomOptions(false);
       setAllowImageUpload(false);
       onClose();
     } catch {
@@ -188,6 +192,7 @@ export function CustomQuestionModal({
     setSliderMaxLabel('Extremely');
     setMcOptions(['Option 1', 'Option 2', 'Option 3']);
     setMcAllowMultiple(false);
+    setMcAllowCustomOptions(false);
     setAllowImageUpload(false);
     setError('');
     onClose();
@@ -413,6 +418,29 @@ export function CustomQuestionModal({
                       className={`
                         inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform
                         ${mcAllowMultiple ? 'translate-x-5' : 'translate-x-0.5'}
+                      `}
+                    />
+                  </button>
+                </div>
+
+                {/* Allow Custom Options Toggle */}
+                <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                  <div className="space-y-0.5">
+                    <div className="text-xs font-medium">Allow Custom Options</div>
+                    <div className="text-[10px] text-muted-foreground">Users can enter their own &quot;Other&quot; answer</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setMcAllowCustomOptions(!mcAllowCustomOptions)}
+                    className={`
+                      relative inline-flex h-5 w-9 items-center rounded-full transition-colors
+                      ${mcAllowCustomOptions ? 'bg-primary' : 'bg-border'}
+                    `}
+                  >
+                    <span
+                      className={`
+                        inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform
+                        ${mcAllowCustomOptions ? 'translate-x-5' : 'translate-x-0.5'}
                       `}
                     />
                   </button>
