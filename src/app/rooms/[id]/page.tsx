@@ -10,6 +10,7 @@ import { CustomQuestionModal } from '@/components/custom-question-modal';
 import { WelcomeModal } from '@/components/welcome-modal';
 import { UserIdentityHeader } from '@/components/user-identity-header';
 import { SetupModeView } from '@/components/setup-mode-view';
+import { CollaborativeAnswersModal } from '@/components/collaborative-answers-modal';
 import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -64,6 +65,8 @@ export default function RoomPage() {
   const [isCopied, setIsCopied] = useState(false);
   const [isCustomQuestionModalOpen, setIsCustomQuestionModalOpen] = useState(false);
   const [userSpicinessRatings, setUserSpicinessRatings] = useState<Record<string, number>>({});
+  const [collaborativeModalOpen, setCollaborativeModalOpen] = useState(false);
+  const [selectedCollaborativeQuestion, setSelectedCollaborativeQuestion] = useState<QuestionPrompt | null>(null);
 
   // Load room data and questions
   useEffect(() => {
@@ -557,6 +560,11 @@ export default function RoomPage() {
     loadRoomData();
   };
 
+  const handleViewCollaborativeAnswers = (question: QuestionPrompt) => {
+    setSelectedCollaborativeQuestion(question);
+    setCollaborativeModalOpen(true);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background art-deco-pattern flex items-center justify-center">
@@ -768,6 +776,58 @@ export default function RoomPage() {
               </div>
             )}
 
+            {/* Answered Questions Section */}
+            {answeredQuestionIds.length > 0 && (
+              <div>
+                <div className="art-deco-divider my-8">
+                  <span>◆ ◆ ◆</span>
+                </div>
+                <div className="mb-6 text-center">
+                  <h2 className="text-2xl font-serif text-foreground art-deco-text art-deco-shadow">
+                    Your Answered Questions
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    View all answers from the group for questions you&apos;ve answered
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {roomQuestions
+                    .filter((q) => answeredQuestionIds.includes(q.id))
+                    .map((question) => {
+                      const questionSecretCount = secrets.filter(
+                        (s) => s.questionId === question.id
+                      ).length;
+                      return (
+                        <Card
+                          key={question.id}
+                          className="art-deco-border p-4 bg-card/50 backdrop-blur-sm hover:art-deco-glow transition-all duration-200"
+                        >
+                          <div className="space-y-3">
+                            <p className="text-sm font-medium leading-snug">
+                              {question.question}
+                            </p>
+                            <div className="flex items-center justify-between">
+                              <Badge variant="secondary" className="text-xs">
+                                {questionSecretCount}{' '}
+                                {questionSecretCount === 1 ? 'answer' : 'answers'}
+                              </Badge>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleViewCollaborativeAnswers(question)}
+                                className="text-xs"
+                              >
+                                View All Answers
+                              </Button>
+                            </div>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
             {/* Secrets Feed */}
             {secrets.length > 0 && (
               <div>
@@ -865,6 +925,19 @@ export default function RoomPage() {
         onClose={() => setIsCustomQuestionModalOpen(false)}
         onCreateQuestion={handleCreateCustomQuestion}
       />
+
+      {/* Collaborative Answers Modal */}
+      {selectedCollaborativeQuestion && (
+        <CollaborativeAnswersModal
+          open={collaborativeModalOpen}
+          onOpenChange={setCollaborativeModalOpen}
+          questionId={selectedCollaborativeQuestion.id}
+          questionText={selectedCollaborativeQuestion.question}
+          question={selectedCollaborativeQuestion}
+          roomId={roomId}
+          onUnlock={handleUnlock}
+        />
+      )}
     </div>
   );
 }

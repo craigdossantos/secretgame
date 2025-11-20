@@ -22,6 +22,7 @@ export interface SliderConfig {
 export interface MultipleChoiceConfig {
   options: string[];
   allowMultiple: boolean;
+  allowCustomOptions?: boolean; // Allow users to enter custom "Other" text
   useRoomMembers?: boolean; // Use room member names as options
   showDistribution?: boolean; // Show % breakdown in results
 }
