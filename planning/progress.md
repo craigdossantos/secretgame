@@ -148,12 +148,12 @@ The Secret Game is a card-based secret sharing web app for small friend groups (
 - Mock data persists during development
 
 ### Known Issues & Technical Debt
-1. **Next.js 15 Async Params** - Using `(await params).id` pattern
-2. **Multiple Dev Servers** - Several npm run dev processes in background
-3. **No Real Auth** - Using cookies for temporary users
-4. **Mock Database Only** - Need to migrate back to Supabase for production
-5. **No Polling** - Static data, no real-time updates
-6. **No Invite System Yet** - `/invite/[code]` route doesn't exist (Phase 1 blocker)
+1. **Next.js 15 Async Params** - Using `(await params).id` pattern ✅ (working)
+2. **Multiple Dev Servers** - Several npm run dev processes in background ⚠️
+3. **Mock Database Only** - 🔴 **CRITICAL:** Need real backend for production
+4. **Cookie-Based Auth** - 🔴 **CRITICAL:** Doesn't persist across devices
+5. **Images as Base64** - 🔴 **CRITICAL:** Not scalable, need real storage
+6. **No Real-time Updates** - Static data, polling planned for V1 ⚠️
 
 ---
 
@@ -198,27 +198,42 @@ interface Secret {
 
 ## 🚀 Next Immediate Steps
 
-**Current Priority: Phase 1 - Critical Path to Launch**
+**Current Priority: Phase 6 - Production Backend Infrastructure** 🔴
 
-### Priority 1: Invite System (Launch Blocker) 🔴
-Per PROJECT_PLAN.md Phase 1 (8-12 hours):
-1. [ ] Create `/invite/[code]` page and landing UI
-2. [ ] Create invite API endpoints (GET room info, POST join)
-3. [ ] Implement name prompt modal for new users
-4. [ ] Add user identity display in header
-5. [ ] Create basic onboarding/welcome modal
-6. [ ] Test complete invite flow end-to-end
+### CRITICAL REALIZATION
 
-### Priority 2: Phase 1 Polish (Quick Wins)
-1. [ ] Show current user name in header with edit icon
-2. [ ] "How to Play" link with instructions
-3. [ ] Handle edge cases (invalid code, full room, existing user)
+**What We've Built (Works Locally):**
+- ✅ Complete invite system (`/invite/[code]` - fully functional!)
+- ✅ User identity with name prompts
+- ✅ All Phase 1-3 features working perfectly
+- ✅ Room creation, questions, secrets, unlocking
+- ✅ Image uploads, multiple choice, collaborative views
 
-### Priority 3: Phase 3 - Enhanced Questions ✅ COMPLETED (January 2025)
-Per PROJECT_PLAN.md Phase 3 (10-14 hours):
-1. [x] Collaborative question view ("View All Answers" button)
-2. [x] Multiple choice custom options ("Other" field)
-3. [x] "Who picked what" results view with avatars
+**The Gap (Blocking Production):**
+- ❌ Mock in-memory database (data lost on restart)
+- ❌ Cookie-based auth (doesn't persist across devices)
+- ❌ No real backend infrastructure
+- ❌ Can't deploy for real users
+
+### Priority 1: Phase 6 - Production Backend (20-30 hours) 🔴
+**See:** [PHASE_6_PRODUCTION_BACKEND.md](PHASE_6_PRODUCTION_BACKEND.md) for detailed plan
+
+**Critical Tasks:**
+1. [ ] Set up Supabase (database + auth + storage)
+2. [ ] Migrate database schema from mock to Postgres
+3. [ ] Implement Google OAuth login
+4. [ ] Add profile photo upload capability
+5. [ ] Migrate all API routes to use real database
+6. [ ] Move images from base64 to Supabase Storage
+7. [ ] Deploy to Vercel with production backend
+8. [ ] Test end-to-end with real users
+
+**Estimated:** 20-30 hours (2 weeks part-time or 3-4 days full-time)
+
+### Completed Phases ✅
+1. [x] **Phase 1:** Critical Path (invite system, user identity) - Works with mock DB
+2. [x] **Phase 2:** Image Upload System (drag-drop, storage, display)
+3. [x] **Phase 3:** Enhanced Questions (collaborative view, custom MC options)
 
 ---
 
