@@ -135,7 +135,11 @@ The Secret Game is a card-based secret sharing web app for small friend groups (
 - ✅ Phase 2 image upload system fully implemented
 - ✅ Click-to-reveal UX pattern for secrets (replaced dark/blurred text)
 - ✅ 6 critical bugs fixed in image upload data flow pipeline
-- ✅ All fixes merged to main and deployed
+- ✅ Phase 3 enhanced questions fully implemented:
+  - Collaborative question view with "View All Answers" modal
+  - "Who Picked What" MC results with avatars and distribution
+  - Custom options for MC questions ("Other (specify)" field)
+- ✅ All features merged to main and deployed
 
 ### Development Environment
 - Multiple dev servers running (background processes)
@@ -210,11 +214,11 @@ Per PROJECT_PLAN.md Phase 1 (8-12 hours):
 2. [ ] "How to Play" link with instructions
 3. [ ] Handle edge cases (invalid code, full room, existing user)
 
-### Priority 3: Phase 3 - Enhanced Questions (Post-Launch)
+### Priority 3: Phase 3 - Enhanced Questions ✅ COMPLETED (January 2025)
 Per PROJECT_PLAN.md Phase 3 (10-14 hours):
-1. [ ] Collaborative question view ("View All Answers" button)
-2. [ ] Multiple choice custom options ("Other" field)
-3. [ ] "Who picked what" results view with avatars
+1. [x] Collaborative question view ("View All Answers" button)
+2. [x] Multiple choice custom options ("Other" field)
+3. [x] "Who picked what" results view with avatars
 
 ---
 
