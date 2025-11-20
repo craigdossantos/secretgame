@@ -11,6 +11,9 @@ import { WelcomeModal } from '@/components/welcome-modal';
 import { UserIdentityHeader } from '@/components/user-identity-header';
 import { SetupModeView } from '@/components/setup-mode-view';
 import { CollaborativeAnswersModal } from '@/components/collaborative-answers-modal';
+import { SecretSortTabs, SortOption } from '@/components/secret-sort-tabs';
+import { EmptyState } from '@/components/empty-state';
+import { QuestionCardSkeleton, SecretCardSkeleton } from '@/components/skeleton-card';
 import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -67,6 +70,7 @@ export default function RoomPage() {
   const [userSpicinessRatings, setUserSpicinessRatings] = useState<Record<string, number>>({});
   const [collaborativeModalOpen, setCollaborativeModalOpen] = useState(false);
   const [selectedCollaborativeQuestion, setSelectedCollaborativeQuestion] = useState<QuestionPrompt | null>(null);
+  const [secretSortBy, setSecretSortBy] = useState<SortOption>('newest');
 
   // Load room data and questions
   useEffect(() => {
@@ -565,12 +569,63 @@ export default function RoomPage() {
     setCollaborativeModalOpen(true);
   };
 
+  // Sort secrets based on selected option
+  const sortedSecrets = React.useMemo(() => {
+    const secretsCopy = [...secrets];
+
+    switch (secretSortBy) {
+      case 'newest':
+        return secretsCopy.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      case 'spiciest':
+        return secretsCopy.sort((a, b) => b.selfRating - a.selfRating);
+      case 'popular':
+        return secretsCopy.sort((a, b) => b.buyersCount - a.buyersCount);
+      default:
+        return secretsCopy;
+    }
+  }, [secrets, secretSortBy]);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-background art-deco-pattern flex items-center justify-center">
-        <div className="text-center art-deco-border p-8 bg-card/50 backdrop-blur-sm art-deco-glow">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-foreground art-deco-text text-sm">Loading room...</p>
+      <div className="min-h-screen bg-background art-deco-pattern">
+        {/* Header Skeleton */}
+        <div className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-10">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full bg-secondary/30 animate-pulse" />
+                <div className="space-y-2">
+                  <div className="h-8 w-48 bg-secondary/30 rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-secondary/30 rounded animate-pulse" />
+                </div>
+              </div>
+              <div className="h-10 w-32 bg-secondary/30 rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+
+        {/* Content Skeletons */}
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="mb-6 text-center">
+            <div className="h-8 w-64 bg-secondary/30 rounded mx-auto mb-2 animate-pulse" />
+            <div className="h-4 w-96 bg-secondary/30 rounded mx-auto animate-pulse" />
+          </div>
+
+          {/* Question Cards Skeleton */}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+            <QuestionCardSkeleton />
+            <QuestionCardSkeleton />
+            <QuestionCardSkeleton />
+          </div>
+
+          {/* Secrets Skeleton */}
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <SecretCardSkeleton />
+            <SecretCardSkeleton />
+            <SecretCardSkeleton />
+          </div>
         </div>
       </div>
     );
@@ -679,28 +734,23 @@ export default function RoomPage() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {roomQuestions.length === 0 ? (
           /* No Questions in Room State */
-          <div className="text-center py-12 art-deco-border bg-card/30 backdrop-blur-sm art-deco-glow">
-            <div className="mb-4">
-              <div className="text-6xl mb-4 filter drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]">❓</div>
-              <h3 className="text-lg font-semibold text-foreground mb-2 art-deco-text art-deco-shadow">
-                No Questions Yet
-              </h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                {room?.ownerId === currentUserId
-                  ? "Get the conversation started by adding some spicy questions for your group!"
-                  : "Waiting for questions to be added to this room."}
-              </p>
-            </div>
-            {room?.ownerId === currentUserId && (
-              <Button
-                onClick={() => router.push(`/admin?room=${roomId}`)}
-                size="lg"
-                className="art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 art-deco-glow"
-              >
-                Add Questions to Room
-              </Button>
-            )}
-          </div>
+          <EmptyState
+            icon="❓"
+            title="No Questions Yet"
+            description={
+              room?.ownerId === currentUserId
+                ? "Get the conversation started by adding some spicy questions for your group!"
+                : "Waiting for questions to be added to this room."
+            }
+            action={
+              room?.ownerId === currentUserId
+                ? {
+                    label: 'Add Questions to Room',
+                    onClick: () => router.push(`/admin?room=${roomId}`),
+                  }
+                : undefined
+            }
+          />
         ) : (
           /* Unified Feed: Questions at top, Secrets below */
           <div className="space-y-8">
@@ -765,15 +815,11 @@ export default function RoomPage() {
 
             {/* All Questions Answered State */}
             {displayedQuestions.length === 0 && roomQuestions.length > 0 && (
-              <div className="text-center py-8 art-deco-border bg-card/30 backdrop-blur-sm art-deco-glow">
-                <div className="text-4xl mb-3 filter drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]">🎉</div>
-                <h3 className="text-lg font-semibold text-foreground mb-1 art-deco-text art-deco-shadow">
-                  All Questions Answered!
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  You&apos;ve answered or skipped all available questions.
-                </p>
-              </div>
+              <EmptyState
+                icon="🎉"
+                title="All Questions Answered!"
+                description="You've answered or skipped all available questions."
+              />
             )}
 
             {/* Answered Questions Section */}
@@ -842,8 +888,15 @@ export default function RoomPage() {
                     Your secrets appear unlocked. Unlock others&apos; by sharing secrets of equal or higher spiciness.
                   </p>
                 </div>
+
+                {/* Sort Tabs */}
+                <SecretSortTabs
+                  activeSort={secretSortBy}
+                  onSortChange={setSecretSortBy}
+                />
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {secrets.map((secret) => (
+                  {sortedSecrets.map((secret) => (
                     <SecretCard
                       key={secret.id}
                       secret={secret}
