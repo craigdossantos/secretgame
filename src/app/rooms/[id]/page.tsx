@@ -11,9 +11,7 @@ import { WelcomeModal } from '@/components/welcome-modal';
 import { UserIdentityHeader } from '@/components/user-identity-header';
 import { SetupModeView } from '@/components/setup-mode-view';
 import { CollaborativeAnswersModal } from '@/components/collaborative-answers-modal';
-import { SecretSortTabs, SortOption } from '@/components/secret-sort-tabs';
 import { EmptyState } from '@/components/empty-state';
-import { QuestionCardSkeleton, SecretCardSkeleton } from '@/components/skeleton-card';
 import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -70,7 +68,6 @@ export default function RoomPage() {
   const [userSpicinessRatings, setUserSpicinessRatings] = useState<Record<string, number>>({});
   const [collaborativeModalOpen, setCollaborativeModalOpen] = useState(false);
   const [selectedCollaborativeQuestion, setSelectedCollaborativeQuestion] = useState<QuestionPrompt | null>(null);
-  const [secretSortBy, setSecretSortBy] = useState<SortOption>('newest');
 
   // Load room data and questions
   useEffect(() => {
@@ -569,23 +566,6 @@ export default function RoomPage() {
     setCollaborativeModalOpen(true);
   };
 
-  // Sort secrets based on selected option
-  const sortedSecrets = React.useMemo(() => {
-    const secretsCopy = [...secrets];
-
-    switch (secretSortBy) {
-      case 'newest':
-        return secretsCopy.sort((a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-      case 'spiciest':
-        return secretsCopy.sort((a, b) => b.selfRating - a.selfRating);
-      case 'popular':
-        return secretsCopy.sort((a, b) => b.buyersCount - a.buyersCount);
-      default:
-        return secretsCopy;
-    }
-  }, [secrets, secretSortBy]);
 
   if (loading) {
     return (
@@ -891,14 +871,8 @@ export default function RoomPage() {
                   </p>
                 </div>
 
-                {/* Sort Tabs */}
-                <SecretSortTabs
-                  activeSort={secretSortBy}
-                  onSortChange={setSecretSortBy}
-                />
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {sortedSecrets.map((secret) => (
+                  {secrets.map((secret) => (
                     <SecretCard
                       key={secret.id}
                       secret={secret}
