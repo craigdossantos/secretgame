@@ -1,47 +1,35 @@
 import { NextRequest } from 'next/server';
-import { mockDb } from '@/lib/db/mock';
 import { createId } from '@paralleldrive/cuid2';
+import { auth } from '@/lib/auth';
+import {
+  insertRoom,
+  insertRoomMember,
+  insertRoomQuestion,
+} from '@/lib/db/supabase';
 import {
   generateInviteCode,
-  getCurrentUserId,
-  createUserCookie,
-  createTempUser,
   errorResponse,
   successResponse
 } from '@/lib/api/helpers';
 
 export async function POST(request: NextRequest) {
   try {
+    // Get authenticated user from NextAuth session
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return errorResponse('Authentication required', 401);
+    }
+
+    const userId = session.user.id;
     const body = await request.json();
-    const { name, userName, questionIds = [], customQuestions = [], setupMode = false } = body;
+    const { name, questionIds = [], customQuestions = [], setupMode = false } = body;
 
-    // Get or create user
-    let userId = await getCurrentUserId();
-    let user;
-    let shouldSetCookie = false;
-
-    if (!userId) {
-      // Create temporary user with default name if not provided
-      const tempUserName = userName && userName.trim().length > 0 ? userName : 'Guest';
-      user = await createTempUser(tempUserName);
-      await mockDb.insertUser(user);
-      userId = user.id;
-      shouldSetCookie = true;
-    } else {
-      // Get existing user
-      user = await mockDb.findUserById(userId);
-      if (!user) {
-        // Create user with the EXISTING userId from the cookie
-        const tempUserName = userName && userName.trim().length > 0 ? userName : 'Guest';
-        user = {
-          id: userId,  // Use the existing userId from cookie!
-          email: `${userId}@temp.com`,
-          name: tempUserName,
-          avatarUrl: undefined,
-          createdAt: new Date(),
-        };
-        await mockDb.insertUser(user);
-        // Don't overwrite userId - keep using the one from cookie
+    // Validate question selection only if NOT in setup mode
+    if (!setupMode) {
+      const totalQuestions = questionIds.length + customQuestions.length;
+      if (totalQuestions < 1) {
+        return errorResponse('At least 1 question must be selected');
       }
     }
 
@@ -52,75 +40,71 @@ export async function POST(request: NextRequest) {
     // Auto-generate room name if not provided
     const roomName = name || `Room ${inviteCode.slice(0, 6)}`;
 
-    // Validate question selection only if NOT in setup mode
-    if (!setupMode) {
-      if (!userName || userName.trim().length === 0) {
-        return errorResponse('User name is required');
-      }
+    console.log(`🏗️ Creating room:`, roomId);
 
-      const totalQuestions = questionIds.length + customQuestions.length;
-      if (totalQuestions < 1) {
-        return errorResponse('At least 1 question must be selected');
-      }
-    }
-
-    // Process custom questions
-    const processedCustomQuestions = customQuestions.map((q: {
-      id?: string;
-      question: string;
-      category: string;
-      suggestedLevel: number;
-      difficulty: 'easy' | 'medium' | 'hard';
-    }) => ({
-      id: q.id || createId(),
-      roomId,
-      question: q.question,
-      category: q.category,
-      suggestedLevel: q.suggestedLevel,
-      difficulty: q.difficulty,
-      createdBy: userId,
-      createdAt: new Date()
-    }));
-
-    const newRoom = {
+    // Insert room into Supabase
+    await insertRoom({
       id: roomId,
       name: roomName,
       ownerId: userId,
       inviteCode,
       maxMembers: 20,
-      createdAt: new Date(),
-      questionIds,
-      customQuestions: processedCustomQuestions,
       setupMode,
-    };
+    });
 
-    console.log(`🏗️ Creating room:`, newRoom.id);
-    await mockDb.insertRoom(newRoom);
-    console.log(`✅ Room created successfully:`, newRoom.id);
+    console.log(`✅ Room created successfully:`, roomId);
 
     // Add owner as first member
-    await mockDb.insertRoomMember({
+    await insertRoomMember({
       roomId,
       userId,
-      joinedAt: new Date(),
     });
+
+    // Process and insert selected questions from data/questions.md
+    for (let i = 0; i < questionIds.length; i++) {
+      await insertRoomQuestion({
+        id: createId(),
+        roomId,
+        questionId: questionIds[i], // Reference to curated question
+        question: null, // Will be resolved from questionId
+        category: null,
+        suggestedLevel: null,
+        difficulty: null,
+        questionType: 'text',
+        answerConfig: null,
+        allowAnonymous: false,
+        createdBy: null, // Curated question, no specific creator
+        displayOrder: i,
+      });
+    }
+
+    // Process and insert custom questions
+    for (let i = 0; i < customQuestions.length; i++) {
+      const q = customQuestions[i];
+      await insertRoomQuestion({
+        id: q.id || createId(),
+        roomId,
+        questionId: null, // Custom question, not from curated list
+        question: q.question,
+        category: q.category || 'Custom',
+        suggestedLevel: q.suggestedLevel || 3,
+        difficulty: q.difficulty || 'medium',
+        questionType: q.questionType || 'text',
+        answerConfig: q.answerConfig || null,
+        allowAnonymous: q.allowAnonymous || false,
+        createdBy: userId,
+        displayOrder: questionIds.length + i,
+      });
+    }
 
     const inviteUrl = `${process.env.NEXTAUTH_URL}/invite/${inviteCode}`;
 
-    const responseData = {
+    return successResponse({
       roomId,
       inviteCode,
       inviteUrl,
       name: roomName,
-    };
-
-    // Set cookie if we created a new user
-    if (shouldSetCookie) {
-      const cookie = createUserCookie(userId);
-      return successResponse(responseData, 200, cookie);
-    }
-
-    return successResponse(responseData);
+    });
   } catch (error) {
     console.error('Failed to create room:', error);
     return errorResponse('Failed to create room', 500);
@@ -128,15 +112,17 @@ export async function POST(request: NextRequest) {
 }
 
 // GET /api/rooms - Get user's rooms
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const userId = await getCurrentUserId();
+    // Get authenticated user from NextAuth session
+    const session = await auth();
 
-    if (!userId) {
+    if (!session?.user?.id) {
       return successResponse({ rooms: [] });
     }
 
-    // Get rooms where user is a member (mock implementation)
+    // TODO: Implement room listing with Supabase
+    // This will need to join rooms with room_members to find user's rooms
     const userRooms: unknown[] = [];
 
     return successResponse({ rooms: userRooms });

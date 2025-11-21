@@ -45,6 +45,30 @@ interface Secret {
   questionText?: string;
 }
 
+// Skeleton components for loading states
+function QuestionCardSkeleton() {
+  return (
+    <Card className="p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border">
+      <div className="h-6 w-3/4 bg-secondary/30 rounded mb-4 animate-pulse" />
+      <div className="h-4 w-1/2 bg-secondary/30 rounded mb-2 animate-pulse" />
+      <div className="h-4 w-2/3 bg-secondary/30 rounded animate-pulse" />
+    </Card>
+  );
+}
+
+function SecretCardSkeleton() {
+  return (
+    <Card className="p-6 rounded-2xl bg-card/50 backdrop-blur-sm border border-border">
+      <div className="flex items-start justify-between mb-4">
+        <div className="h-8 w-24 bg-secondary/30 rounded animate-pulse" />
+        <div className="h-6 w-16 bg-secondary/30 rounded animate-pulse" />
+      </div>
+      <div className="h-20 w-full bg-secondary/30 rounded mb-4 animate-pulse" />
+      <div className="h-4 w-1/3 bg-secondary/30 rounded animate-pulse" />
+    </Card>
+  );
+}
+
 export default function RoomPage() {
   const params = useParams();
   const router = useRouter();

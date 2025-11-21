@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { mockDb } from '@/lib/db/mock';
+import { findRoomByInviteCode, countRoomMembers } from '@/lib/db/supabase';
 import { errorResponse, successResponse } from '@/lib/api/helpers';
 
 // GET /api/invite/[code] - Get room info by invite code
@@ -12,16 +12,16 @@ export async function GET(
 
     console.log(`🔍 Looking up invite code: ${code}`);
 
-    // Find room by invite code
-    const room = await mockDb.findRoomByInviteCode(code);
+    // Find room by invite code in Supabase
+    const room = await findRoomByInviteCode(code);
 
     if (!room) {
       console.log(`❌ Invalid invite code: ${code}`);
       return errorResponse('Invalid invite code', 404);
     }
 
-    // Get member count
-    const memberCount = await mockDb.countRoomMembers(room.id);
+    // Get member count from Supabase
+    const memberCount = await countRoomMembers(room.id);
 
     console.log(`✅ Found room: ${room.name} (${memberCount}/${room.maxMembers} members)`);
 

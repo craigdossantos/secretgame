@@ -1,17 +1,19 @@
-import { NextRequest } from 'next/server';
-import { mockDb } from '@/lib/db/mock';
-import { getUserIdFromCookies, errorResponse, successResponse } from '@/lib/api/helpers';
+import { auth } from '@/lib/auth';
+import { findUserById } from '@/lib/db/supabase';
+import { errorResponse, successResponse } from '@/lib/api/helpers';
 
 // GET /api/users/me - Get current user info
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const userId = getUserIdFromCookies(request);
+    // Get authenticated user from NextAuth session
+    const session = await auth();
 
-    if (!userId) {
+    if (!session?.user?.id) {
       return successResponse({ user: null });
     }
 
-    const user = await mockDb.findUserById(userId);
+    // Fetch user data from Supabase
+    const user = await findUserById(session.user.id);
 
     if (!user) {
       return successResponse({ user: null });
