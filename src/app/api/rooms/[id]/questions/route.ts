@@ -1,7 +1,13 @@
 import { NextRequest } from 'next/server';
 import { createId } from '@paralleldrive/cuid2';
-import { mockDb } from '@/lib/db/mock';
-import { getCurrentUserId } from '@/lib/api/helpers';
+import { auth } from '@/lib/auth';
+import {
+  findRoomById,
+  findRoomMember,
+  findRoomQuestions,
+  insertRoomQuestion,
+  upsertUser
+} from '@/lib/db/supabase';
 import { successResponse, errorResponse } from '@/lib/api/helpers';
 
 // POST /api/rooms/[id]/questions - Add a custom question to a room
@@ -11,15 +17,27 @@ export async function POST(
 ) {
   try {
     const { id: roomId } = await params;
-    const userId = await getCurrentUserId();
 
-    if (!userId) {
-      return errorResponse('Unauthorized', 401);
+    // Get user session from NextAuth
+    const session = await auth();
+    if (!session?.user?.id) {
+      return errorResponse('Authentication required', 401);
     }
+    const userId = session.user.id;
+
+    // Upsert user to ensure they exist in database
+    await upsertUser({
+      id: userId,
+      email: session.user.email!,
+      name: session.user.name || 'Anonymous',
+      avatarUrl: session.user.image || null,
+    });
 
     // Get request body
     const body = await request.json();
     const { question, category, suggestedLevel, difficulty, questionType, answerConfig, allowAnonymous, allowImageUpload } = body;
+
+    console.log(`❓ Adding custom question to room ${roomId} by user ${userId}`);
 
     // Validation
     if (!question || typeof question !== 'string') {
@@ -44,51 +62,48 @@ export async function POST(
     }
 
     // Get the room
-    const room = await mockDb.findRoomById(roomId);
+    const room = await findRoomById(roomId);
     if (!room) {
+      console.log(`❌ Room ${roomId} not found`);
       return errorResponse('Room not found', 404);
     }
 
     // Check if user is a member of the room
-    const isMember = await mockDb.findRoomMember(roomId, userId);
+    const isMember = await findRoomMember(roomId, userId);
     if (!isMember) {
+      console.log(`❌ User ${userId} is not a member of room ${roomId}`);
       return errorResponse('You must be a member of this room to add questions', 403);
     }
 
-    // Create the custom question
-    const customQuestion = {
-      id: createId(),
+    // Get current questions to determine display order
+    const existingQuestions = await findRoomQuestions(roomId);
+    const displayOrder = existingQuestions.length;
+
+    // Create the custom question in room_questions table
+    const customQuestionId = createId();
+    const customQuestion = await insertRoomQuestion({
+      id: customQuestionId,
       roomId,
+      questionId: null, // null indicates custom question
       question: question.trim(),
       category,
       suggestedLevel,
       difficulty: difficulty || 'medium',
-      createdBy: userId,
-      createdAt: new Date(),
-      // Type-specific fields
       questionType: questionType || 'text',
-      answerConfig: answerConfig || undefined,
+      answerConfig: answerConfig || null,
       allowAnonymous: allowAnonymous || false,
-      allowImageUpload: allowImageUpload || false
-    };
-
-    // Add to room's custom questions
-    const currentCustomQuestions = room.customQuestions || [];
-    const updatedCustomQuestions = [...currentCustomQuestions, customQuestion];
-
-    // Update the room
-    await mockDb.updateRoom(roomId, {
-      customQuestions: updatedCustomQuestions
+      createdBy: userId,
+      displayOrder,
     });
 
-    console.log(`✅ Added custom question to room ${roomId}:`, customQuestion.id);
+    console.log(`✅ Added custom question to room ${roomId}: ${customQuestion.id}`);
 
     return successResponse({
       message: 'Custom question added successfully',
       question: customQuestion
     }, 201);
   } catch (error) {
-    console.error('Failed to add custom question:', error);
+    console.error('❌ Failed to add custom question:', error);
     return errorResponse('Failed to add custom question', 500);
   }
 }
