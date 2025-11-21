@@ -1,8 +1,12 @@
 import { NextRequest } from 'next/server';
-import { mockDb } from '@/lib/db/mock';
+import { auth } from '@/lib/auth';
 import { createId } from '@paralleldrive/cuid2';
 import {
-  getCurrentUserId,
+  findRoomById,
+  updateRoom,
+  insertRoomQuestion,
+} from '@/lib/db/supabase';
+import {
   errorResponse,
   successResponse
 } from '@/lib/api/helpers';
@@ -22,14 +26,16 @@ export async function POST(
     const body = await request.json();
     const { questionIds = [], customQuestions = [] } = body;
 
-    // Get current user
-    const userId = await getCurrentUserId();
-    if (!userId) {
+    // Get authenticated user from NextAuth session
+    const session = await auth();
+    if (!session?.user?.id) {
       return errorResponse('Not authenticated', 401);
     }
 
-    // Find the room
-    const room = await mockDb.findRoomById(roomId);
+    const userId = session.user.id;
+
+    // Find the room in Supabase
+    const room = await findRoomById(roomId);
     if (!room) {
       return errorResponse('Room not found', 404);
     }
@@ -45,36 +51,46 @@ export async function POST(
       return errorResponse('At least 1 question must be selected', 400);
     }
 
-    // Process custom questions
-    const processedCustomQuestions = customQuestions.map((q: {
-      id?: string;
-      question: string;
-      category: string;
-      spiciness: number;
-      difficulty: 'easy' | 'medium' | 'hard';
-      type?: string;
-      slider?: unknown;
-      multipleChoice?: unknown;
-      allowImageUpload?: boolean;
-    }) => ({
-      id: q.id || createId(),
-      roomId,
-      question: q.question,
-      category: q.category,
-      suggestedLevel: q.spiciness,
-      difficulty: q.difficulty,
-      createdBy: userId,
-      createdAt: new Date(),
-      questionType: q.type,
-      answerConfig: q.type === 'slider' ? q.slider : q.type === 'multipleChoice' ? q.multipleChoice : undefined,
-      allowImageUpload: q.allowImageUpload || false,
-    }));
+    // Insert custom questions into room_questions table
+    for (let i = 0; i < customQuestions.length; i++) {
+      const q = customQuestions[i];
+      await insertRoomQuestion({
+        id: q.id || createId(),
+        roomId,
+        questionId: null, // Custom question, not from curated list
+        question: q.question,
+        category: q.category || 'Custom',
+        suggestedLevel: q.spiciness || q.suggestedLevel || 3,
+        difficulty: q.difficulty || 'medium',
+        questionType: q.type || q.questionType || 'text',
+        answerConfig: q.type === 'slider' ? q.slider : q.type === 'multipleChoice' ? q.multipleChoice : q.answerConfig || null,
+        allowAnonymous: false,
+        createdBy: userId,
+        displayOrder: questionIds.length + i,
+      });
+    }
 
-    // Update room: exit setup mode and set questions
-    await mockDb.updateRoom(roomId, {
+    // Insert selected curated questions into room_questions table
+    for (let i = 0; i < questionIds.length; i++) {
+      await insertRoomQuestion({
+        id: createId(),
+        roomId,
+        questionId: questionIds[i], // Reference to curated question
+        question: null, // Will be resolved from questionId
+        category: null,
+        suggestedLevel: null,
+        difficulty: null,
+        questionType: 'text',
+        answerConfig: null,
+        allowAnonymous: false,
+        createdBy: null, // Curated question, no specific creator
+        displayOrder: i,
+      });
+    }
+
+    // Update room: exit setup mode
+    await updateRoom(roomId, {
       setupMode: false,
-      questionIds,
-      customQuestions: processedCustomQuestions,
     });
 
     console.log(`✅ Room ${roomId} setup completed with ${totalQuestions} questions`);

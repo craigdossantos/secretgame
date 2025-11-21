@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { createId } from '@paralleldrive/cuid2';
 import { auth } from '@/lib/auth';
 import {
+  upsertUser,
   insertRoom,
   insertRoomMember,
   insertRoomQuestion,
@@ -25,6 +26,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, questionIds = [], customQuestions = [], setupMode = false } = body;
 
+    // Ensure user exists in database (upsert from NextAuth session)
+    await upsertUser({
+      id: userId,
+      email: session.user.email!,
+      name: session.user.name || 'Anonymous',
+      avatarUrl: session.user.image || null,
+    });
+
     // Validate question selection only if NOT in setup mode
     if (!setupMode) {
       const totalQuestions = questionIds.length + customQuestions.length;
@@ -43,16 +52,20 @@ export async function POST(request: NextRequest) {
     console.log(`🏗️ Creating room:`, roomId);
 
     // Insert room into Supabase
-    await insertRoom({
-      id: roomId,
-      name: roomName,
-      ownerId: userId,
-      inviteCode,
-      maxMembers: 20,
-      setupMode,
-    });
-
-    console.log(`✅ Room created successfully:`, roomId);
+    try {
+      await insertRoom({
+        id: roomId,
+        name: roomName,
+        ownerId: userId,
+        inviteCode,
+        maxMembers: 20,
+        setupMode,
+      });
+      console.log(`✅ Room created successfully:`, roomId);
+    } catch (insertError) {
+      console.error(`❌ Failed to insert room:`, insertError);
+      throw insertError;
+    }
 
     // Add owner as first member
     await insertRoomMember({

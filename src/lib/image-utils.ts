@@ -4,7 +4,8 @@
  */
 
 export interface ImageData {
-  imageBase64: string;
+  imageBase64: string; // Legacy - for backward compatibility
+  imageUrl?: string; // New - URL from Vercel Blob storage
   caption?: string;
   mimeType: string;
   fileSize: number;
@@ -121,4 +122,44 @@ export async function compressImageIfNeeded(
   // For now, reject large files
   // In production, implement canvas-based compression
   throw new Error(`Image is too large (${sizeMB.toFixed(1)}MB). Please choose a smaller image.`);
+}
+
+/**
+ * Upload image to Vercel Blob and return URL
+ * This is the new preferred method for production
+ */
+export async function uploadImageToBlob(
+  file: File,
+  pathname: string
+): Promise<string> {
+  // Validate first
+  const validationError = validateImageFile(file);
+  if (validationError) {
+    throw new Error(validationError);
+  }
+
+  // Upload to Vercel Blob
+  const { uploadImage } = await import('./blob-storage');
+  return uploadImage(file, pathname);
+}
+
+/**
+ * Process image for storage - returns both base64 (for backward compat) and blob URL
+ */
+export async function processImageForStorage(
+  file: File,
+  pathname: string
+): Promise<{ base64: string; url: string }> {
+  const validationError = validateImageFile(file);
+  if (validationError) {
+    throw new Error(validationError);
+  }
+
+  // Process in parallel
+  const [base64, url] = await Promise.all([
+    fileToBase64(file),
+    uploadImageToBlob(file, pathname),
+  ]);
+
+  return { base64, url };
 }

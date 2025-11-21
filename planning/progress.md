@@ -18,17 +18,18 @@ The Secret Game is a card-based secret sharing web app for small friend groups (
 ### Tech Stack
 - **Frontend**: Next.js 15.5.3 with App Router + Turbopack
 - **Styling**: Tailwind CSS 4.x + shadcn/ui components
-- **State**: React state + mock database (no global state management)
-- **Database**: Mock in-memory implementation (`lib/db/mock.ts`)
-- **Auth**: Cookie-based temporary users (no OAuth yet)
+- **State**: React state (no global state management)
+- **Database**: Supabase Postgres with Drizzle ORM (migration in progress)
+- **Auth**: NextAuth.js v5 with Google OAuth (configured, migrating from cookies)
+- **Storage**: Vercel Blob for image uploads
 - **API**: Next.js route handlers with TypeScript validation
 - **Animations**: Framer Motion for card interactions
 
 ### Architectural Decisions
-1. **Simplified from Drizzle/Supabase** to mock database for faster MVP development
-2. **Temporary user system** using cookies instead of full auth
-3. **Mock database persists** across hot reloads using global singleton
-4. **No real-time updates** - planning 15s polling for V1
+1. **Supabase + Drizzle** - Type-safe queries with PostgreSQL backend
+2. **NextAuth.js JWT sessions** - Stateless authentication, serverless-friendly
+3. **Vercel Blob storage** - Scalable image hosting (replacing base64)
+4. **Dual migration strategy** - Keep mock DB during transition for zero downtime
 5. **Build successfully deploys** to Vercel
 
 ---
@@ -37,10 +38,15 @@ The Secret Game is a card-based secret sharing web app for small friend groups (
 
 ### Infrastructure
 - [x] Next.js project with TypeScript strict mode
-- [x] Tailwind CSS + shadcn/ui setup (Button, Card, Input, Label, Textarea, Slider, Badge, Avatar, Dialog, Sonner)
-- [x] Mock database with full CRUD operations
+- [x] Tailwind CSS + shadcn/ui setup (Button, Card, Input, Label, Textarea, Slider, Badge, Avatar, Dialog, Sonner, DropdownMenu)
+- [x] Mock database with full CRUD operations (being replaced)
+- [x] **Supabase Postgres** - All 7 tables created and migrated ✨
+- [x] **Drizzle ORM query layer** - 350+ lines of type-safe queries ✨
+- [x] **NextAuth.js v5** - Google OAuth configured ✨
+- [x] **Auth UI components** - Login, logout, user menu ✨
+- [x] **Vercel Blob storage** - Image upload/delete utilities ✨
 - [x] API route handlers with proper error handling
-- [x] Cookie-based temporary user system
+- [x] Cookie-based temporary user system (being replaced with NextAuth)
 - [x] Successful Vercel deployment
 
 ### Room System
@@ -150,9 +156,9 @@ The Secret Game is a card-based secret sharing web app for small friend groups (
 ### Known Issues & Technical Debt
 1. **Next.js 15 Async Params** - Using `(await params).id` pattern ✅ (working)
 2. **Multiple Dev Servers** - Several npm run dev processes in background ⚠️
-3. **Mock Database Only** - 🔴 **CRITICAL:** Need real backend for production
-4. **Cookie-Based Auth** - 🔴 **CRITICAL:** Doesn't persist across devices
-5. **Images as Base64** - 🔴 **CRITICAL:** Not scalable, need real storage
+3. **API Routes Migration** - 🟡 **IN PROGRESS:** Replacing mockDb with Supabase queries (70% infrastructure done)
+4. **Cookie→NextAuth Migration** - 🟡 **IN PROGRESS:** NextAuth configured, need to update API routes
+5. **Base64→Blob Migration** - 🟡 **IN PROGRESS:** Blob utilities ready, need to update upload flow
 6. **No Real-time Updates** - Static data, polling planned for V1 ⚠️
 
 ---
@@ -198,37 +204,40 @@ interface Secret {
 
 ## 🚀 Next Immediate Steps
 
-**Current Priority: Phase 6 - Production Backend Infrastructure** 🔴
+**Current Priority: Phase 6 - Production Backend Infrastructure** 🟡
 
-### CRITICAL REALIZATION
+### PROGRESS UPDATE
 
-**What We've Built (Works Locally):**
-- ✅ Complete invite system (`/invite/[code]` - fully functional!)
-- ✅ User identity with name prompts
-- ✅ All Phase 1-3 features working perfectly
-- ✅ Room creation, questions, secrets, unlocking
-- ✅ Image uploads, multiple choice, collaborative views
+**Infrastructure Complete (70%):**
+- ✅ Supabase Postgres database - All 7 tables created
+- ✅ Drizzle ORM query layer - 350+ lines of type-safe functions
+- ✅ NextAuth.js v5 - Google OAuth fully configured
+- ✅ Auth UI components - Login, logout, user menu ready
+- ✅ Vercel Blob storage - Upload/delete utilities implemented
+- ✅ Environment variables - All credentials configured
 
-**The Gap (Blocking Production):**
-- ❌ Mock in-memory database (data lost on restart)
-- ❌ Cookie-based auth (doesn't persist across devices)
-- ❌ No real backend infrastructure
-- ❌ Can't deploy for real users
+**What's Left (30%):**
+- 🔄 Migrate 12 API routes from mockDb to Supabase
+- 🔄 Replace cookie auth with NextAuth sessions
+- 🔄 Update image uploads to use Blob storage
+- 🔄 End-to-end testing with real database
+- 🔄 Deploy to production
 
-### Priority 1: Phase 6 - Production Backend (20-30 hours) 🔴
-**See:** [PHASE_6_PRODUCTION_BACKEND.md](PHASE_6_PRODUCTION_BACKEND.md) for detailed plan
+### Priority 1: Phase 6 - API Route Migration (6-9 hours) 🟡
+**See:** [PHASE_6_PROGRESS.md](planning/PHASE_6_PROGRESS.md) for detailed status
 
-**Critical Tasks:**
-1. [ ] Set up Supabase (database + auth + storage)
-2. [ ] Migrate database schema from mock to Postgres
-3. [ ] Implement Google OAuth login
-4. [ ] Add profile photo upload capability
-5. [ ] Migrate all API routes to use real database
-6. [ ] Move images from base64 to Supabase Storage
+**Remaining Tasks:**
+1. [x] ~~Set up Supabase (database + auth + storage)~~
+2. [x] ~~Migrate database schema from mock to Postgres~~
+3. [x] ~~Implement Google OAuth login~~
+4. [x] ~~Add profile photo upload capability~~
+5. [ ] Migrate all API routes to use real database (IN PROGRESS)
+6. [ ] Move images from base64 to Blob storage
 7. [ ] Deploy to Vercel with production backend
 8. [ ] Test end-to-end with real users
 
-**Estimated:** 20-30 hours (2 weeks part-time or 3-4 days full-time)
+**Status:** 11.5 / 20-30 hours complete
+**Estimated Remaining:** 6-9 hours (1-2 focused sessions)
 
 ### Completed Phases ✅
 1. [x] **Phase 1:** Critical Path (invite system, user identity) - Works with mock DB
@@ -278,9 +287,13 @@ git push -u origin feature/your-feature
 
 - `/src/app/` - Next.js App Router pages
 - `/src/components/` - React components
-- `/src/lib/db/mock.ts` - Mock database implementation
+- `/src/lib/db/mock.ts` - Mock database (being replaced)
+- `/src/lib/db/supabase.ts` - **NEW:** Supabase query layer ✨
+- `/src/lib/db/schema.ts` - Drizzle ORM schema (7 tables)
+- `/src/lib/blob-storage.ts` - **NEW:** Vercel Blob utilities ✨
 - `/src/lib/questions.ts` - Question system logic
 - `/src/lib/api/helpers.ts` - API utilities
+- `/src/components/auth/` - **NEW:** Auth UI components ✨
 - `/data/questions.md` - Question content source
 - `/planning/` - Project planning documents
 - `/CLAUDE.md` - AI assistant instructions

@@ -1,7 +1,12 @@
 import { NextRequest } from 'next/server';
-import { mockDb } from '@/lib/db/mock';
+import { auth } from '@/lib/auth';
 import {
-  getCurrentUserId,
+  findRoomById,
+  findRoomMember,
+  countRoomMembers,
+  findRoomQuestions,
+} from '@/lib/db/supabase';
+import {
   errorResponse,
   successResponse
 } from '@/lib/api/helpers';
@@ -13,15 +18,19 @@ export async function GET(
 ) {
   try {
     const roomId = (await params).id;
-    const userId = await getCurrentUserId();
 
-    if (!userId) {
+    // Get authenticated user from NextAuth session
+    const session = await auth();
+
+    if (!session?.user?.id) {
       return errorResponse('Authentication required', 401);
     }
 
-    // Get room details
+    const userId = session.user.id;
+
+    // Get room details from Supabase
     console.log(`🔍 Looking for room: ${roomId}`);
-    const room = await mockDb.findRoomById(roomId);
+    const room = await findRoomById(roomId);
     console.log(`🏠 Found room:`, room ? 'YES' : 'NO');
 
     if (!room) {
@@ -30,7 +39,7 @@ export async function GET(
     }
 
     // Check if user is a member
-    const membership = await mockDb.findRoomMember(roomId, userId);
+    const membership = await findRoomMember(roomId, userId);
 
     if (!membership) {
       // Return limited info for non-members
@@ -43,8 +52,27 @@ export async function GET(
       });
     }
 
-    // Get room member count
-    const memberCount = await mockDb.countRoomMembers(roomId);
+    // Get room member count and questions
+    const memberCount = await countRoomMembers(roomId);
+    const roomQuestions = await findRoomQuestions(roomId);
+
+    // Separate curated questions (have questionId) from custom questions
+    const questionIds = roomQuestions
+      .filter(q => q.questionId)
+      .map(q => q.questionId!);
+
+    const customQuestions = roomQuestions
+      .filter(q => !q.questionId)
+      .map(q => ({
+        id: q.id,
+        question: q.question!,
+        category: q.category,
+        suggestedLevel: q.suggestedLevel,
+        difficulty: q.difficulty,
+        questionType: q.questionType,
+        answerConfig: q.answerConfig,
+        allowAnonymous: q.allowAnonymous,
+      }));
 
     return successResponse({
       room: {
@@ -53,8 +81,8 @@ export async function GET(
         memberCount,
         inviteCode: room.inviteCode,
         ownerId: room.ownerId,
-        questionIds: room.questionIds || [],
-        customQuestions: room.customQuestions || [],
+        questionIds,
+        customQuestions,
         setupMode: room.setupMode,
         isMember: true,
       },

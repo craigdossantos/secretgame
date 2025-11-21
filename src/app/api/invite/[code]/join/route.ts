@@ -1,9 +1,13 @@
 import { NextRequest } from 'next/server';
-import { mockDb } from '@/lib/db/mock';
+import { auth } from '@/lib/auth';
 import {
-  getUserIdFromCookies,
-  createUserCookie,
-  createTempUser,
+  findRoomByInviteCode,
+  countRoomMembers,
+  findRoomMember,
+  insertRoomMember,
+  upsertUser
+} from '@/lib/db/supabase';
+import {
   errorResponse,
   successResponse
 } from '@/lib/api/helpers';
@@ -15,71 +19,54 @@ export async function POST(
 ) {
   try {
     const { code } = await context.params;
-    const body = await request.json();
-    const { userName } = body;
 
     console.log(`👤 User attempting to join room with code: ${code}`);
 
-    // Validate user name
-    if (!userName || userName.trim().length === 0) {
-      return errorResponse('Name is required', 400);
+    // Get user session from NextAuth
+    const session = await auth();
+    if (!session?.user?.id) {
+      console.log(`❌ No authentication session found`);
+      return errorResponse('Authentication required. Please sign in first.', 401);
     }
 
-    if (userName.trim().length > 50) {
-      return errorResponse('Name must be 50 characters or less', 400);
-    }
+    const userId = session.user.id;
+
+    console.log(`✅ Authenticated user: ${session.user.name} (${userId})`);
+
+    // Upsert user to ensure they exist in database
+    await upsertUser({
+      id: userId,
+      email: session.user.email!,
+      name: session.user.name || 'Anonymous',
+      avatarUrl: session.user.image || null,
+    });
 
     // Find room by invite code
-    const room = await mockDb.findRoomByInviteCode(code);
+    const room = await findRoomByInviteCode(code);
 
     if (!room) {
       console.log(`❌ Invalid invite code: ${code}`);
       return errorResponse('Invalid invite code', 404);
     }
 
+    console.log(`🏠 Found room: ${room.name}`);
+
     // Check room capacity
-    const memberCount = await mockDb.countRoomMembers(room.id);
+    const memberCount = await countRoomMembers(room.id);
     if (memberCount >= room.maxMembers) {
       console.log(`❌ Room is full: ${room.name} (${memberCount}/${room.maxMembers})`);
       return errorResponse('This room is full', 403);
     }
 
-    // Get or create user
-    let userId = getUserIdFromCookies(request);
-    let shouldSetCookie = false;
-
-    if (!userId) {
-      // Create new user
-      const user = await createTempUser(userName.trim());
-      await mockDb.insertUser(user);
-      userId = user.id;
-      shouldSetCookie = true;
-      console.log(`✅ Created new user: ${user.name} (${userId})`);
-    } else {
-      // Check if user exists
-      const existingUser = await mockDb.findUserById(userId);
-      if (!existingUser) {
-        // Cookie exists but user doesn't - create new user
-        const user = await createTempUser(userName.trim());
-        user.id = userId; // Keep the cookie's userId
-        await mockDb.insertUser(user);
-        console.log(`✅ Recreated user: ${user.name} (${userId})`);
-      } else {
-        // Update existing user's name
-        existingUser.name = userName.trim();
-        await mockDb.insertUser(existingUser);
-        console.log(`✅ Updated user name: ${existingUser.name} (${userId})`);
-      }
-    }
+    console.log(`👥 Room has ${memberCount}/${room.maxMembers} members`);
 
     // Check if user is already a member
-    const existingMember = await mockDb.findRoomMember(room.id, userId);
+    const existingMember = await findRoomMember(room.id, userId);
     if (!existingMember) {
       // Add user to room
-      await mockDb.insertRoomMember({
+      await insertRoomMember({
         roomId: room.id,
         userId,
-        joinedAt: new Date(),
       });
       console.log(`✅ Added user to room: ${room.name}`);
     } else {
@@ -92,15 +79,9 @@ export async function POST(
       userId,
     };
 
-    // Set cookie if we created a new user
-    if (shouldSetCookie) {
-      const cookie = createUserCookie(userId);
-      return successResponse(responseData, 200, cookie);
-    }
-
     return successResponse(responseData);
   } catch (error) {
-    console.error('Failed to join room:', error);
+    console.error('❌ Failed to join room:', error);
     return errorResponse('Failed to join room', 500);
   }
 }

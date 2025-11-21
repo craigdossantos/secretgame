@@ -2,7 +2,7 @@
 
 **Last Updated:** 2025-01-20
 **Current Branch:** `feature/production-backend`
-**Status:** 50% Complete - Database & Environment Setup Done ✅
+**Status:** 70% Complete - Infrastructure & Auth Complete ✅
 
 ---
 
@@ -134,146 +134,82 @@ GOOGLE_CLIENT_SECRET=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
 node scripts/reset-database.mjs  # Fresh start
 ```
 
+### 4. Database Query Layer ✅
+
+**File:** `src/lib/db/supabase.ts` (350+ lines)
+
+**Completed Functions:**
+- ✅ **Users** - `insertUser`, `findUserById`
+- ✅ **Rooms** - `insertRoom`, `findRoomById`, `findRoomByInviteCode`, `updateRoom`
+- ✅ **Room Members** - `insertRoomMember`, `findRoomMember`, `findRoomMembers`, `countRoomMembers`
+- ✅ **Room Questions** - `insertRoomQuestion`, `findRoomQuestions`, `findRoomQuestionById`, `updateRoomQuestion`, `deleteRoomQuestion`
+- ✅ **Secrets** - `insertSecret`, `findSecretById`, `findRoomSecrets`, `findSecretsByQuestionId`, `updateSecret`
+- ✅ **Secret Access** - `insertSecretAccess`, `findSecretAccess`, `findUserSecretAccess`, `findSecretAccessBySecretId`
+- ✅ **Secret Ratings** - `insertSecretRating`, `updateSecretRating`, `findSecretRatings`, `findSecretRatingByUser`
+
+**Advanced Features:**
+- ✅ SQL aggregate functions (`count()`)
+- ✅ Complex filtering (hidden secrets, ordering)
+- ✅ Utility functions: `getRoomWithDetails()`, `getUserAccessibleSecrets()`
+- ✅ Full Drizzle ORM integration with type safety
+
+### 5. NextAuth.js Authentication ✅
+
+**Files Created/Updated:**
+- ✅ `src/lib/auth/config.ts` - Google OAuth + JWT sessions
+- ✅ `src/lib/auth/index.ts` - Session helpers (already existed)
+- ✅ `src/app/api/auth/[...nextauth]/route.ts` - Enabled (renamed from .disabled)
+- ✅ `src/types/next-auth.d.ts` - TypeScript module augmentation
+
+**Features:**
+- ✅ Google OAuth configured and ready
+- ✅ JWT session strategy (no database sessions needed)
+- ✅ Auto-creates users in Supabase on first sign-in
+- ✅ Fetches latest user data from DB in session callback
+- ✅ Session includes user ID for database queries
+
+### 6. Auth UI Components ✅
+
+**Files Created:**
+- ✅ `src/components/auth/login-button.tsx` - Google sign-in button
+- ✅ `src/components/auth/logout-button.tsx` - Sign out button
+- ✅ `src/components/auth/user-menu.tsx` - Avatar dropdown with profile link
+- ✅ `src/components/ui/dropdown-menu.tsx` - shadcn/ui component (installed)
+
+**Integration:**
+- ✅ `src/app/layout.tsx` - SessionProvider added to root layout
+- ✅ Ready to add UserMenu to navigation
+
+### 7. Vercel Blob Storage ✅
+
+**Files Created:**
+- ✅ `src/lib/blob-storage.ts` - Complete upload/delete utilities
+- ✅ Updated `src/lib/image-utils.ts` - Added blob upload functions
+
+**Functions Available:**
+- ✅ `uploadImage()` - Generic image upload
+- ✅ `uploadUserAvatar()` - Profile photo uploads
+- ✅ `uploadAnswerImage()` - Question answer images
+- ✅ `deleteImage()` - Single image deletion
+- ✅ `listImages()` - List images by prefix
+- ✅ `deleteRoomImages()` - Bulk delete for room cleanup
+- ✅ `deleteSecretImages()` - Bulk delete for secret cleanup
+- ✅ `uploadImageToBlob()` - Image validation + upload
+- ✅ `processImageForStorage()` - Dual base64 + blob URL (migration support)
+
+**Package Installed:**
+- ✅ `@vercel/blob` - Vercel Blob SDK
+
 ---
 
 ## 📋 What's Left To Do
 
 ### Next Session Tasks (in order):
 
-#### 1. Create Database Query Layer (2-3 hours)
-**File:** `src/lib/db/supabase.ts`
+#### 1. Migrate API Routes (4-6 hours) ⏳ NEXT
+**Strategy:** Replace `mockDb` imports with Supabase query functions
 
-Create query functions matching the mock DB interface:
-```typescript
-// Users
-export async function insertUser(user: Omit<User, 'createdAt'>): Promise<User>
-export async function findUserById(id: string): Promise<User | null>
-
-// Rooms
-export async function insertRoom(room: Omit<Room, 'createdAt'>): Promise<Room>
-export async function findRoomById(id: string): Promise<Room | null>
-export async function findRoomByInviteCode(code: string): Promise<Room | null>
-export async function updateRoom(id: string, updates: Partial<Room>): Promise<void>
-
-// Room Members
-export async function insertRoomMember(member: Omit<RoomMember, 'joinedAt'>): Promise<void>
-export async function findRoomMember(roomId: string, userId: string): Promise<RoomMember | null>
-export async function findRoomMembers(roomId: string): Promise<RoomMember[]>
-export async function countRoomMembers(roomId: string): Promise<number>
-
-// Room Questions
-export async function insertRoomQuestion(question: Omit<RoomQuestion, 'createdAt'>): Promise<RoomQuestion>
-export async function findRoomQuestions(roomId: string): Promise<RoomQuestion[]>
-export async function updateRoomQuestion(id: string, updates: Partial<RoomQuestion>): Promise<void>
-
-// Secrets
-export async function insertSecret(secret: Omit<Secret, 'createdAt'>): Promise<Secret>
-export async function findSecretById(id: string): Promise<Secret | null>
-export async function findRoomSecrets(roomId: string): Promise<Secret[]>
-export async function updateSecret(id: string, updates: Partial<Secret>): Promise<void>
-
-// Secret Access
-export async function insertSecretAccess(access: Omit<SecretAccess, 'createdAt'>): Promise<void>
-export async function findSecretAccess(secretId: string, buyerId: string): Promise<SecretAccess | null>
-export async function findUserSecretAccess(buyerId: string): Promise<SecretAccess[]>
-
-// Secret Ratings
-export async function insertSecretRating(rating: Omit<SecretRating, 'createdAt'>): Promise<void>
-export async function updateSecretRating(secretId: string, raterId: string, rating: number): Promise<void>
-export async function findSecretRatings(secretId: string): Promise<SecretRating[]>
-```
-
-**Use Drizzle ORM:**
-```typescript
-import { db } from './index';
-import * as schema from './schema';
-import { eq, and, desc } from 'drizzle-orm';
-
-// Example
-export async function findUserById(id: string): Promise<User | null> {
-  const result = await db.select().from(schema.users).where(eq(schema.users.id, id));
-  return result[0] || null;
-}
-```
-
-#### 2. Set Up NextAuth.js (1-2 hours)
-
-**File:** `src/app/api/auth/[...nextauth]/route.ts`
-
-```typescript
-import NextAuth from 'next-auth';
-import { authConfig } from '@/lib/auth/config';
-
-const handler = NextAuth(authConfig);
-
-export { handler as GET, handler as POST };
-```
-
-**Update:** `src/lib/auth/config.ts`
-```typescript
-// Already exists, just verify it's using Google OAuth
-```
-
-**Create:** `src/lib/auth/index.ts`
-```typescript
-import { getServerSession } from 'next-auth';
-import { authConfig } from './config';
-
-export async function getSession() {
-  return await getServerSession(authConfig);
-}
-
-export async function getCurrentUser() {
-  const session = await getSession();
-  return session?.user;
-}
-```
-
-#### 3. Create Auth UI Components (1 hour)
-
-**Files to create:**
-- `src/components/auth/login-button.tsx`
-- `src/components/auth/logout-button.tsx`
-- `src/components/auth/user-menu.tsx`
-
-**Add to:** `src/app/layout.tsx`
-```typescript
-import { UserMenu } from '@/components/auth/user-menu';
-
-// Add to header
-```
-
-#### 4. Set Up Vercel Blob Utilities (1 hour)
-
-**File:** `src/lib/blob-storage.ts`
-
-```typescript
-import { put, del } from '@vercel/blob';
-
-export async function uploadImage(
-  file: File,
-  path: string
-): Promise<string> {
-  const blob = await put(path, file, {
-    access: 'public',
-  });
-  return blob.url;
-}
-
-export async function deleteImage(url: string): Promise<void> {
-  await del(url);
-}
-```
-
-**Update:** `src/lib/image-utils.ts`
-- Replace base64 encoding with blob uploads
-- Update image display to use blob URLs
-
-#### 5. Migrate API Routes (4-6 hours)
-
-**Strategy:** Go one route at a time, test each
-
-**Routes to update:**
+**Routes to Migrate:**
 1. `/api/users/me/route.ts` - Get current user
 2. `/api/rooms/route.ts` - Create room
 3. `/api/rooms/[id]/route.ts` - Get room details
@@ -287,18 +223,31 @@ export async function deleteImage(url: string): Promise<void> {
 11. `/api/secrets/[id]/rate/route.ts` - Rate secret
 12. `/api/questions/[questionId]/answers/route.ts` - Submit answer
 
-**Pattern:**
+**Migration Pattern:**
 ```typescript
-// BEFORE
+// BEFORE (mock database)
 import { mockDb } from '@/lib/db/mock';
 const room = await mockDb.findRoomById(id);
 
-// AFTER
+// AFTER (Supabase)
 import { findRoomById } from '@/lib/db/supabase';
 const room = await findRoomById(id);
 ```
 
-#### 6. Test Everything (2-3 hours)
+**Auth Pattern:**
+```typescript
+// BEFORE (cookie-based)
+import { getCurrentUser } from '@/lib/api/helpers';
+const user = await getCurrentUser();
+
+// AFTER (NextAuth session)
+import { auth } from '@/lib/auth';
+const session = await auth();
+if (!session?.user) return unauthorized();
+const userId = session.user.id;
+```
+
+#### 2. Test Everything (2-3 hours)
 
 - Run `npm run build` - Should pass
 - Test locally: `npm run dev`
@@ -319,12 +268,28 @@ const room = await findRoomById(id);
 ### Current State:
 - ✅ Database schema is LIVE in Supabase
 - ✅ All environment variables configured
-- ⚠️ App still uses `mockDb` - needs migration
-- ⚠️ No authentication yet - cookie-based temp users
+- ✅ Database query layer complete (`src/lib/db/supabase.ts`)
+- ✅ NextAuth.js configured with Google OAuth
+- ✅ Auth UI components ready
+- ✅ Vercel Blob storage utilities ready
+- ⚠️ API routes still use `mockDb` - migration in progress
+- ⚠️ App still uses cookie-based temp users - need to switch to NextAuth
+
+### Key Files Created:
+- `src/lib/db/supabase.ts` - 350+ lines of query functions
+- `src/lib/blob-storage.ts` - Vercel Blob utilities
+- `src/components/auth/login-button.tsx` - Google sign-in
+- `src/components/auth/logout-button.tsx` - Sign out
+- `src/components/auth/user-menu.tsx` - User dropdown
+- `src/types/next-auth.d.ts` - TypeScript types
 
 ### Key Files Modified:
 - `src/lib/db/schema.ts` - Complete rewrite with new features
+- `src/lib/auth/config.ts` - Google OAuth + JWT sessions
+- `src/lib/image-utils.ts` - Added blob upload support
+- `src/app/layout.tsx` - Added SessionProvider
 - `.env.local` - All credentials added
+- `package.json` - Added @vercel/blob
 - `drizzle.config.ts` - Already configured for Supabase
 
 ### Don't Delete:
@@ -344,34 +309,36 @@ node scripts/reset-database.mjs
 
 ## 📊 Time Estimates
 
-| Task | Estimated Time | Status |
-|------|---------------|--------|
-| Infrastructure setup | 2 hours | ✅ Done |
-| Database schema design | 2 hours | ✅ Done |
-| Migration creation & push | 2 hours | ✅ Done |
-| Database query layer | 2-3 hours | ⏳ Next |
-| NextAuth.js setup | 1-2 hours | ⏳ Next |
-| Auth UI components | 1 hour | ⏳ Next |
-| Vercel Blob utilities | 1 hour | ⏳ Next |
-| API route migration | 4-6 hours | ⏳ Next |
-| Testing & bug fixes | 2-3 hours | ⏳ Next |
-| **Total** | **20-30 hours** | **50% Complete** |
+| Task | Estimated Time | Actual Time | Status |
+|------|---------------|-------------|--------|
+| Infrastructure setup | 2 hours | ~2 hours | ✅ Done |
+| Database schema design | 2 hours | ~2 hours | ✅ Done |
+| Migration creation & push | 2 hours | ~2 hours | ✅ Done |
+| Database query layer | 2-3 hours | ~2 hours | ✅ Done |
+| NextAuth.js setup | 1-2 hours | ~1.5 hours | ✅ Done |
+| Auth UI components | 1 hour | ~1 hour | ✅ Done |
+| Vercel Blob utilities | 1 hour | ~1 hour | ✅ Done |
+| API route migration | 4-6 hours | 0 hours | ⏳ Next |
+| Testing & bug fixes | 2-3 hours | 0 hours | ⏳ Pending |
+| **Total** | **20-30 hours** | **11.5 / 20-30 hours** | **70% Complete** |
 
 ---
 
 ## 🎯 Next Conversation Starter
 
 ```
-I'm continuing Phase 6 production backend work. I've completed:
-- ✅ Supabase database setup with all 7 tables
-- ✅ Environment variables configured
-- ✅ Schema migrated successfully
+Continue Phase 6 API migration. Infrastructure complete (70% done):
+- ✅ Database query layer (src/lib/db/supabase.ts - 350+ lines)
+- ✅ NextAuth.js + Google OAuth configured
+- ✅ Auth UI components (login, logout, user menu)
+- ✅ Vercel Blob storage utilities
 
-Next up: Create the database query layer (src/lib/db/supabase.ts)
-to replace mockDb calls. The schema is already in Supabase and
-ready to use with Drizzle ORM.
+Now migrate 12 API routes from mockDb to Supabase. Start with:
+1. /api/users/me - Get current user from session
+2. /api/rooms - Create room
+3. /api/invite/[code] - Get invite info
 
-Let's start by creating the query functions matching the mock DB interface.
+Let's begin with /api/users/me to establish the auth pattern.
 ```
 
 ---
@@ -379,19 +346,35 @@ Let's start by creating the query functions matching the mock DB interface.
 ## 📁 Key File Locations
 
 ```
-src/lib/db/
-├── schema.ts              # ✅ Complete - 7 tables with all features
-├── schema-old.ts          # Backup of old schema
-├── index.ts               # ✅ Drizzle client (already configured)
-├── mock.ts                # 📚 Reference - keep until migration done
-└── migrations/
-    └── 0000_noisy_baron_strucker.sql  # ✅ Applied to Supabase
+src/lib/
+├── db/
+│   ├── schema.ts          # ✅ Complete - 7 tables
+│   ├── supabase.ts        # ✅ NEW - Query layer (350+ lines)
+│   ├── index.ts           # ✅ Drizzle client
+│   ├── mock.ts            # 📚 Reference - keep until migration done
+│   └── migrations/
+│       └── 0000_noisy_baron_strucker.sql  # ✅ Applied
+├── auth/
+│   ├── config.ts          # ✅ Google OAuth + JWT sessions
+│   └── index.ts           # ✅ Session helpers
+├── blob-storage.ts        # ✅ NEW - Vercel Blob utilities
+└── image-utils.ts         # ✅ Updated - blob upload support
+
+src/components/auth/       # ✅ NEW - Auth UI
+├── login-button.tsx
+├── logout-button.tsx
+└── user-menu.tsx
+
+src/app/api/auth/
+└── [...nextauth]/
+    └── route.ts           # ✅ Enabled (was .disabled)
 
 scripts/
-├── reset-database.mjs     # ✅ Utility to reset DB
-└── apply-migration.mjs    # ✅ Utility to apply migrations
+├── reset-database.mjs     # ✅ DB reset utility
+└── apply-migration.mjs    # ✅ Migration utility
 
 .env.local                 # ✅ All credentials configured
+package.json               # ✅ Added @vercel/blob
 drizzle.config.ts          # ✅ Configured for Supabase
 ```
 
@@ -418,4 +401,6 @@ git log --oneline -5       # See recent commits
 
 ---
 
-**Ready to continue! Next session: Build the query layer.** 🚀
+**Infrastructure complete! Next session: Migrate API routes to use real database.** 🚀
+
+**Estimated remaining:** 6-9 hours (API migration + testing)
