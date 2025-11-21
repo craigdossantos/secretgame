@@ -1,0 +1,479 @@
+<svg viewBox="0 0 1400 1800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1400" height="1800" fill="#f8f9fa"/>
+
+  <!-- Title -->
+  <text x="700" y="40" font-family="Arial, sans-serif" font-size="32" font-weight="bold" text-anchor="middle" fill="#1a1a1a">
+    The Secret Game - Frontend Architecture
+  </text>
+  <text x="700" y="70" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" fill="#666">
+    A beginner's guide to the codebase structure
+  </text>
+
+  <!-- Legend -->
+  <g id="legend" transform="translate(50, 90)">
+    <rect x="0" y="0" width="200" height="120" fill="white" stroke="#ddd" stroke-width="2" rx="8"/>
+    <text x="100" y="25" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#333">Legend</text>
+
+    <rect x="10" y="35" width="30" height="20" fill="#4A90E2" rx="4"/>
+    <text x="50" y="50" font-family="Arial" font-size="12" fill="#333">Pages (Routes)</text>
+
+    <rect x="10" y="60" width="30" height="20" fill="#7B68EE" rx="4"/>
+    <text x="50" y="75" font-family="Arial" font-size="12" fill="#333">Components</text>
+
+    <rect x="10" y="85" width="30" height="20" fill="#50C878" rx="4"/>
+    <text x="50" y="100" font-family="Arial" font-size="12" fill="#333">UI Primitives</text>
+  </g>
+
+  <!-- Layer 1: Pages/Routes -->
+  <g id="pages-layer">
+    <rect x="50" y="240" width="1300" height="280" fill="#E3F2FD" stroke="#4A90E2" stroke-width="3" rx="12"/>
+    <text x="700" y="270" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="#1976D2">
+      📄 PAGES LAYER (App Router - Next.js 15)
+    </text>
+    <text x="700" y="295" font-family="Arial" font-size="13" text-anchor="middle" fill="#555">
+      Entry points - Each page is a route users can navigate to
+    </text>
+
+    <!-- Root Layout -->
+    <g transform="translate(100, 310)">
+      <rect width="180" height="80" fill="#4A90E2" stroke="#2E5C8A" stroke-width="2" rx="8"/>
+      <text x="90" y="25" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="white">app/layout.tsx</text>
+      <text x="90" y="45" font-family="Arial" font-size="11" text-anchor="middle" fill="white">🏠 Root Layout</text>
+      <text x="90" y="62" font-family="Arial" font-size="10" text-anchor="middle" fill="#E3F2FD">Fonts + Toaster</text>
+    </g>
+
+    <!-- Home Page -->
+    <g transform="translate(310, 310)">
+      <rect width="180" height="80" fill="#4A90E2" stroke="#2E5C8A" stroke-width="2" rx="8"/>
+      <text x="90" y="25" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="white">app/page.tsx</text>
+      <text x="90" y="45" font-family="Arial" font-size="11" text-anchor="middle" fill="white">/ (Homepage)</text>
+      <text x="90" y="62" font-family="Arial" font-size="10" text-anchor="middle" fill="#E3F2FD">Create Room CTA</text>
+    </g>
+
+    <!-- Room Page -->
+    <g transform="translate(520, 310)">
+      <rect width="180" height="80" fill="#4A90E2" stroke="#2E5C8A" stroke-width="2" rx="8"/>
+      <text x="90" y="20" font-family="Arial" font-size="13" font-weight="bold" text-anchor="middle" fill="white">rooms/[id]/page.tsx</text>
+      <text x="90" y="40" font-family="Arial" font-size="11" text-anchor="middle" fill="white">/rooms/:id</text>
+      <text x="90" y="57" font-family="Arial" font-size="10" text-anchor="middle" fill="#E3F2FD">🎮 Main Game</text>
+      <text x="90" y="72" font-family="Arial" font-size="10" text-anchor="middle" fill="#E3F2FD">Questions + Secrets</text>
+    </g>
+
+    <!-- Invite Page -->
+    <g transform="translate(730, 310)">
+      <rect width="180" height="80" fill="#4A90E2" stroke="#2E5C8A" stroke-width="2" rx="8"/>
+      <text x="90" y="20" font-family="Arial" font-size="13" font-weight="bold" text-anchor="middle" fill="white">invite/[code]/page.tsx</text>
+      <text x="90" y="40" font-family="Arial" font-size="11" text-anchor="middle" fill="white">/invite/:code</text>
+      <text x="90" y="57" font-family="Arial" font-size="10" text-anchor="middle" fill="#E3F2FD">✉️ Join Room</text>
+    </g>
+
+    <!-- Admin Page -->
+    <g transform="translate(940, 310)">
+      <rect width="180" height="80" fill="#4A90E2" stroke="#2E5C8A" stroke-width="2" rx="8"/>
+      <text x="90" y="25" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="white">admin/page.tsx</text>
+      <text x="90" y="45" font-family="Arial" font-size="11" text-anchor="middle" fill="white">/admin</text>
+      <text x="90" y="62" font-family="Arial" font-size="10" text-anchor="middle" fill="#E3F2FD">⚙️ Manage Questions</text>
+    </g>
+
+    <!-- Flow Arrows -->
+    <path d="M 400 420 L 400 450 L 610 450 L 610 420" stroke="#2E5C8A" stroke-width="2" fill="none" marker-end="url(#arrowblue)"/>
+    <text x="505" y="445" font-family="Arial" font-size="11" text-anchor="middle" fill="#2E5C8A">Create Room →</text>
+
+    <path d="M 820 420 L 820 450 L 610 450" stroke="#2E5C8A" stroke-width="2" fill="none" marker-end="url(#arrowblue)"/>
+    <text x="715" y="445" font-family="Arial" font-size="11" text-anchor="middle" fill="#2E5C8A">← Join Room</text>
+  </g>
+
+  <!-- Layer 2: Feature Components -->
+  <g id="components-layer">
+    <rect x="50" y="560" width="1300" height="480" fill="#F3E5F5" stroke="#7B68EE" stroke-width="3" rx="12"/>
+    <text x="700" y="590" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="#6A1B9A">
+      🧩 COMPONENTS LAYER (Reusable Building Blocks)
+    </text>
+    <text x="700" y="615" font-family="Arial" font-size="13" text-anchor="middle" fill="#555">
+      Feature components used by pages - where the magic happens!
+    </text>
+
+    <!-- Question Components Group -->
+    <g id="question-group">
+      <rect x="80" y="635" width="380" height="185" fill="#E1BEE7" stroke="#7B68EE" stroke-width="2" rx="8" stroke-dasharray="5,5"/>
+      <text x="270" y="660" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#6A1B9A">Question Components</text>
+
+      <g transform="translate(100, 670)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">QuestionCard</text>
+        <text x="80" y="42" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">🔄 Flip card</text>
+        <text x="80" y="55" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">Front: Q / Back: Answer</text>
+      </g>
+
+      <g transform="translate(280, 670)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">QuestionGrid</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">📊 3-column grid</text>
+      </g>
+
+      <g transform="translate(100, 745)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">QuestionSelector</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">✅ Pick questions</text>
+      </g>
+
+      <g transform="translate(280, 745)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="20" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">CustomQuestion</text>
+        <text x="80" y="35" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Modal</text>
+        <text x="80" y="52" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">➕ Create question</text>
+      </g>
+    </g>
+
+    <!-- Secret Components Group -->
+    <g id="secret-group">
+      <rect x="490" y="635" width="380" height="185" fill="#E1BEE7" stroke="#7B68EE" stroke-width="2" rx="8" stroke-dasharray="5,5"/>
+      <text x="680" y="660" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#6A1B9A">Secret Components</text>
+
+      <g transform="translate(510, 670)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">SecretCard</text>
+        <text x="80" y="42" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">🔒 Locked/Unlocked</text>
+        <text x="80" y="55" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">Shows secret content</text>
+      </g>
+
+      <g transform="translate(690, 670)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="20" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">SecretAnswer</text>
+        <text x="80" y="35" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Display</text>
+        <text x="80" y="52" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">🎨 Render answers</text>
+      </g>
+
+      <g transform="translate(510, 745)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="20" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">UnlockQuestion</text>
+        <text x="80" y="35" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Modal</text>
+        <text x="80" y="52" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">🔓 Answer to unlock</text>
+      </g>
+
+      <g transform="translate(690, 745)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">SecretSortTabs</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">🔢 Sort controls</text>
+      </g>
+    </g>
+
+    <!-- Interactive Components Group -->
+    <g id="interactive-group">
+      <rect x="900" y="635" width="380" height="185" fill="#E1BEE7" stroke="#7B68EE" stroke-width="2" rx="8" stroke-dasharray="5,5"/>
+      <text x="1090" y="660" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#6A1B9A">Interactive Inputs</text>
+
+      <g transform="translate(920, 670)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">ChiliRating</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">🌶️ Spiciness 1-5</text>
+      </g>
+
+      <g transform="translate(1100, 670)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">RatingStars</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">⭐ Rate secrets</text>
+      </g>
+
+      <g transform="translate(920, 745)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="20" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">AnswerInput</text>
+        <text x="80" y="35" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Slider/MC</text>
+        <text x="80" y="52" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">📊 Answer types</text>
+      </g>
+
+      <g transform="translate(1100, 745)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="20" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">ImageUpload</text>
+        <text x="80" y="35" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Input</text>
+        <text x="80" y="52" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">📸 Upload images</text>
+      </g>
+    </g>
+
+    <!-- Other Components -->
+    <g id="other-components">
+      <rect x="80" y="845" width="590" height="175" fill="#E1BEE7" stroke="#7B68EE" stroke-width="2" rx="8" stroke-dasharray="5,5"/>
+      <text x="375" y="870" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#6A1B9A">User &amp; Layout Components</text>
+
+      <g transform="translate(100, 880)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="20" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">UserIdentity</text>
+        <text x="80" y="35" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Header</text>
+        <text x="80" y="52" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">👤 User avatar</text>
+      </g>
+
+      <g transform="translate(280, 880)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">ProfileDrawer</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">📋 User panel</text>
+      </g>
+
+      <g transform="translate(460, 880)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">WelcomeModal</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">👋 First visit</text>
+      </g>
+
+      <g transform="translate(100, 955)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">EmptyState</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">📭 No data UI</text>
+      </g>
+
+      <g transform="translate(280, 955)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">SkeletonCard</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">⏳ Loading state</text>
+      </g>
+
+      <g transform="translate(460, 955)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">SetupModeView</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">⚙️ Room setup</text>
+      </g>
+    </g>
+
+    <!-- More Components -->
+    <g id="collaborative-components">
+      <rect x="700" y="845" width="580" height="175" fill="#E1BEE7" stroke="#7B68EE" stroke-width="2" rx="8" stroke-dasharray="5,5"/>
+      <text x="990" y="870" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#6A1B9A">Collaborative &amp; Display</text>
+
+      <g transform="translate(720, 880)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="20" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Collaborative</text>
+        <text x="80" y="35" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">AnswersModal</text>
+        <text x="80" y="52" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">👥 Group answers</text>
+      </g>
+
+      <g transform="translate(900, 880)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="20" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">MC Collaborative</text>
+        <text x="80" y="35" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Display</text>
+        <text x="80" y="52" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">📊 MC stats</text>
+      </g>
+
+      <g transform="translate(1080, 880)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="20" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">ImageAnswer</text>
+        <text x="80" y="35" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Display</text>
+        <text x="80" y="52" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">🖼️ Show images</text>
+      </g>
+
+      <g transform="translate(720, 955)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">CategoryFilter</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">🏷️ Filter tags</text>
+      </g>
+
+      <g transform="translate(900, 955)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="white">DragDropZone</text>
+        <text x="80" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">📂 File upload</text>
+      </g>
+
+      <g transform="translate(1080, 955)">
+        <rect width="160" height="60" fill="#7B68EE" stroke="#5E35B1" stroke-width="2" rx="6"/>
+        <text x="80" y="20" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">UnlockHelp</text>
+        <text x="80" y="35" font-family="Arial" font-size="11" font-weight="bold" text-anchor="middle" fill="white">Tooltip</text>
+        <text x="80" y="52" font-family="Arial" font-size="10" text-anchor="middle" fill="#E1BEE7">❓ Help text</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Layer 3: UI Primitives -->
+  <g id="ui-primitives-layer">
+    <rect x="50" y="1080" width="1300" height="220" fill="#E8F5E9" stroke="#50C878" stroke-width="3" rx="12"/>
+    <text x="700" y="1110" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="#2E7D32">
+      🎨 UI PRIMITIVES LAYER (shadcn/ui + Radix)
+    </text>
+    <text x="700" y="1135" font-family="Arial" font-size="13" text-anchor="middle" fill="#555">
+      Low-level building blocks - buttons, inputs, cards, etc.
+    </text>
+
+    <!-- Form Controls -->
+    <g id="form-controls">
+      <text x="150" y="1165" font-family="Arial" font-size="12" font-weight="bold" fill="#2E7D32">Form Controls</text>
+      <g transform="translate(80, 1170)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Button</text>
+      </g>
+      <g transform="translate(200, 1170)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Input</text>
+      </g>
+      <g transform="translate(320, 1170)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Textarea</text>
+      </g>
+      <g transform="translate(80, 1225)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Checkbox</text>
+      </g>
+      <g transform="translate(200, 1225)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Radio Group</text>
+      </g>
+      <g transform="translate(320, 1225)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Slider</text>
+      </g>
+    </g>
+
+    <!-- Layout Components -->
+    <g id="layout-components">
+      <text x="600" y="1165" font-family="Arial" font-size="12" font-weight="bold" fill="#2E7D32">Layout &amp; Display</text>
+      <g transform="translate(480, 1170)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Card</text>
+      </g>
+      <g transform="translate(600, 1170)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Badge</text>
+      </g>
+      <g transform="translate(720, 1170)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Avatar</text>
+      </g>
+      <g transform="translate(480, 1225)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Skeleton</text>
+      </g>
+      <g transform="translate(600, 1225)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Label</text>
+      </g>
+      <g transform="translate(720, 1225)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Select</text>
+      </g>
+    </g>
+
+    <!-- Modal Components -->
+    <g id="modal-components">
+      <text x="1030" y="1165" font-family="Arial" font-size="12" font-weight="bold" fill="#2E7D32">Modals &amp; Info</text>
+      <g transform="translate(900, 1170)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Dialog</text>
+      </g>
+      <g transform="translate(1020, 1170)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Sheet</text>
+      </g>
+      <g transform="translate(1140, 1170)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Tooltip</text>
+      </g>
+      <g transform="translate(900, 1225)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="25" font-family="Arial" font-size="11" text-anchor="middle" fill="white">Sonner</text>
+      </g>
+      <g transform="translate(1020, 1225)">
+        <rect width="100" height="40" fill="#50C878" stroke="#2E7D32" stroke-width="1" rx="4"/>
+        <text x="50" y="20" font-family="Arial" font-size="10" text-anchor="middle" fill="white">(Toasts)</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Data Flow Section -->
+  <g id="data-flow">
+    <rect x="50" y="1340" width="1300" height="180" fill="#FFF3E0" stroke="#FF9800" stroke-width="3" rx="12"/>
+    <text x="700" y="1370" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="#E65100">
+      🔄 DATA FLOW (How Information Moves)
+    </text>
+
+    <g transform="translate(100, 1390)">
+      <rect width="200" height="70" fill="#FFE0B2" stroke="#FF9800" stroke-width="2" rx="6"/>
+      <text x="100" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#E65100">1. User Interaction</text>
+      <text x="100" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#555">Click button, type text,</text>
+      <text x="100" y="60" font-family="Arial" font-size="10" text-anchor="middle" fill="#555">submit form</text>
+    </g>
+
+    <path d="M 310 1425 L 360 1425" stroke="#FF9800" stroke-width="3" marker-end="url(#arroworange)"/>
+
+    <g transform="translate(370, 1390)">
+      <rect width="200" height="70" fill="#FFE0B2" stroke="#FF9800" stroke-width="2" rx="6"/>
+      <text x="100" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#E65100">2. Component Handler</text>
+      <text x="100" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#555">Event handler runs</text>
+      <text x="100" y="60" font-family="Arial" font-size="10" text-anchor="middle" fill="#555">(onClick, onChange)</text>
+    </g>
+
+    <path d="M 580 1425 L 630 1425" stroke="#FF9800" stroke-width="3" marker-end="url(#arroworange)"/>
+
+    <g transform="translate(640, 1390)">
+      <rect width="200" height="70" fill="#FFE0B2" stroke="#FF9800" stroke-width="2" rx="6"/>
+      <text x="100" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#E65100">3. API Call</text>
+      <text x="100" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#555">POST/GET to</text>
+      <text x="100" y="60" font-family="Arial" font-size="10" text-anchor="middle" fill="#555">/api/rooms or /api/secrets</text>
+    </g>
+
+    <path d="M 850 1425 L 900 1425" stroke="#FF9800" stroke-width="3" marker-end="url(#arroworange)"/>
+
+    <g transform="translate(910, 1390)">
+      <rect width="200" height="70" fill="#FFE0B2" stroke="#FF9800" stroke-width="2" rx="6"/>
+      <text x="100" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#E65100">4. Mock Database</text>
+      <text x="100" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#555">lib/db/mock.ts</text>
+      <text x="100" y="60" font-family="Arial" font-size="10" text-anchor="middle" fill="#555">stores/retrieves data</text>
+    </g>
+
+    <path d="M 1120 1425 L 1170 1425" stroke="#FF9800" stroke-width="3" marker-end="url(#arroworange)"/>
+
+    <g transform="translate(1180, 1390)">
+      <rect width="150" height="70" fill="#FFE0B2" stroke="#FF9800" stroke-width="2" rx="6"/>
+      <text x="75" y="25" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#E65100">5. UI Updates</text>
+      <text x="75" y="45" font-family="Arial" font-size="10" text-anchor="middle" fill="#555">Component</text>
+      <text x="75" y="60" font-family="Arial" font-size="10" text-anchor="middle" fill="#555">re-renders</text>
+    </g>
+  </g>
+
+  <!-- Key Concepts Box -->
+  <g id="key-concepts">
+    <rect x="50" y="1560" width="640" height="210" fill="#E3F2FD" stroke="#2196F3" stroke-width="2" rx="8"/>
+    <text x="370" y="1590" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#1565C0">📚 Key Concepts for New Developers</text>
+
+    <text x="70" y="1620" font-family="Arial" font-size="13" font-weight="bold" fill="#1565C0">🏗️ Component Hierarchy:</text>
+    <text x="70" y="1640" font-family="Arial" font-size="11" fill="#333">Pages use components, components use UI primitives</text>
+    <text x="70" y="1655" font-family="Arial" font-size="11" fill="#333">Example: RoomPage → QuestionCard → Button + Input</text>
+
+    <text x="70" y="1685" font-family="Arial" font-size="13" font-weight="bold" fill="#1565C0">🔄 Reusability:</text>
+    <text x="70" y="1705" font-family="Arial" font-size="11" fill="#333">Components can be used in multiple pages</text>
+    <text x="70" y="1720" font-family="Arial" font-size="11" fill="#333">Example: SecretCard appears in room view &amp; admin</text>
+
+    <text x="70" y="1750" font-family="Arial" font-size="13" font-weight="bold" fill="#1565C0">📦 Props:</text>
+    <text x="70" y="1770" font-family="Arial" font-size="11" fill="#333">Data passed from parent to child components</text>
+  </g>
+
+  <!-- File Structure Box -->
+  <g id="file-structure">
+    <rect x="710" y="1560" width="640" height="210" fill="#F3E5F5" stroke="#9C27B0" stroke-width="2" rx="8"/>
+    <text x="1030" y="1590" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#6A1B9A">📂 Where Files Live</text>
+
+    <text x="730" y="1620" font-family="Arial" font-size="12" font-weight="bold" fill="#6A1B9A">src/app/</text>
+    <text x="880" y="1620" font-family="Arial" font-size="11" fill="#333">← Pages &amp; routing</text>
+
+    <text x="730" y="1645" font-family="Arial" font-size="12" font-weight="bold" fill="#6A1B9A">src/components/</text>
+    <text x="880" y="1645" font-family="Arial" font-size="11" fill="#333">← Feature components</text>
+
+    <text x="730" y="1670" font-family="Arial" font-size="12" font-weight="bold" fill="#6A1B9A">src/components/ui/</text>
+    <text x="880" y="1670" font-family="Arial" font-size="11" fill="#333">← UI primitives</text>
+
+    <text x="730" y="1695" font-family="Arial" font-size="12" font-weight="bold" fill="#6A1B9A">src/lib/</text>
+    <text x="880" y="1695" font-family="Arial" font-size="11" fill="#333">← Helper functions &amp; types</text>
+
+    <text x="730" y="1720" font-family="Arial" font-size="12" font-weight="bold" fill="#6A1B9A">src/lib/db/mock.ts</text>
+    <text x="880" y="1720" font-family="Arial" font-size="11" fill="#333">← Mock database</text>
+
+    <text x="730" y="1745" font-family="Arial" font-size="12" font-weight="bold" fill="#6A1B9A">data/questions.md</text>
+    <text x="880" y="1745" font-family="Arial" font-size="11" fill="#333">← Question content</text>
+  </g>
+
+  <!-- Arrow Markers -->
+  <defs>
+    <marker id="arrowblue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2E5C8A"/>
+    </marker>
+    <marker id="arroworange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#FF9800"/>
+    </marker>
+  </defs>
+</svg>
