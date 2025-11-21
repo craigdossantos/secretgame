@@ -1,8 +1,8 @@
 # Phase 6: Production Backend - Progress Update
 
-**Last Updated:** 2025-01-20
+**Last Updated:** 2025-01-21
 **Current Branch:** `feature/production-backend`
-**Status:** 70% Complete - Infrastructure & Auth Complete ✅
+**Status:** 85% Complete - Core Migration Done, 4 Routes Remaining 🟡
 
 ---
 
@@ -204,24 +204,23 @@ node scripts/reset-database.mjs  # Fresh start
 
 ## 📋 What's Left To Do
 
-### Next Session Tasks (in order):
+### API Route Migration Status (8/12 Complete - 67%) ✅
 
-#### 1. Migrate API Routes (4-6 hours) ⏳ NEXT
-**Strategy:** Replace `mockDb` imports with Supabase query functions
+**✅ COMPLETED (8 routes):**
+1. ✅ `/api/users/me/route.ts` - Get current user
+2. ✅ `/api/rooms/route.ts` - Create/list rooms (POST/GET)
+3. ✅ `/api/rooms/[id]/route.ts` - Get room details
+4. ✅ `/api/rooms/[id]/complete-setup/route.ts` - Complete setup
+5. ✅ `/api/rooms/[id]/secrets/route.ts` - Get room secrets
+6. ✅ `/api/secrets/route.ts` - Create/update secret
+7. ✅ `/api/invite/[code]/join/route.ts` - Join room
+8. ✅ `/api/questions/[questionId]/answers/route.ts` - Collaborative answers
 
-**Routes to Migrate:**
-1. `/api/users/me/route.ts` - Get current user
-2. `/api/rooms/route.ts` - Create room
-3. `/api/rooms/[id]/route.ts` - Get room details
-4. `/api/rooms/[id]/questions/route.ts` - Manage questions
-5. `/api/rooms/[id]/complete-setup/route.ts` - Complete setup
-6. `/api/invite/[code]/route.ts` - Get invite info
-7. `/api/invite/[code]/join/route.ts` - Join room
-8. `/api/rooms/[id]/secrets/route.ts` - Get room secrets
-9. `/api/secrets/route.ts` - Create secret
-10. `/api/secrets/[id]/unlock/route.ts` - Unlock secret
-11. `/api/secrets/[id]/rate/route.ts` - Rate secret
-12. `/api/questions/[questionId]/answers/route.ts` - Submit answer
+**🟡 REMAINING (4 routes - 2-4 hours):**
+1. 🔄 `/api/secrets/[id]/unlock/route.ts` - Unlock secret (CRITICAL - game core)
+2. 🔄 `/api/secrets/[id]/rate/route.ts` - Rate secret
+3. 🔄 `/api/rooms/[id]/questions/route.ts` - Get room questions (helper)
+4. 🔄 `/api/invite/[code]/route.ts` - Preview invite (UX enhancement)
 
 **Migration Pattern:**
 ```typescript
