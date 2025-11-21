@@ -1,6 +1,17 @@
 import { NextRequest } from 'next/server';
-import { mockDb } from '@/lib/db/mock';
-import { successResponse, errorResponse, getUserIdFromCookies } from '@/lib/api/helpers';
+import { auth } from '@/lib/auth';
+import {
+  findSecretById,
+  findRoomMember,
+  findRoomSecrets,
+  findSecretAccess,
+  findUserById,
+  insertSecret,
+  insertSecretAccess,
+  updateSecret,
+  upsertUser
+} from '@/lib/db/supabase';
+import { successResponse, errorResponse } from '@/lib/api/helpers';
 import { createId } from '@paralleldrive/cuid2';
 
 interface UnlockRequestBody {
@@ -17,15 +28,26 @@ export async function POST(
   try {
     const { id: secretId } = await params;
 
-    // Get user ID from cookies
-    const userId = getUserIdFromCookies(request);
-    if (!userId) {
-      return errorResponse('Unauthorized', 401);
+    // Get user session from NextAuth
+    const session = await auth();
+    if (!session?.user?.id) {
+      return errorResponse('Authentication required', 401);
     }
+    const userId = session.user.id;
+
+    // Upsert user to ensure they exist in database
+    await upsertUser({
+      id: userId,
+      email: session.user.email!,
+      name: session.user.name || 'Anonymous',
+      avatarUrl: session.user.image || null,
+    });
 
     // Parse request body
     const data: UnlockRequestBody = await request.json();
     const { questionId, body, selfRating, importance } = data;
+
+    console.log(`🔓 Attempting to unlock secret ${secretId} for user ${userId}`);
 
     // Validate required fields
     if (!questionId || !body || selfRating === undefined || importance === undefined) {
@@ -48,24 +70,28 @@ export async function POST(
     }
 
     // Find the secret to unlock
-    const secretToUnlock = await mockDb.findSecretById(secretId);
+    const secretToUnlock = await findSecretById(secretId);
     if (!secretToUnlock) {
+      console.log(`❌ Secret ${secretId} not found`);
       return errorResponse('Secret not found', 404);
     }
 
     // Prevent unlocking your own secret
     if (secretToUnlock.authorId === userId) {
+      console.log(`❌ User ${userId} attempted to unlock their own secret`);
       return errorResponse('You cannot unlock your own secret', 400);
     }
 
     // Check if user already has access
-    const existingAccess = await mockDb.findSecretAccess(secretId, userId);
+    const existingAccess = await findSecretAccess(secretId, userId);
     if (existingAccess) {
+      console.log(`❌ User ${userId} already has access to secret ${secretId}`);
       return errorResponse('You have already unlocked this secret', 400);
     }
 
     // Validate: submitted secret rating must be >= required rating
     if (selfRating < secretToUnlock.selfRating) {
+      console.log(`❌ Submitted rating ${selfRating} < required rating ${secretToUnlock.selfRating}`);
       return errorResponse(
         `Your secret must have a rating of ${secretToUnlock.selfRating} or higher`,
         400
@@ -73,20 +99,22 @@ export async function POST(
     }
 
     // Verify user is a member of the room
-    const membership = await mockDb.findRoomMember(secretToUnlock.roomId, userId);
+    const membership = await findRoomMember(secretToUnlock.roomId, userId);
     if (!membership) {
+      console.log(`❌ User ${userId} is not a member of room ${secretToUnlock.roomId}`);
       return errorResponse('You must be a member of this room', 403);
     }
 
     // Check if user already answered this question - if so, update it; otherwise create new
-    const existingSecrets = await mockDb.findRoomSecrets(secretToUnlock.roomId);
+    const existingSecrets = await findRoomSecrets(secretToUnlock.roomId);
     const existingUserSecret = existingSecrets.find(
       s => s.authorId === userId && s.questionId === questionId
     );
 
     if (existingUserSecret) {
       // Update existing secret
-      await mockDb.updateSecret(existingUserSecret.id, {
+      console.log(`♻️ Updating existing secret ${existingUserSecret.id} for unlock payment`);
+      await updateSecret(existingUserSecret.id, {
         body: body.trim(),
         selfRating,
         importance,
@@ -94,7 +122,8 @@ export async function POST(
     } else {
       // Create new secret (user's answer to unlock)
       const newSecretId = createId();
-      const now = new Date();
+
+      console.log(`🆕 Creating new secret ${newSecretId} as unlock payment`);
 
       const newSecret = {
         id: newSecretId,
@@ -104,51 +133,61 @@ export async function POST(
         body: body.trim(),
         selfRating,
         importance,
-        avgRating: selfRating,
+        avgRating: String(selfRating), // Store as string per schema
         buyersCount: 0,
-        createdAt: now,
         isHidden: false,
+        answerType: 'text',
+        answerData: null,
+        isAnonymous: false,
       };
 
-      await mockDb.insertSecret(newSecret);
+      await insertSecret(newSecret);
     }
 
     // Grant access to the unlocked secret
     const accessId = createId();
-    await mockDb.insertSecretAccess({
+    console.log(`🔑 Granting access to secret ${secretId} for user ${userId}`);
+
+    await insertSecretAccess({
       id: accessId,
       secretId,
       buyerId: userId,
-      createdAt: new Date(),
     });
 
     // Increment buyers count
-    await mockDb.updateSecret(secretId, {
+    await updateSecret(secretId, {
       buyersCount: secretToUnlock.buyersCount + 1,
     });
 
     // Fetch updated secret with author info
-    const author = await mockDb.findUserById(secretToUnlock.authorId);
-    const updatedSecret = await mockDb.findSecretById(secretId);
+    const author = await findUserById(secretToUnlock.authorId);
+    const updatedSecret = await findSecretById(secretId);
+
+    if (!updatedSecret) {
+      console.log(`❌ Failed to fetch updated secret ${secretId}`);
+      return errorResponse('Failed to fetch updated secret', 500);
+    }
+
+    console.log(`✅ Secret ${secretId} unlocked successfully by user ${userId}`);
 
     return successResponse({
       message: 'Secret unlocked successfully',
       secret: {
-        id: updatedSecret!.id,
-        body: updatedSecret!.body,
-        selfRating: updatedSecret!.selfRating,
-        importance: updatedSecret!.importance,
-        avgRating: updatedSecret!.avgRating || null,
-        buyersCount: updatedSecret!.buyersCount,
+        id: updatedSecret.id,
+        body: updatedSecret.body,
+        selfRating: updatedSecret.selfRating,
+        importance: updatedSecret.importance,
+        avgRating: updatedSecret.avgRating ? Number(updatedSecret.avgRating) : null,
+        buyersCount: updatedSecret.buyersCount,
         authorName: author?.name || 'Unknown',
         authorAvatar: author?.avatarUrl,
-        createdAt: updatedSecret!.createdAt,
+        createdAt: updatedSecret.createdAt,
         isUnlocked: true,
-        questionId: updatedSecret!.questionId,
+        questionId: updatedSecret.questionId,
       },
     });
   } catch (error) {
-    console.error('Error unlocking secret:', error);
+    console.error('❌ Error unlocking secret:', error);
     return errorResponse('Failed to unlock secret', 500);
   }
 }

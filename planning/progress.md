@@ -140,8 +140,9 @@ The Secret Game is a card-based secret sharing web app for small friend groups (
 - Successfully deployed to Vercel
 
 ### Recent Improvements (January 2025)
-- ✅ **Phase 6 Complete (67%)** - 8/12 API routes migrated to Supabase
+- ✅ **Phase 6 In Progress (75%)** - 9/12 API routes migrated to Supabase
   - Room creation, setup, and question answering working end-to-end
+  - **Secret unlocking** now uses Supabase (core game mechanic) ✨
   - Google OAuth with NextAuth.js replacing cookie-based auth
   - User data persists across sessions
   - Foreign key constraints and normalized schema
@@ -225,7 +226,7 @@ interface Secret {
 - ✅ Vercel Blob storage - Upload/delete utilities implemented
 - ✅ Environment variables - All credentials configured
 
-**Core API Routes Migrated (8/12 - 67%):** ✅
+**Core API Routes Migrated (9/12 - 75%):** ✅
 - ✅ `/api/users/me` - Get current user
 - ✅ `/api/rooms` (POST/GET) - Create/list rooms
 - ✅ `/api/rooms/[id]` - Get room details
@@ -234,9 +235,9 @@ interface Secret {
 - ✅ `/api/secrets` - Create/update answers
 - ✅ `/api/questions/[questionId]/answers` - Collaborative answers
 - ✅ `/api/invite/[code]/join` - Join via invite
+- ✅ `/api/secrets/[id]/unlock` - Unlock mechanism (game core) 🎮
 
-**Remaining Routes (4/12 - 33%):** 🟡
-- 🔄 `/api/secrets/[id]/unlock` - Unlock mechanism (game core)
+**Remaining Routes (3/12 - 25%):** 🟡
 - 🔄 `/api/secrets/[id]/rate` - Rating system
 - 🔄 `/api/rooms/[id]/questions` - Helper endpoint
 - 🔄 `/api/invite/[code]` - Invite preview
@@ -246,6 +247,7 @@ interface Secret {
 - ✅ Complete setup and enter play mode
 - ✅ Answer questions (all types: text, slider, MC, images)
 - ✅ View your secrets and collaborative answers
+- ✅ **Unlock others' secrets** - Share to unlock mechanic working 🎮
 - ✅ Join rooms via invite links
 - ✅ Data persists across server restarts
 
