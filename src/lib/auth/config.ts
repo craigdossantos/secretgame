@@ -4,6 +4,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { insertUser, findUserById } from '@/lib/db/supabase';
 
 export const authConfig = {
+  basePath: '/api/auth',
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -19,23 +20,40 @@ export const authConfig = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // On first sign-in, create user in our database
-      if (account?.provider === 'google' && profile?.email) {
-        const existingUser = await findUserById(user.id || createId());
+      try {
+        console.log('🔐 SignIn callback triggered', {
+          userId: user.id,
+          email: user.email,
+          provider: account?.provider
+        });
 
-        if (!existingUser) {
-          // Create new user with Google profile data
-          const userId = createId();
-          await insertUser({
-            id: userId,
-            email: profile.email,
-            name: profile.name || profile.email.split('@')[0],
-            avatarUrl: (profile as { picture?: string }).picture || null,
-          });
-          user.id = userId;
+        // On first sign-in, create user in our database
+        if (account?.provider === 'google' && profile?.email) {
+          // Use Google's sub (subject) as the user ID for consistency
+          const googleId = (profile as { sub?: string }).sub || user.id || createId();
+          const existingUser = await findUserById(googleId);
+
+          if (!existingUser) {
+            // Create new user with Google profile data
+            console.log('🆕 Creating new user in database', googleId);
+            await insertUser({
+              id: googleId,
+              email: profile.email,
+              name: profile.name || profile.email.split('@')[0],
+              avatarUrl: (profile as { picture?: string }).picture || null,
+            });
+            user.id = googleId;
+            console.log('✅ New user created successfully');
+          } else {
+            console.log('👤 Existing user found', googleId);
+            user.id = googleId;
+          }
         }
+        return true;
+      } catch (error) {
+        console.error('❌ SignIn callback error:', error);
+        return false;
       }
-      return true;
     },
     async session({ session, token }) {
       // Add user ID to session
