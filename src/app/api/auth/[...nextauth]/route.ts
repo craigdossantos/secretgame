@@ -1,8 +1,4 @@
-import NextAuth from 'next-auth';
-import { authConfig } from '@/lib/auth/config';
-
-// Force cache invalidation - January 24, 2025
-const { handlers } = NextAuth(authConfig);
+import { handlers } from '@/lib/auth';
 
 export const GET = handlers.GET;
 export const POST = handlers.POST;
