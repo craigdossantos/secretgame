@@ -1,7 +1,7 @@
 import { NextAuthConfig } from 'next-auth';
 import Google from 'next-auth/providers/google';
 import { createId } from '@paralleldrive/cuid2';
-import { insertUser, findUserById } from '@/lib/db/supabase';
+import { insertUser, findUserById, findUserByEmail, upsertUser } from '@/lib/db/supabase';
 
 export const authConfig = {
   basePath: '/api/auth',
@@ -27,26 +27,37 @@ export const authConfig = {
           provider: account?.provider
         });
 
-        // On first sign-in, create user in our database
+        // On sign-in, sync user with our database
         if (account?.provider === 'google' && profile?.email) {
           // Use Google's sub (subject) as the user ID for consistency
           const googleId = (profile as { sub?: string }).sub || user.id || createId();
-          const existingUser = await findUserById(googleId);
 
-          if (!existingUser) {
-            // Create new user with Google profile data
-            console.log('🆕 Creating new user in database', googleId);
-            await insertUser({
-              id: googleId,
-              email: profile.email,
-              name: profile.name || profile.email.split('@')[0],
-              avatarUrl: (profile as { picture?: string }).picture || null,
-            });
-            user.id = googleId;
-            console.log('✅ New user created successfully');
+          // Check if user exists by email first (handles ID migration)
+          const existingUserByEmail = await findUserByEmail(profile.email);
+
+          if (existingUserByEmail) {
+            console.log('👤 Existing user found by email:', existingUserByEmail.id);
+            // Use existing user's ID (don't change it)
+            user.id = existingUserByEmail.id;
           } else {
-            console.log('👤 Existing user found', googleId);
-            user.id = googleId;
+            // Check by Google ID
+            const existingUserById = await findUserById(googleId);
+
+            if (!existingUserById) {
+              // Create new user with Google profile data
+              console.log('🆕 Creating new user in database', googleId);
+              await insertUser({
+                id: googleId,
+                email: profile.email,
+                name: profile.name || profile.email.split('@')[0],
+                avatarUrl: (profile as { picture?: string }).picture || null,
+              });
+              user.id = googleId;
+              console.log('✅ New user created successfully');
+            } else {
+              console.log('👤 Existing user found by ID', googleId);
+              user.id = googleId;
+            }
           }
         }
         return true;

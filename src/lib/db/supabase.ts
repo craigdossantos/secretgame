@@ -43,6 +43,15 @@ export async function findUserById(id: string): Promise<User | undefined> {
   return result[0];
 }
 
+export async function findUserByEmail(email: string): Promise<User | undefined> {
+  const result = await db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.email, email))
+    .limit(1);
+  return result[0];
+}
+
 // ============================================================================
 // ROOMS
 // ============================================================================
