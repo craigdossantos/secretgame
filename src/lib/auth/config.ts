@@ -56,10 +56,17 @@ export const authConfig = {
       }
     },
     async session({ session, token }) {
+      console.log('👤 Session callback triggered', {
+        hasTokenSub: !!token.sub,
+        tokenSub: token.sub,
+        hasSessionUser: !!session.user
+      });
+
       // Create user object from token if it doesn't exist
       if (token.sub) {
         // Fetch user data from database
         const dbUser = await findUserById(token.sub);
+        console.log('🔍 DB user lookup result:', dbUser ? 'Found' : 'Not found');
 
         if (dbUser) {
           // Populate session with user data
@@ -70,6 +77,7 @@ export const authConfig = {
             email: dbUser.email || '',
             image: dbUser.avatarUrl || undefined,
           };
+          console.log('✅ Session populated from DB user:', dbUser.id);
         } else {
           // Token exists but user not in DB - shouldn't happen but handle gracefully
           session.user = {
@@ -79,15 +87,31 @@ export const authConfig = {
             email: token.email as string || '',
             image: token.picture as string || undefined,
           };
+          console.log('⚠️ Session populated from token (user not in DB)');
         }
+      } else {
+        console.log('❌ No token.sub found - returning empty session');
       }
+
+      console.log('📤 Returning session with user:', session.user?.id || 'null');
       return session;
     },
     async jwt({ token, user, account }) {
+      console.log('🔑 JWT callback triggered', {
+        hasAccount: !!account,
+        hasUser: !!user,
+        userId: user?.id,
+        tokenSub: token.sub,
+        accountProvider: account?.provider
+      });
+
       // Initial sign in
       if (account && user) {
+        console.log('✅ Setting token.sub to user.id:', user.id);
         token.sub = user.id;
       }
+
+      console.log('📤 Returning token with sub:', token.sub);
       return token;
     },
   },
