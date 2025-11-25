@@ -56,16 +56,29 @@ export const authConfig = {
       }
     },
     async session({ session, token }) {
-      // Add user ID to session
-      if (session.user && token.sub) {
-        session.user.id = token.sub;
-
-        // Fetch latest user data from database
+      // Create user object from token if it doesn't exist
+      if (token.sub) {
+        // Fetch user data from database
         const dbUser = await findUserById(token.sub);
+
         if (dbUser) {
-          session.user.name = dbUser.name;
-          if (dbUser.email) session.user.email = dbUser.email;
-          if (dbUser.avatarUrl) session.user.image = dbUser.avatarUrl;
+          // Populate session with user data
+          session.user = {
+            ...session.user,
+            id: dbUser.id,
+            name: dbUser.name,
+            email: dbUser.email || '',
+            image: dbUser.avatarUrl || undefined,
+          };
+        } else {
+          // Token exists but user not in DB - shouldn't happen but handle gracefully
+          session.user = {
+            ...session.user,
+            id: token.sub,
+            name: token.name as string || '',
+            email: token.email as string || '',
+            image: token.picture as string || undefined,
+          };
         }
       }
       return session;
