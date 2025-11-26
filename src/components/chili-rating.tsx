@@ -17,7 +17,7 @@ export function ChiliRating({
   onRatingChange,
   readonly = false,
   size = 'md',
-  showAverage = false
+  showAverage: _showAverage = false
 }: ChiliRatingProps) {
   const [hovered, setHovered] = useState(0);
   const [isHovering, setIsHovering] = useState(false);
@@ -64,26 +64,26 @@ export function ChiliRating({
       className="flex items-center gap-0.5"
       onMouseEnter={() => !readonly && setIsHovering(true)}
       onMouseLeave={() => {
-        !readonly && setIsHovering(false);
-        !readonly && setHovered(0);
+        if (!readonly) {
+          setIsHovering(false);
+          setHovered(0);
+        }
       }}
     >
       {[1, 2, 3, 4, 5].map((index) => (
         <button
           key={index}
           type="button"
-          className={`${sizeClasses[size]} transition-all duration-200 ${
-            readonly ? 'cursor-default' : 'cursor-pointer hover:scale-125'
-          }`}
+          className={`${sizeClasses[size]} transition-all duration-200 ${readonly ? 'cursor-default' : 'cursor-pointer hover:scale-125'
+            }`}
           onMouseEnter={() => !readonly && setHovered(index)}
           onClick={() => !readonly && onRatingChange?.(index)}
           disabled={readonly}
-          title={`${index} chili${index > 1 ? 's' : ''} - ${
-            index === 1 ? 'Mild' :
+          title={`${index} chili${index > 1 ? 's' : ''} - ${index === 1 ? 'Mild' :
             index === 2 ? 'Medium' :
-            index === 3 ? 'Hot' :
-            index === 4 ? 'Very Hot' : 'Extreme'
-          }`}
+              index === 3 ? 'Hot' :
+                index === 4 ? 'Very Hot' : 'Extreme'
+            }`}
         >
           <span className={`inline-block ${getChiliClasses(index)} transition-all duration-200`}>
             🌶️

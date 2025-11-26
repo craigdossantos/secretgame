@@ -17,8 +17,6 @@ import {
   QuestionPrompt,
   QuestionCategory,
   QuestionType,
-  SliderConfig,
-  MultipleChoiceConfig,
   QUESTION_CATEGORIES,
   QUESTION_TYPE_LABELS,
   QUESTION_TYPE_DESCRIPTIONS,
@@ -111,12 +109,12 @@ export function CustomQuestionModal({
       const newQuestion = initialQuestion
         ? { ...initialQuestion } // Preserve existing question properties when editing
         : createNewQuestion(
-            questionText.trim(),
-            category,
-            spiciness,
-            'medium',
-            additionalTags
-          );
+          questionText.trim(),
+          category,
+          spiciness,
+          'medium',
+          additionalTags
+        );
 
       // Update the question text, category, and spiciness
       newQuestion.question = questionText.trim();

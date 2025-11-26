@@ -56,8 +56,6 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
     setIsRevealed(true);
   };
 
-  const blurredPreview = secret.body.slice(0, 50) + '...';
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

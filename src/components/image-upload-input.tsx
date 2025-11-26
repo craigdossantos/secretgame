@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { X, Loader2 } from 'lucide-react';
 import { DragDropZone } from './drag-drop-zone';
 import { Input } from './ui/input';
@@ -170,10 +171,12 @@ export function ImageUploadInput({
     <div className="space-y-4">
       {/* Image Preview */}
       <div className="relative rounded-xl border border-border overflow-hidden bg-muted">
-        <img
+        <Image
           src={previewUrl}
           alt="Preview"
-          className="w-full h-auto max-h-96 object-contain"
+          className="w-full h-full object-cover"
+          width={200}
+          height={200}
         />
 
         {/* Remove button */}

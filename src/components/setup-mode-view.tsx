@@ -262,6 +262,7 @@ export function SetupModeView({ roomId, onComplete }: SetupModeViewProps) {
               {visibleQuestions.map(question => (
                 <div
                   key={question.id}
+                  data-testid="suggested-question"
                   className="p-4 rounded-xl border bg-card border-border hover:border-primary/50 cursor-pointer transition-all"
                   onClick={() => handleToggleQuestion(question.id)}
                 >

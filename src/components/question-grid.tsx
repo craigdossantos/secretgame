@@ -11,8 +11,7 @@ import {
   QuestionPrompt,
   QUESTION_CATEGORIES,
   filterQuestionsByCategory,
-  getCategoryCounts,
-  getCuratedQuestions
+  getCategoryCounts
 } from '@/lib/questions';
 
 interface QuestionGridProps {
@@ -88,13 +87,12 @@ export function QuestionGrid({
       {/* Questions Grid - Responsive layout */}
       {sortedQuestions.length > 0 ? (
         <div className="relative">
-          <div className={`grid gap-4 ${
-            showCustomQuestionPeek
-              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(3,1fr)_0.4fr]'
-              : sortedQuestions.length <= 3
+          <div className={`grid gap-4 ${showCustomQuestionPeek
+            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(3,1fr)_0.4fr]'
+            : sortedQuestions.length <= 3
               ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
               : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-          }`}>
+            }`}>
             {sortedQuestions.map((question) => (
               <QuestionCard
                 key={question.id}

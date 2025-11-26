@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,7 @@ import { Lock, Users, Loader2 } from 'lucide-react';
 import { SecretAnswerDisplay } from '@/components/secret-answer-display';
 import { MCCollaborativeDisplay } from '@/components/mc-collaborative-display';
 import { toast } from 'sonner';
-import { QuestionPrompt, MultipleChoiceConfig } from '@/lib/questions';
+import { QuestionPrompt } from '@/lib/questions';
 
 interface CollaborativeAnswer {
   id: string;
@@ -59,13 +59,7 @@ export function CollaborativeAnswersModal({
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (open && questionId && roomId) {
-      loadAnswers();
-    }
-  }, [open, questionId, roomId]);
-
-  const loadAnswers = async () => {
+  const loadAnswers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -94,7 +88,13 @@ export function CollaborativeAnswersModal({
     } finally {
       setLoading(false);
     }
-  };
+  }, [questionId, roomId]);
+
+  useEffect(() => {
+    if (open && questionId && roomId) {
+      loadAnswers();
+    }
+  }, [roomId, questionId, open, loadAnswers]);
 
   const handleUnlock = (secretId: string) => {
     onUnlock?.(secretId);

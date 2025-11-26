@@ -1,7 +1,7 @@
 import { NextAuthConfig } from 'next-auth';
 import Google from 'next-auth/providers/google';
 import { createId } from '@paralleldrive/cuid2';
-import { insertUser, findUserById, findUserByEmail, upsertUser } from '@/lib/db/supabase';
+import { insertUser, findUserById, findUserByEmail } from '@/lib/db/supabase';
 
 export const authConfig = {
   basePath: '/api/auth',

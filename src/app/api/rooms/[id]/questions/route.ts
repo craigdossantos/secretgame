@@ -35,7 +35,7 @@ export async function POST(
 
     // Get request body
     const body = await request.json();
-    const { question, category, suggestedLevel, difficulty, questionType, answerConfig, allowAnonymous, allowImageUpload } = body;
+    const { question, category, suggestedLevel, difficulty, questionType, answerConfig, allowAnonymous } = body;
 
     console.log(`❓ Adding custom question to room ${roomId} by user ${userId}`);
 

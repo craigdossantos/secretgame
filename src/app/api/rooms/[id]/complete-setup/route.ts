@@ -27,12 +27,18 @@ export async function POST(
     const { questionIds = [], customQuestions = [] } = body;
 
     // Get authenticated user from NextAuth session
+    // Get authenticated user from NextAuth session
     const session = await auth();
-    if (!session?.user?.id) {
-      return errorResponse('Not authenticated', 401);
+    let userId = session?.user?.id;
+
+    if (!userId) {
+      const cookieStore = request.cookies;
+      userId = cookieStore.get('userId')?.value;
     }
 
-    const userId = session.user.id;
+    if (!userId) {
+      return errorResponse('Not authenticated', 401);
+    }
 
     // Find the room in Supabase
     const room = await findRoomById(roomId);

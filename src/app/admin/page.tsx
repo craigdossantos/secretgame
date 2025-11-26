@@ -27,7 +27,7 @@ import {
   archiveQuestion,
   unarchiveQuestion
 } from '@/lib/questions';
-import { Plus, Archive, ArchiveRestore, Trash2, Settings, Tag, Check } from 'lucide-react';
+import { Plus, Archive, ArchiveRestore, Settings, Tag, Check } from 'lucide-react';
 
 export default function AdminPage() {
   const [questions, setQuestions] = useState<QuestionPrompt[]>([]);
@@ -197,9 +197,8 @@ export default function AdminPage() {
                       <Badge
                         key={tag}
                         variant={selectedTags.includes(tag) ? "default" : "outline"}
-                        className={`cursor-pointer hover:scale-105 transition-transform ${
-                          isCategoryTag ? 'bg-blue-50 border-blue-200 hover:bg-blue-100' : ''
-                        }`}
+                        className={`cursor-pointer hover:scale-105 transition-transform ${isCategoryTag ? 'bg-blue-50 border-blue-200 hover:bg-blue-100' : ''
+                          }`}
                         onClick={() => {
                           if (selectedTags.includes(tag)) {
                             setSelectedTags(prev => prev.filter(t => t !== tag));

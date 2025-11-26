@@ -125,6 +125,25 @@ export async function countRoomMembers(roomId: string): Promise<number> {
   return result[0]?.count ?? 0;
 }
 
+export async function findUserRooms(userId: string): Promise<Room[]> {
+  const result = await db
+    .select({
+      id: schema.rooms.id,
+      name: schema.rooms.name,
+      ownerId: schema.rooms.ownerId,
+      inviteCode: schema.rooms.inviteCode,
+      maxMembers: schema.rooms.maxMembers,
+      setupMode: schema.rooms.setupMode,
+      createdAt: schema.rooms.createdAt,
+    })
+    .from(schema.roomMembers)
+    .innerJoin(schema.rooms, eq(schema.roomMembers.roomId, schema.rooms.id))
+    .where(eq(schema.roomMembers.userId, userId))
+    .orderBy(desc(schema.rooms.createdAt));
+    
+  return result;
+}
+
 // ============================================================================
 // ROOM QUESTIONS
 // ============================================================================

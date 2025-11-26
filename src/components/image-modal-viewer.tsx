@@ -2,6 +2,7 @@
 
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { X } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from './ui/button';
 
 interface ImageModalViewerProps {
@@ -17,7 +18,7 @@ export function ImageModalViewer({
   caption,
   isOpen,
   onClose,
-  alt = 'Full size image',
+  alt = 'Image',
 }: ImageModalViewerProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -34,11 +35,12 @@ export function ImageModalViewer({
 
         {/* Image container */}
         <div className="relative flex items-center justify-center min-h-[300px] max-h-[90vh] bg-black">
-          <img
+          <Image
             src={imageUrl}
             alt={alt}
-            className="max-w-full max-h-[90vh] object-contain"
-            onClick={(e) => e.stopPropagation()}
+            className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            width={1200}
+            height={800}
           />
         </div>
 

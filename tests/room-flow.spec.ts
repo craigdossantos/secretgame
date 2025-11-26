@@ -13,121 +13,101 @@ test.describe('Room Creation and Navigation Flow', () => {
 
     console.log('📍 At homepage, looking for Create Room button...');
 
-    // Check if we're on the right page
-    const title = await page.locator('h1').first().textContent();
-    console.log('Page title:', title);
-
     // Look for Create Room button
-    const createButton = page.locator('text=Create Room').first();
+    const createButton = page.locator('button:has-text("Create Room")');
     await expect(createButton).toBeVisible({ timeout: 10000 });
+
+    // Listen for console errors and warnings
+    page.on('console', msg => {
+      if (msg.type() === 'error' || msg.type() === 'warning') {
+        console.log(`Page ${msg.type().toUpperCase()}: ${msg.text()}`);
+      }
+    });
 
     console.log('✅ Found Create Room button, clicking...');
     await createButton.click();
 
-    // Wait for create page
+    // Wait for redirection to room page
+    console.log('⏳ Waiting for redirection to room...');
+    await page.waitForURL(/\/rooms\//, { timeout: 15000 });
+
+    // Wait for setup page content
     await page.waitForLoadState('networkidle');
-    await page.screenshot({ path: 'test-results/02-create-page.png', fullPage: true });
+    await page.screenshot({ path: 'test-results/02-setup-page.png', fullPage: true });
 
-    console.log('📍 At create page, filling form...');
+    console.log('📍 At setup page...');
+    console.log('Current URL:', page.url());
 
-    // Fill basic info
-    await page.fill('input[placeholder*="Enter your name"]', 'Playwright User');
-    await page.fill('input[placeholder*="Friends"]', 'Test Room');
+    // Check if we're on the setup page
+    await expect(page.locator('h1')).toContainText('Setup Your Room');
 
-    await page.screenshot({ path: 'test-results/03-form-filled.png', fullPage: true });
+    // Select some questions
+    console.log('🎯 Selecting questions...');
 
-    // Click next to question selection
-    const nextButton = page.locator('text=Next: Choose Questions');
-    await expect(nextButton).toBeVisible();
-    await nextButton.click();
+    // Click on the first 3 suggested questions
+    // The structure is a div with onClick handler, so we look for the text content or class
+    console.log('⏳ Waiting for questions to load...');
+    await page.waitForSelector('[data-testid="suggested-question"]', { timeout: 10000 });
 
-    console.log('✅ Clicked Next, waiting for question selection page...');
+    const questionItems = page.locator('[data-testid="suggested-question"]');
+    const count = await questionItems.count();
+    console.log(`Found ${count} suggested questions`);
 
-    await page.waitForLoadState('networkidle');
-    await page.screenshot({ path: 'test-results/04-question-selection.png', fullPage: true });
-
-    // Look for question cards
-    const questionCards = page.locator('[data-testid="question-card"], .question-card, div:has-text("What")').first();
-    await expect(questionCards).toBeVisible({ timeout: 10000 });
-
-    console.log('✅ Found question cards, selecting 3...');
-
-    // Try to select 3 questions - look for clickable question cards
-    console.log('🎯 Selecting first question...');
-    const question1 = page.locator('[data-testid="question-card"]').first();
-    if (await question1.count() > 0) {
-      await question1.click({ timeout: 5000 });
+    if (count > 0) {
+      await questionItems.nth(0).click();
       console.log('✅ Selected first question');
-    } else {
-      // Fallback to any clickable card
-      const fallback1 = page.locator('.rounded-2xl').filter({ hasText: /What/ }).first();
-      await fallback1.click({ timeout: 5000 });
-      console.log('✅ Selected first question (fallback)');
+
+      if (count > 1) {
+        await questionItems.nth(1).click();
+        console.log('✅ Selected second question');
+      }
     }
 
-    console.log('🎯 Selecting second question...');
-    const question2 = page.locator('[data-testid="question-card"]').nth(1);
-    if (await question2.count() > 0) {
-      await question2.click({ timeout: 5000 });
-      console.log('✅ Selected second question');
-    } else {
-      // Fallback
-      const fallback2 = page.locator('.rounded-2xl').filter({ hasText: /What/ }).nth(1);
-      await fallback2.click({ timeout: 5000 });
-      console.log('✅ Selected second question (fallback)');
-    }
+    await page.screenshot({ path: 'test-results/03-questions-selected.png', fullPage: true });
 
-    console.log('🎯 Selecting third question...');
-    const question3 = page.locator('[data-testid="question-card"]').nth(2);
-    if (await question3.count() > 0) {
-      await question3.click({ timeout: 5000 });
-      console.log('✅ Selected third question');
-    } else {
-      // Fallback
-      const fallback3 = page.locator('.rounded-2xl').filter({ hasText: /What/ }).nth(2);
-      await fallback3.click({ timeout: 5000 });
-      console.log('✅ Selected third question (fallback)');
-    }
+    // Look for Start Playing button
+    const startButton = page.locator('button:has-text("Start Playing")');
+    await expect(startButton).toBeVisible();
+    await expect(startButton).toBeEnabled();
 
-    await page.screenshot({ path: 'test-results/05-questions-selected.png', fullPage: true });
+    console.log('✅ Start Playing button is enabled, clicking...');
+    await startButton.click();
 
-    // Wait for the create button to become enabled
-    console.log('⏳ Waiting for Create Room button to be enabled...');
-    const createRoomButton = page.locator('button').filter({ hasText: /Create Room/ });
-    await expect(createRoomButton).toBeVisible();
-    await expect(createRoomButton).toBeEnabled({ timeout: 10000 });
-
-    console.log('✅ Create Room button is now enabled, clicking...');
-    await createRoomButton.click();
-
-    console.log('✅ Clicked Create Room, waiting for success page...');
-
+    // Wait for room page reload
+    console.log('⏳ Waiting for page reload...');
+    await page.waitForLoadState('domcontentloaded');
     await page.waitForLoadState('networkidle');
-    await page.screenshot({ path: 'test-results/06-room-created.png', fullPage: true });
 
-    // Look for Enter Room button or room URL
-    const enterRoomButton = page.locator('text=Enter Room').first();
-    await expect(enterRoomButton).toBeVisible();
-    await enterRoomButton.click();
+    await page.screenshot({ path: 'test-results/04-room-page.png', fullPage: true });
 
-    console.log('✅ Clicked Enter Room, navigating to room...');
-
-    await page.waitForLoadState('networkidle');
-    await page.screenshot({ path: 'test-results/07-room-page.png', fullPage: true });
+    console.log('📍 At room page...');
 
     // Check if we're in the room
     const roomTitle = await page.locator('h1').first().textContent();
     console.log('Room page title:', roomTitle);
 
-    // Look for questions in the room
-    const roomQuestions = page.locator('text=Question Prompts');
-    await expect(roomQuestions).toBeVisible();
+    // Check for empty state or questions
+    const noQuestions = page.locator('text=No Questions Yet');
+    const questionsHeader = page.locator('text=Answer Questions to Share Secrets');
+
+    if (await noQuestions.isVisible()) {
+      console.log('❌ Found "No Questions Yet" state. Questions were not saved or loaded.');
+    } else if (await questionsHeader.isVisible()) {
+      console.log('✅ Found Question Prompts section');
+    } else {
+      console.log('❓ Found neither questions nor empty state. Page content might be loading or different.');
+    }
+
+    // Expect questions to be visible
+    await expect(questionsHeader).toBeVisible({ timeout: 10000 });
 
     console.log('✅ Found Question Prompts section');
 
     // Check if questions are displayed
-    const questionSection = page.locator('text=Question Prompts').locator('..').locator('..');
-    await questionSection.screenshot({ path: 'test-results/08-questions-section.png' });
+    const questionCards = page.locator('[data-testid="question-card"]');
+    const cardCount = await questionCards.count();
+    console.log(`Found ${cardCount} question cards`);
+    expect(cardCount).toBeGreaterThan(0);
 
     // Final verification
     const url = page.url();

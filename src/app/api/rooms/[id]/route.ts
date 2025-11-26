@@ -20,13 +20,18 @@ export async function GET(
     const roomId = (await params).id;
 
     // Get authenticated user from NextAuth session
+    // Get authenticated user from NextAuth session
     const session = await auth();
+    let userId = session?.user?.id;
 
-    if (!session?.user?.id) {
-      return errorResponse('Authentication required', 401);
+    if (!userId) {
+      const cookieStore = request.cookies;
+      userId = cookieStore.get('userId')?.value;
     }
 
-    const userId = session.user.id;
+    if (!userId) {
+      return errorResponse('Authentication required', 401);
+    }
 
     // Get room details from Supabase
     console.log(`🔍 Looking for room: ${roomId}`);

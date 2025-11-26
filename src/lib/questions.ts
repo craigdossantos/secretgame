@@ -121,12 +121,10 @@ function hashString(str: string): string {
   return Math.abs(hash).toString(36); // Base36 for shorter IDs
 }
 
+import yaml from 'js-yaml';
+
 // Parse questions from YAML format
 export function parseQuestions(yamlContent: string): QuestionPrompt[] {
-  // Dynamic import for js-yaml (client-side compatible)
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const yaml = require('js-yaml');
-
   try {
     const parsed = yaml.load(yamlContent) as { questions?: YAMLQuestion[] };
 

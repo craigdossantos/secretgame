@@ -6,6 +6,7 @@ import {
   insertRoom,
   insertRoomMember,
   insertRoomQuestion,
+  findUserRooms,
 } from '@/lib/db/supabase';
 import {
   generateInviteCode,
@@ -17,22 +18,40 @@ export async function POST(request: NextRequest) {
   try {
     // Get authenticated user from NextAuth session
     const session = await auth();
+    let userId = session?.user?.id;
+    let isAnonymous = false;
 
-    if (!session?.user?.id) {
-      return errorResponse('Authentication required', 401);
+    // If no session, check for existing userId cookie or create new anonymous user
+    if (!userId) {
+      const cookieStore = request.cookies;
+      const existingUserId = cookieStore.get('userId')?.value;
+
+      if (existingUserId) {
+        userId = existingUserId;
+      } else {
+        userId = createId();
+        isAnonymous = true;
+      }
+
+      // Ensure anonymous user exists in database
+      await upsertUser({
+        id: userId,
+        email: `anon-${userId}@secretgame.local`,
+        name: 'Anonymous Host',
+        avatarUrl: null,
+      });
+    } else if (session?.user?.email) {
+      // Ensure authenticated user exists in database
+      await upsertUser({
+        id: userId!,
+        email: session.user.email,
+        name: session.user.name || 'Anonymous',
+        avatarUrl: session.user.image || null,
+      });
     }
 
-    const userId = session.user.id;
     const body = await request.json();
     const { name, questionIds = [], customQuestions = [], setupMode = false } = body;
-
-    // Ensure user exists in database (upsert from NextAuth session)
-    await upsertUser({
-      id: userId,
-      email: session.user.email!,
-      name: session.user.name || 'Anonymous',
-      avatarUrl: session.user.image || null,
-    });
 
     // Validate question selection only if NOT in setup mode
     if (!setupMode) {
@@ -112,12 +131,27 @@ export async function POST(request: NextRequest) {
 
     const inviteUrl = `${process.env.NEXTAUTH_URL}/invite/${inviteCode}`;
 
-    return successResponse({
+    const response = successResponse({
       roomId,
       inviteCode,
       inviteUrl,
       name: roomName,
+      isAnonymous,
+      userId,
     });
+
+    // Set userId cookie if it's a new anonymous user or we're using an existing one
+    // This ensures the client has the ID for future requests
+    if (!session?.user?.id) {
+      response.cookies.set('userId', userId, {
+        httpOnly: false, // Allow client-side access for UI logic
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        sameSite: 'lax',
+      });
+    }
+
+    return response;
   } catch (error) {
     console.error('Failed to create room:', error);
     return errorResponse('Failed to create room', 500);
@@ -134,9 +168,7 @@ export async function GET() {
       return successResponse({ rooms: [] });
     }
 
-    // TODO: Implement room listing with Supabase
-    // This will need to join rooms with room_members to find user's rooms
-    const userRooms: unknown[] = [];
+    const userRooms = await findUserRooms(session.user.id);
 
     return successResponse({ rooms: userRooms });
   } catch (error) {

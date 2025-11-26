@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Maximize2 } from 'lucide-react';
+import Image from 'next/image';
 import { ImageModalViewer } from './image-modal-viewer';
 import { Button } from './ui/button';
 import { type ImageData } from '@/lib/image-utils';
@@ -22,11 +23,14 @@ export function ImageAnswerDisplay({
       <div className={`space-y-3 ${className}`}>
         {/* Image preview with expand button */}
         <div className="relative group rounded-xl overflow-hidden border border-border bg-muted">
-          <img
+          <Image
             src={imageData.imageBase64}
             alt={imageData.caption || 'Uploaded image'}
             className="w-full h-auto max-h-96 object-contain cursor-pointer transition-transform group-hover:scale-[1.02]"
             onClick={() => setIsModalOpen(true)}
+            width={500} // Placeholder width, adjust as needed or use 'fill'
+            height={300} // Placeholder height, adjust as needed or use 'fill'
+            priority // Optional: prioritize loading this image
           />
 
           {/* Expand button overlay */}

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
@@ -76,11 +75,10 @@ export function CategoryFilter({
         {/* All Categories Badge */}
         <Badge
           variant={isAllSelected ? "default" : "outline"}
-          className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
-            isAllSelected
+          className={`cursor-pointer transition-all duration-200 hover:scale-105 ${isAllSelected
               ? 'bg-gray-900 text-white hover:bg-gray-800'
               : 'hover:bg-gray-100'
-          }`}
+            }`}
           onClick={isAllSelected ? clearAll : selectAll}
         >
           All
@@ -111,11 +109,10 @@ export function CategoryFilter({
             <Badge
               key={category}
               variant={selected ? "default" : "outline"}
-              className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
-                selected
+              className={`cursor-pointer transition-all duration-200 hover:scale-105 ${selected
                   ? `${getCategoryColor(category)} text-white`
                   : getCategoryColor(category)
-              }`}
+                }`}
               onClick={() => toggleCategory(category)}
             >
               {category}
