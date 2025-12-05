@@ -341,6 +341,55 @@ A change is **done** when:
 
 ---
 
-**Version**: 2.0 (Playbook-compliant)
-**Last Updated**: 2025-01-20
+## 14) Development Modes (Antigravity-Style)
+
+Use these slash commands to activate different development modes:
+
+| Command | Use For | Artifacts |
+|---------|---------|-----------|
+| `/plan` | New features, significant changes | Full (tasks, implementation, walkthrough) |
+| `/build` | Medium tasks | Light (only if needed) |
+| `/fast` | Quick fixes, small changes | None |
+| `/test` | Browser testing | Test specs and results |
+| `/fix-errors` | Debugging | Error documentation |
+| `/learn` | End of session | Knowledge base updates |
+
+### Artifact Locations
+
+- `plans/` - Planning documents (tasks.md, implementation.md, walkthrough.md)
+- `knowledge/` - Persistent learnings (patterns, decisions, lessons, snippets)
+- `testing/specs/` - Test specifications
+- `testing/tests/` - Playwright tests
+- `testing/screenshots/` - Visual captures
+- `testing/traces/` - Playwright traces and videos
+
+### Feedback Loop
+
+When using `/plan`, I will pause after creating artifacts for your review. You can:
+- Edit `plans/implementation.md` to change the approach
+- Edit `plans/tasks.md` to add/remove/reorder tasks
+- Say "proceed" when ready
+
+I will re-read these files before implementing to catch your changes.
+
+### Rules System
+
+Persistent guidelines are stored in `.claude/rules/`:
+- `coding-style.md` - Code conventions and patterns
+- `tech-stack.md` - Technology preferences and constraints
+
+### Knowledge Base
+
+Cross-session learnings in `knowledge/`:
+- `patterns.md` - Successful code patterns
+- `decisions.md` - Architecture decisions
+- `lessons.md` - What worked and what didn't
+- `snippets/` - Reusable code
+
+Run `/learn` at end of sessions to extract and save insights.
+
+---
+
+**Version**: 3.0 (Antigravity-style enabled)
+**Last Updated**: 2024-12-04
 **Maintainer**: AI Assistant collaboration
