@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
-import { QuestionCategory } from '@/lib/questions';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
+import { QuestionCategory } from "@/lib/questions";
 
 interface CategoryFilterProps {
   categories: QuestionCategory[];
@@ -16,11 +16,11 @@ export function CategoryFilter({
   categories,
   categoryCounts,
   selectedCategories,
-  onCategoryChange
+  onCategoryChange,
 }: CategoryFilterProps) {
   const toggleCategory = (category: string) => {
     if (selectedCategories.includes(category)) {
-      onCategoryChange(selectedCategories.filter(c => c !== category));
+      onCategoryChange(selectedCategories.filter((c) => c !== category));
     } else {
       onCategoryChange([...selectedCategories, category]);
     }
@@ -34,8 +34,11 @@ export function CategoryFilter({
     onCategoryChange(categories);
   };
 
-  const isSelected = (category: string) => selectedCategories.includes(category);
-  const isAllSelected = selectedCategories.length === 0 || selectedCategories.length === categories.length;
+  const isSelected = (category: string) =>
+    selectedCategories.includes(category);
+  const isAllSelected =
+    selectedCategories.length === 0 ||
+    selectedCategories.length === categories.length;
   const hasSelections = selectedCategories.length > 0;
 
   return (
@@ -75,15 +78,21 @@ export function CategoryFilter({
         {/* All Categories Badge */}
         <Badge
           variant={isAllSelected ? "default" : "outline"}
-          className={`cursor-pointer transition-all duration-200 hover:scale-105 ${isAllSelected
-              ? 'bg-gray-900 text-white hover:bg-gray-800'
-              : 'hover:bg-gray-100'
-            }`}
+          className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
+            isAllSelected
+              ? "bg-gray-900 text-white hover:bg-gray-800"
+              : "hover:bg-gray-100"
+          }`}
           onClick={isAllSelected ? clearAll : selectAll}
         >
           All
           <span className="ml-1 text-xs opacity-75">
-            ({categories.reduce((sum, cat) => sum + (categoryCounts[cat] || 0), 0)})
+            (
+            {categories.reduce(
+              (sum, cat) => sum + (categoryCounts[cat] || 0),
+              0,
+            )}
+            )
           </span>
         </Badge>
 
@@ -94,14 +103,38 @@ export function CategoryFilter({
 
           const getCategoryColor = (cat: string) => {
             switch (cat) {
-              case 'Personal': return selected ? 'bg-blue-600 hover:bg-blue-700' : 'hover:bg-blue-50 border-blue-200 text-blue-700';
-              case 'Relationships': return selected ? 'bg-pink-600 hover:bg-pink-700' : 'hover:bg-pink-50 border-pink-200 text-pink-700';
-              case 'Embarrassing': return selected ? 'bg-red-600 hover:bg-red-700' : 'hover:bg-red-50 border-red-200 text-red-700';
-              case 'Fears & Dreams': return selected ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-purple-50 border-purple-200 text-purple-700';
-              case 'Opinions': return selected ? 'bg-orange-600 hover:bg-orange-700' : 'hover:bg-orange-50 border-orange-200 text-orange-700';
-              case 'Work/School': return selected ? 'bg-green-600 hover:bg-green-700' : 'hover:bg-green-50 border-green-200 text-green-700';
-              case 'Random': return selected ? 'bg-indigo-600 hover:bg-indigo-700' : 'hover:bg-indigo-50 border-indigo-200 text-indigo-700';
-              default: return selected ? 'bg-gray-600 hover:bg-gray-700' : 'hover:bg-gray-50 border-gray-200 text-gray-700';
+              case "Personal":
+                return selected
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "hover:bg-blue-50 border-blue-200 text-blue-700";
+              case "Relationships":
+                return selected
+                  ? "bg-pink-600 hover:bg-pink-700"
+                  : "hover:bg-pink-50 border-pink-200 text-pink-700";
+              case "Embarrassing":
+                return selected
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "hover:bg-red-50 border-red-200 text-red-700";
+              case "Fears & Dreams":
+                return selected
+                  ? "bg-purple-600 hover:bg-purple-700"
+                  : "hover:bg-purple-50 border-purple-200 text-purple-700";
+              case "Opinions":
+                return selected
+                  ? "bg-orange-600 hover:bg-orange-700"
+                  : "hover:bg-orange-50 border-orange-200 text-orange-700";
+              case "Work/School":
+                return selected
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "hover:bg-green-50 border-green-200 text-green-700";
+              case "Random":
+                return selected
+                  ? "bg-indigo-600 hover:bg-indigo-700"
+                  : "hover:bg-indigo-50 border-indigo-200 text-indigo-700";
+              default:
+                return selected
+                  ? "bg-gray-600 hover:bg-gray-700"
+                  : "hover:bg-gray-50 border-gray-200 text-gray-700";
             }
           };
 
@@ -109,16 +142,15 @@ export function CategoryFilter({
             <Badge
               key={category}
               variant={selected ? "default" : "outline"}
-              className={`cursor-pointer transition-all duration-200 hover:scale-105 ${selected
+              className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
+                selected
                   ? `${getCategoryColor(category)} text-white`
                   : getCategoryColor(category)
-                }`}
+              }`}
               onClick={() => toggleCategory(category)}
             >
               {category}
-              <span className="ml-1 text-xs opacity-75">
-                ({count})
-              </span>
+              <span className="ml-1 text-xs opacity-75">({count})</span>
             </Badge>
           );
         })}
@@ -128,7 +160,12 @@ export function CategoryFilter({
       {hasSelections && selectedCategories.length < categories.length && (
         <div className="text-xs text-gray-500">
           Showing {selectedCategories.length} of {categories.length} categories
-          ({selectedCategories.reduce((sum, cat) => sum + (categoryCounts[cat] || 0), 0)} questions)
+          (
+          {selectedCategories.reduce(
+            (sum, cat) => sum + (categoryCounts[cat] || 0),
+            0,
+          )}{" "}
+          questions)
         </div>
       )}
     </div>

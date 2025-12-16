@@ -1,28 +1,40 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Drawer } from 'vaul';
-import { Send, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
+import { useState } from "react";
+import { Drawer } from "vaul";
+import { Send, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
 
 interface UnlockDrawerProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   requiredRating: number;
-  onSubmit: (secret: { body: string; selfRating: number; importance: number }) => void;
+  onSubmit: (secret: {
+    body: string;
+    selfRating: number;
+    importance: number;
+  }) => void;
 }
 
-export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }: UnlockDrawerProps) {
-  const [body, setBody] = useState('');
+export function UnlockDrawer({
+  isOpen,
+  onOpenChange,
+  requiredRating,
+  onSubmit,
+}: UnlockDrawerProps) {
+  const [body, setBody] = useState("");
   const [selfRating, setSelfRating] = useState(requiredRating);
   const [importance, setImportance] = useState(3);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const wordCount = body.trim().split(/\s+/).filter(word => word.length > 0).length;
+  const wordCount = body
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
   const isValidWordCount = wordCount <= 100 && wordCount > 0;
   const isValidRating = selfRating >= requiredRating;
 
@@ -38,12 +50,12 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
       });
 
       // Reset form
-      setBody('');
+      setBody("");
       setSelfRating(requiredRating);
       setImportance(3);
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to submit secret:', error);
+      console.error("Failed to submit secret:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -87,7 +99,12 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
             <div className="space-y-6">
               {/* Secret Body */}
               <div className="space-y-2">
-                <Label htmlFor="secret-body" className="text-foreground art-deco-text text-sm">Your Secret</Label>
+                <Label
+                  htmlFor="secret-body"
+                  className="text-foreground art-deco-text text-sm"
+                >
+                  Your Secret
+                </Label>
                 <Textarea
                   id="secret-body"
                   placeholder="Share something personal, embarrassing, or surprising..."
@@ -96,7 +113,11 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
                   className="min-h-32 resize-none bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
                 />
                 <div className="flex justify-between text-sm">
-                  <span className={wordCount > 100 ? 'text-red-500' : 'text-muted-foreground'}>
+                  <span
+                    className={
+                      wordCount > 100 ? "text-red-500" : "text-muted-foreground"
+                    }
+                  >
                     {wordCount}/100 words
                   </span>
                   {!isValidWordCount && wordCount > 0 && (
@@ -107,7 +128,9 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
 
               {/* Rating Slider */}
               <div className="space-y-3">
-                <Label className="text-foreground art-deco-text text-sm">Spiciness Level: {selfRating}/5</Label>
+                <Label className="text-foreground art-deco-text text-sm">
+                  Spiciness Level: {selfRating}/5
+                </Label>
                 <Slider
                   value={[selfRating]}
                   onValueChange={(value) => setSelfRating(value[0])}
@@ -122,7 +145,10 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
                 </div>
                 {!isValidRating && (
                   <div className="flex items-center gap-2">
-                    <Badge variant="destructive" className="text-xs bg-red-600 text-white">
+                    <Badge
+                      variant="destructive"
+                      className="text-xs bg-red-600 text-white"
+                    >
                       Must be level {requiredRating} or higher
                     </Badge>
                   </div>
@@ -131,7 +157,9 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
 
               {/* Importance Slider */}
               <div className="space-y-3">
-                <Label className="text-foreground art-deco-text text-sm">Keep-it-private: {importance}/5</Label>
+                <Label className="text-foreground art-deco-text text-sm">
+                  Keep-it-private: {importance}/5
+                </Label>
                 <Slider
                   value={[importance]}
                   onValueChange={(value) => setImportance(value[0])}
@@ -149,7 +177,11 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
               {/* Warning */}
               <div className="p-4 art-deco-border bg-secondary/30 backdrop-blur-sm">
                 <p className="text-sm text-foreground">
-                  <span className="text-primary">⚠️</span> <strong className="art-deco-text">No edits in V0—post carefully.</strong> Your secret will be visible to others who unlock it.
+                  <span className="text-primary">⚠️</span>{" "}
+                  <strong className="art-deco-text">
+                    No edits in V0—post carefully.
+                  </strong>{" "}
+                  Your secret will be visible to others who unlock it.
                 </p>
               </div>
 
@@ -160,7 +192,7 @@ export function UnlockDrawer({ isOpen, onOpenChange, requiredRating, onSubmit }:
                 className="w-full art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base font-medium art-deco-text art-deco-glow"
               >
                 {isSubmitting ? (
-                  'Submitting...'
+                  "Submitting..."
                 ) : (
                   <>
                     <Send className="w-4 h-4 mr-2" />

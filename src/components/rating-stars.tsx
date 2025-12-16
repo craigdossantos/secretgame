@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Star } from 'lucide-react';
+import { useState } from "react";
+import { Star } from "lucide-react";
 
 interface RatingStarsProps {
   rating?: number;
   onRatingChange?: (rating: number) => void;
   readonly?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   className?: string;
 }
 
@@ -15,15 +15,15 @@ export function RatingStars({
   rating = 0,
   onRatingChange,
   readonly = false,
-  size = 'md',
-  className = '',
+  size = "md",
+  className = "",
 }: RatingStarsProps) {
   const [hoverRating, setHoverRating] = useState<number | null>(null);
 
   const sizeClasses = {
-    sm: 'w-3 h-3',
-    md: 'w-4 h-4',
-    lg: 'w-5 h-5',
+    sm: "w-3 h-3",
+    md: "w-4 h-4",
+    lg: "w-5 h-5",
   };
 
   const displayRating = hoverRating ?? rating;
@@ -38,15 +38,15 @@ export function RatingStars({
           <Star
             key={i}
             className={`${sizeClasses[size]} transition-colors ${
-              isFilled
-                ? 'text-yellow-400 fill-yellow-400'
-                : 'text-gray-300'
+              isFilled ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
             } ${
               !readonly
-                ? 'cursor-pointer hover:text-yellow-400 hover:fill-yellow-400'
-                : ''
+                ? "cursor-pointer hover:text-yellow-400 hover:fill-yellow-400"
+                : ""
             }`}
-            onMouseEnter={!readonly ? () => setHoverRating(starIndex) : undefined}
+            onMouseEnter={
+              !readonly ? () => setHoverRating(starIndex) : undefined
+            }
             onMouseLeave={!readonly ? () => setHoverRating(null) : undefined}
             onClick={!readonly ? () => onRatingChange?.(starIndex) : undefined}
           />

@@ -1,18 +1,18 @@
-import { NextRequest } from 'next/server';
-import { createId } from '@paralleldrive/cuid2';
-import { auth } from '@/lib/auth';
+import { NextRequest } from "next/server";
+import { createId } from "@paralleldrive/cuid2";
+import { auth } from "@/lib/auth";
 import {
   upsertUser,
   insertRoom,
   insertRoomMember,
   insertRoomQuestion,
   findUserRooms,
-} from '@/lib/db/supabase';
+} from "@/lib/db/supabase";
 import {
   generateInviteCode,
   errorResponse,
-  successResponse
-} from '@/lib/api/helpers';
+  successResponse,
+} from "@/lib/api/helpers";
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     // If no session, check for existing userId cookie or create new anonymous user
     if (!userId) {
       const cookieStore = request.cookies;
-      const existingUserId = cookieStore.get('userId')?.value;
+      const existingUserId = cookieStore.get("userId")?.value;
 
       if (existingUserId) {
         userId = existingUserId;
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       await upsertUser({
         id: userId,
         email: `anon-${userId}@secretgame.local`,
-        name: 'Anonymous Host',
+        name: "Anonymous Host",
         avatarUrl: null,
       });
     } else if (session?.user?.email) {
@@ -45,19 +45,24 @@ export async function POST(request: NextRequest) {
       await upsertUser({
         id: userId!,
         email: session.user.email,
-        name: session.user.name || 'Anonymous',
+        name: session.user.name || "Anonymous",
         avatarUrl: session.user.image || null,
       });
     }
 
     const body = await request.json();
-    const { name, questionIds = [], customQuestions = [], setupMode = false } = body;
+    const {
+      name,
+      questionIds = [],
+      customQuestions = [],
+      setupMode = false,
+    } = body;
 
     // Validate question selection only if NOT in setup mode
     if (!setupMode) {
       const totalQuestions = questionIds.length + customQuestions.length;
       if (totalQuestions < 1) {
-        return errorResponse('At least 1 question must be selected');
+        return errorResponse("At least 1 question must be selected");
       }
     }
 
@@ -102,7 +107,7 @@ export async function POST(request: NextRequest) {
         category: null,
         suggestedLevel: null,
         difficulty: null,
-        questionType: 'text',
+        questionType: "text",
         answerConfig: null,
         allowAnonymous: false,
         createdBy: null, // Curated question, no specific creator
@@ -118,10 +123,10 @@ export async function POST(request: NextRequest) {
         roomId,
         questionId: null, // Custom question, not from curated list
         question: q.question,
-        category: q.category || 'Custom',
+        category: q.category || "Custom",
         suggestedLevel: q.suggestedLevel || 3,
-        difficulty: q.difficulty || 'medium',
-        questionType: q.questionType || 'text',
+        difficulty: q.difficulty || "medium",
+        questionType: q.questionType || "text",
         answerConfig: q.answerConfig || null,
         allowAnonymous: q.allowAnonymous || false,
         createdBy: userId,
@@ -143,18 +148,18 @@ export async function POST(request: NextRequest) {
     // Set userId cookie if it's a new anonymous user or we're using an existing one
     // This ensures the client has the ID for future requests
     if (!session?.user?.id) {
-      response.cookies.set('userId', userId, {
+      response.cookies.set("userId", userId, {
         httpOnly: false, // Allow client-side access for UI logic
-        path: '/',
+        path: "/",
         maxAge: 60 * 60 * 24 * 30, // 30 days
-        sameSite: 'lax',
+        sameSite: "lax",
       });
     }
 
     return response;
   } catch (error) {
-    console.error('Failed to create room:', error);
-    return errorResponse('Failed to create room', 500);
+    console.error("Failed to create room:", error);
+    return errorResponse("Failed to create room", 500);
   }
 }
 
@@ -172,7 +177,7 @@ export async function GET() {
 
     return successResponse({ rooms: userRooms });
   } catch (error) {
-    console.error('Failed to get rooms:', error);
-    return errorResponse('Failed to get rooms', 500);
+    console.error("Failed to get rooms:", error);
+    return errorResponse("Failed to get rooms", 500);
   }
 }

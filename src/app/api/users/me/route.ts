@@ -1,6 +1,6 @@
-import { auth } from '@/lib/auth';
-import { findUserById } from '@/lib/db/supabase';
-import { errorResponse, successResponse } from '@/lib/api/helpers';
+import { auth } from "@/lib/auth";
+import { findUserById } from "@/lib/db/supabase";
+import { errorResponse, successResponse } from "@/lib/api/helpers";
 
 // GET /api/users/me - Get current user info
 export async function GET() {
@@ -28,7 +28,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('Failed to get current user:', error);
-    return errorResponse('Failed to get current user', 500);
+    console.error("Failed to get current user:", error);
+    return errorResponse("Failed to get current user", 500);
   }
 }

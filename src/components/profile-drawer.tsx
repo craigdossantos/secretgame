@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Mail, Calendar } from 'lucide-react';
-import { toast } from 'sonner';
+} from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User, Mail, Calendar } from "lucide-react";
+import { toast } from "sonner";
 
 interface UserInfo {
   id: string;
@@ -30,8 +30,8 @@ interface ProfileDrawerProps {
 
 export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
   const [user, setUser] = useState<UserInfo | null>(null);
-  const [editedName, setEditedName] = useState('');
-  const [editedEmail, setEditedEmail] = useState('');
+  const [editedName, setEditedName] = useState("");
+  const [editedEmail, setEditedEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -44,7 +44,7 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
   const fetchCurrentUser = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/users/me');
+      const response = await fetch("/api/users/me");
       const data = await response.json();
 
       if (data.user) {
@@ -53,8 +53,8 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
         setEditedEmail(data.user.email);
       }
     } catch (error) {
-      console.error('Failed to fetch user:', error);
-      toast.error('Failed to load profile');
+      console.error("Failed to fetch user:", error);
+      toast.error("Failed to load profile");
     } finally {
       setLoading(false);
     }
@@ -62,7 +62,7 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
 
   const handleSave = async () => {
     if (!editedName.trim()) {
-      toast.error('Name cannot be empty');
+      toast.error("Name cannot be empty");
       return;
     }
 
@@ -70,27 +70,27 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
     try {
       // For now, just show a toast since we're cookie-based
       // In a real app, this would update the user via API
-      toast.info('Profile editing will be available in a future update');
+      toast.info("Profile editing will be available in a future update");
 
       // Simulate delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to save profile:', error);
-      toast.error('Failed to save changes');
+      console.error("Failed to save profile:", error);
+      toast.error("Failed to save changes");
     } finally {
       setSaving(false);
     }
   };
 
   const formatDate = (date: Date | string | undefined) => {
-    if (!date) return 'N/A';
-    const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    if (!date) return "N/A";
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    return dateObj.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -129,7 +129,10 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
             <div className="space-y-4">
               {/* Name */}
               <div className="space-y-2">
-                <Label htmlFor="name" className="flex items-center gap-2 text-sm font-medium">
+                <Label
+                  htmlFor="name"
+                  className="flex items-center gap-2 text-sm font-medium"
+                >
                   <User className="w-4 h-4 text-primary" />
                   Display Name
                 </Label>
@@ -146,7 +149,10 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
 
               {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium">
+                <Label
+                  htmlFor="email"
+                  className="flex items-center gap-2 text-sm font-medium"
+                >
                   <Mail className="w-4 h-4 text-primary" />
                   Email
                 </Label>
@@ -209,7 +215,7 @@ export function ProfileDrawer({ open, onOpenChange }: ProfileDrawerProps) {
                 disabled={saving || !editedName.trim()}
                 className="flex-1 art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 art-deco-glow"
               >
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </div>

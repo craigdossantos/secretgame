@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useCallback, useState } from 'react';
-import { Upload, Image as ImageIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useCallback, useState } from "react";
+import { Upload, Image as ImageIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DragDropZoneProps {
   onFileSelected: (file: File) => void;
@@ -14,7 +14,7 @@ interface DragDropZoneProps {
 
 export function DragDropZone({
   onFileSelected,
-  accept = 'image/*',
+  accept = "image/*",
   maxSizeMB = 5,
   disabled = false,
   className,
@@ -54,7 +54,7 @@ export function DragDropZone({
         onFileSelected(file);
       }
     },
-    [disabled, onFileSelected]
+    [disabled, onFileSelected],
   );
 
   const handleFileInput = useCallback(
@@ -67,18 +67,18 @@ export function DragDropZone({
         onFileSelected(file);
       }
     },
-    [disabled, onFileSelected]
+    [disabled, onFileSelected],
   );
 
   return (
     <div
       className={cn(
-        'relative border-2 border-dashed rounded-xl transition-all',
+        "relative border-2 border-dashed rounded-xl transition-all",
         isDragging
-          ? 'border-primary bg-primary/5 scale-[1.02]'
-          : 'border-border hover:border-primary/50 hover:bg-muted/30',
-        disabled && 'opacity-50 cursor-not-allowed',
-        className
+          ? "border-primary bg-primary/5 scale-[1.02]"
+          : "border-border hover:border-primary/50 hover:bg-muted/30",
+        disabled && "opacity-50 cursor-not-allowed",
+        className,
       )}
       onDragEnter={handleDragIn}
       onDragLeave={handleDragOut}
@@ -97,10 +97,10 @@ export function DragDropZone({
       <div className="flex flex-col items-center justify-center gap-3 p-8 text-center">
         <div
           className={cn(
-            'w-16 h-16 rounded-full flex items-center justify-center transition-colors',
+            "w-16 h-16 rounded-full flex items-center justify-center transition-colors",
             isDragging
-              ? 'bg-primary/20 text-primary'
-              : 'bg-muted text-muted-foreground'
+              ? "bg-primary/20 text-primary"
+              : "bg-muted text-muted-foreground",
           )}
         >
           {isDragging ? (
@@ -112,7 +112,7 @@ export function DragDropZone({
 
         <div>
           <p className="text-sm font-medium text-foreground mb-1">
-            {isDragging ? 'Drop your image here' : 'Drag & drop your image'}
+            {isDragging ? "Drop your image here" : "Drag & drop your image"}
           </p>
           <p className="text-xs text-muted-foreground">
             or click to browse • Max {maxSizeMB}MB

@@ -1,19 +1,28 @@
-import { NextRequest } from 'next/server';
-import { parseQuestions, getCuratedQuestions, mockQuestions } from '@/lib/questions';
-import { successResponse, errorResponse } from '@/lib/api/helpers';
+import { NextRequest } from "next/server";
+import {
+  parseQuestions,
+  getCuratedQuestions,
+  mockQuestions,
+} from "@/lib/questions";
+import { successResponse, errorResponse } from "@/lib/api/helpers";
 
 // GET /api/questions - Get curated questions for room selection
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const count = parseInt(searchParams.get('count') || '12');
-    const type = searchParams.get('type') || 'curated'; // 'curated', 'random', or 'all'
+    const count = parseInt(searchParams.get("count") || "12");
+    const type = searchParams.get("type") || "curated"; // 'curated', 'random', or 'all'
 
     let questions;
 
     try {
       // Try to load questions from YAML file
-      const questionsResponse = await fetch(new URL('/questions.yaml', process.env.NEXTAUTH_URL || 'http://localhost:3000'));
+      const questionsResponse = await fetch(
+        new URL(
+          "/questions.yaml",
+          process.env.NEXTAUTH_URL || "http://localhost:3000",
+        ),
+      );
       if (questionsResponse.ok) {
         const yamlContent = await questionsResponse.text();
         const parsedQuestions = parseQuestions(yamlContent);
@@ -22,21 +31,21 @@ export async function GET(request: NextRequest) {
         questions = mockQuestions;
       }
     } catch (error) {
-      console.warn('Error loading questions from markdown:', error);
+      console.warn("Error loading questions from markdown:", error);
       questions = mockQuestions;
     }
 
     let responseQuestions;
 
     switch (type) {
-      case 'curated':
+      case "curated":
         responseQuestions = getCuratedQuestions(questions);
         break;
-      case 'random':
+      case "random":
         const shuffled = [...questions].sort(() => Math.random() - 0.5);
         responseQuestions = shuffled.slice(0, count);
         break;
-      case 'all':
+      case "all":
         responseQuestions = questions;
         break;
       default:
@@ -47,10 +56,10 @@ export async function GET(request: NextRequest) {
       questions: responseQuestions,
       total: questions.length,
       count: responseQuestions.length,
-      type
+      type,
     });
   } catch (error) {
-    console.error('Failed to get questions:', error);
-    return errorResponse('Failed to get questions', 500);
+    console.error("Failed to get questions:", error);
+    return errorResponse("Failed to get questions", 500);
   }
 }

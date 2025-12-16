@@ -1,13 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { X, Loader2 } from 'lucide-react';
-import { DragDropZone } from './drag-drop-zone';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import { toast } from 'sonner';
-import { validateImageFile, fileToBase64, formatFileSize, type ImageData } from '@/lib/image-utils';
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { X, Loader2 } from "lucide-react";
+import { DragDropZone } from "./drag-drop-zone";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
+import {
+  validateImageFile,
+  fileToBase64,
+  formatFileSize,
+  type ImageData,
+} from "@/lib/image-utils";
 
 interface ImageUploadInputProps {
   onImageSelected?: (imageData: ImageData) => void;
@@ -29,9 +34,9 @@ export function ImageUploadInput({
   disabled = false,
 }: ImageUploadInputProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string>('');
+  const [fileName, setFileName] = useState<string>("");
   const [fileSize, setFileSize] = useState<number>(0);
-  const [caption, setCaption] = useState<string>('');
+  const [caption, setCaption] = useState<string>("");
   const [processing, setProcessing] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -39,15 +44,15 @@ export function ImageUploadInput({
   useEffect(() => {
     if (value && value.imageBase64) {
       setPreviewUrl(value.imageBase64);
-      setFileName(value.fileName || '');
+      setFileName(value.fileName || "");
       setFileSize(value.fileSize || 0);
-      setCaption(value.caption || '');
+      setCaption(value.caption || "");
     } else if (value === null) {
       // Reset if value is explicitly set to null
       setPreviewUrl(null);
-      setFileName('');
+      setFileName("");
       setFileSize(0);
-      setCaption('');
+      setCaption("");
       setSelectedFile(null);
     }
   }, [value]);
@@ -90,10 +95,10 @@ export function ImageUploadInput({
         onChange(imageData);
       }
 
-      toast.success('Image uploaded successfully!');
+      toast.success("Image uploaded successfully!");
     } catch (error) {
-      console.error('Failed to process image:', error);
-      toast.error('Failed to process image. Please try again.');
+      console.error("Failed to process image:", error);
+      toast.error("Failed to process image. Please try again.");
       handleClearImage();
     } finally {
       setProcessing(false);
@@ -107,9 +112,9 @@ export function ImageUploadInput({
     }
 
     setPreviewUrl(null);
-    setFileName('');
+    setFileName("");
     setFileSize(0);
-    setCaption('');
+    setCaption("");
     setSelectedFile(null);
 
     if (onClear) {
@@ -141,7 +146,7 @@ export function ImageUploadInput({
           onChange(imageData);
         }
       } catch (error) {
-        console.error('Failed to update caption:', error);
+        console.error("Failed to update caption:", error);
       }
     }
   };
@@ -200,7 +205,10 @@ export function ImageUploadInput({
       {/* Caption Input */}
       {showCaption && (
         <div className="space-y-2">
-          <label htmlFor="image-caption" className="text-sm font-medium text-foreground">
+          <label
+            htmlFor="image-caption"
+            className="text-sm font-medium text-foreground"
+          >
             Caption (optional)
           </label>
           <Input

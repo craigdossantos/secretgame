@@ -1,15 +1,12 @@
-import { NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
-import { createId } from '@paralleldrive/cuid2';
+import { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
+import { createId } from "@paralleldrive/cuid2";
 import {
   findRoomById,
   updateRoom,
   insertRoomQuestion,
-} from '@/lib/db/supabase';
-import {
-  errorResponse,
-  successResponse
-} from '@/lib/api/helpers';
+} from "@/lib/db/supabase";
+import { errorResponse, successResponse } from "@/lib/api/helpers";
 
 interface RouteContext {
   params: Promise<{
@@ -17,10 +14,7 @@ interface RouteContext {
   }>;
 }
 
-export async function POST(
-  request: NextRequest,
-  context: RouteContext
-) {
+export async function POST(request: NextRequest, context: RouteContext) {
   try {
     const { id: roomId } = await context.params;
     const body = await request.json();
@@ -33,28 +27,28 @@ export async function POST(
 
     if (!userId) {
       const cookieStore = request.cookies;
-      userId = cookieStore.get('userId')?.value;
+      userId = cookieStore.get("userId")?.value;
     }
 
     if (!userId) {
-      return errorResponse('Not authenticated', 401);
+      return errorResponse("Not authenticated", 401);
     }
 
     // Find the room in Supabase
     const room = await findRoomById(roomId);
     if (!room) {
-      return errorResponse('Room not found', 404);
+      return errorResponse("Room not found", 404);
     }
 
     // Verify user is the owner
     if (room.ownerId !== userId) {
-      return errorResponse('Only the room owner can complete setup', 403);
+      return errorResponse("Only the room owner can complete setup", 403);
     }
 
     // Validate at least one question is selected
     const totalQuestions = questionIds.length + customQuestions.length;
     if (totalQuestions < 1) {
-      return errorResponse('At least 1 question must be selected', 400);
+      return errorResponse("At least 1 question must be selected", 400);
     }
 
     // Insert custom questions into room_questions table
@@ -65,11 +59,16 @@ export async function POST(
         roomId,
         questionId: null, // Custom question, not from curated list
         question: q.question,
-        category: q.category || 'Custom',
+        category: q.category || "Custom",
         suggestedLevel: q.spiciness || q.suggestedLevel || 3,
-        difficulty: q.difficulty || 'medium',
-        questionType: q.type || q.questionType || 'text',
-        answerConfig: q.type === 'slider' ? q.slider : q.type === 'multipleChoice' ? q.multipleChoice : q.answerConfig || null,
+        difficulty: q.difficulty || "medium",
+        questionType: q.type || q.questionType || "text",
+        answerConfig:
+          q.type === "slider"
+            ? q.slider
+            : q.type === "multipleChoice"
+              ? q.multipleChoice
+              : q.answerConfig || null,
         allowAnonymous: false,
         createdBy: userId,
         displayOrder: questionIds.length + i,
@@ -86,7 +85,7 @@ export async function POST(
         category: null,
         suggestedLevel: null,
         difficulty: null,
-        questionType: 'text',
+        questionType: "text",
         answerConfig: null,
         allowAnonymous: false,
         createdBy: null, // Curated question, no specific creator
@@ -99,14 +98,16 @@ export async function POST(
       setupMode: false,
     });
 
-    console.log(`✅ Room ${roomId} setup completed with ${totalQuestions} questions`);
+    console.log(
+      `✅ Room ${roomId} setup completed with ${totalQuestions} questions`,
+    );
 
     return successResponse({
       success: true,
-      questionCount: totalQuestions
+      questionCount: totalQuestions,
     });
   } catch (error) {
-    console.error('Failed to complete room setup:', error);
-    return errorResponse('Failed to complete setup', 500);
+    console.error("Failed to complete room setup:", error);
+    return errorResponse("Failed to complete setup", 500);
   }
 }

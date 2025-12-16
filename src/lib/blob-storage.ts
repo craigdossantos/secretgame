@@ -1,5 +1,5 @@
 // Vercel Blob storage utilities for image uploads
-import { put, del, list } from '@vercel/blob';
+import { put, del, list } from "@vercel/blob";
 
 /**
  * Upload an image to Vercel Blob storage
@@ -9,10 +9,10 @@ import { put, del, list } from '@vercel/blob';
  */
 export async function uploadImage(
   file: File | Buffer,
-  pathname: string
+  pathname: string,
 ): Promise<string> {
   const blob = await put(pathname, file, {
-    access: 'public',
+    access: "public",
     addRandomSuffix: false, // Use exact pathname
   });
   return blob.url;
@@ -26,7 +26,7 @@ export async function uploadImage(
  */
 export async function uploadUserAvatar(
   userId: string,
-  file: File | Buffer
+  file: File | Buffer,
 ): Promise<string> {
   const pathname = `avatars/${userId}.jpg`;
   return uploadImage(file, pathname);
@@ -44,10 +44,10 @@ export async function uploadAnswerImage(
   roomId: string,
   secretId: string,
   file: File | Buffer,
-  filename: string
+  filename: string,
 ): Promise<string> {
   const timestamp = Date.now();
-  const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const sanitizedFilename = filename.replace(/[^a-zA-Z0-9.-]/g, "_");
   const pathname = `answer-images/${roomId}/${secretId}/${timestamp}-${sanitizedFilename}`;
   return uploadImage(file, pathname);
 }
@@ -76,7 +76,7 @@ export async function listImages(prefix: string) {
  */
 export async function deleteRoomImages(roomId: string): Promise<void> {
   const blobs = await listImages(`answer-images/${roomId}/`);
-  await Promise.all(blobs.map(blob => del(blob.url)));
+  await Promise.all(blobs.map((blob) => del(blob.url)));
 }
 
 /**
@@ -84,7 +84,10 @@ export async function deleteRoomImages(roomId: string): Promise<void> {
  * @param roomId Room ID
  * @param secretId Secret ID
  */
-export async function deleteSecretImages(roomId: string, secretId: string): Promise<void> {
+export async function deleteSecretImages(
+  roomId: string,
+  secretId: string,
+): Promise<void> {
   const blobs = await listImages(`answer-images/${roomId}/${secretId}/`);
-  await Promise.all(blobs.map(blob => del(blob.url)));
+  await Promise.all(blobs.map((blob) => del(blob.url)));
 }

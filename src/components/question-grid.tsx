@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Plus } from 'lucide-react';
-import { QuestionCard } from '@/components/question-card';
-import { CategoryFilter } from '@/components/category-filter';
-import { Card } from '@/components/ui/card';
-import { CustomQuestionModal } from '@/components/custom-question-modal';
+import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import { Plus } from "lucide-react";
+import { QuestionCard } from "@/components/question-card";
+import { CategoryFilter } from "@/components/category-filter";
+import { Card } from "@/components/ui/card";
+import { CustomQuestionModal } from "@/components/custom-question-modal";
 import {
   QuestionPrompt,
   QUESTION_CATEGORIES,
   filterQuestionsByCategory,
-  getCategoryCounts
-} from '@/lib/questions';
+  getCategoryCounts,
+} from "@/lib/questions";
 
 interface QuestionGridProps {
   questions: QuestionPrompt[];
@@ -36,10 +36,12 @@ export function QuestionGrid({
   onSkipQuestion,
   showCustomQuestionPeek = false,
   onCreateCustomQuestion,
-  showCategoryFilter = true
+  showCategoryFilter = true,
 }: QuestionGridProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [userSpicinessRatings, setUserSpicinessRatings] = useState<Record<string, number>>({});
+  const [userSpicinessRatings, setUserSpicinessRatings] = useState<
+    Record<string, number>
+  >({});
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Use the passed questions directly (already curated/filtered by parent)
@@ -57,9 +59,9 @@ export function QuestionGrid({
   }, [questions]);
 
   const handleRateSpiciness = (questionId: string, spiciness: number) => {
-    setUserSpicinessRatings(prev => ({
+    setUserSpicinessRatings((prev) => ({
       ...prev,
-      [questionId]: spiciness
+      [questionId]: spiciness,
     }));
   };
 
@@ -87,12 +89,15 @@ export function QuestionGrid({
       {/* Questions Grid - Responsive layout */}
       {sortedQuestions.length > 0 ? (
         <div className="relative">
-          <div className={`grid gap-4 ${showCustomQuestionPeek
-            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(3,1fr)_0.4fr]'
-            : sortedQuestions.length <= 3
-              ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-              : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-            }`}>
+          <div
+            className={`grid gap-4 ${
+              showCustomQuestionPeek
+                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-[repeat(3,1fr)_0.4fr]"
+                : sortedQuestions.length <= 3
+                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                  : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            }`}
+          >
             {sortedQuestions.map((question) => (
               <QuestionCard
                 key={question.id}
@@ -142,8 +147,8 @@ export function QuestionGrid({
           </div>
           <div className="text-gray-400 text-sm mt-1">
             {selectedCategories.length > 0
-              ? 'Try selecting different categories or clear your filters'
-              : 'No questions available'}
+              ? "Try selecting different categories or clear your filters"
+              : "No questions available"}
           </div>
         </div>
       )}
@@ -151,10 +156,12 @@ export function QuestionGrid({
       {/* Results Summary */}
       {sortedQuestions.length > 0 && (
         <div className="text-center text-sm text-gray-500">
-          Showing {sortedQuestions.length} question{sortedQuestions.length !== 1 ? 's' : ''}
-          {selectedCategories.length > 0 && selectedCategories.length < QUESTION_CATEGORIES.length && (
-            <> from {selectedCategories.join(', ')}</>
-          )}
+          Showing {sortedQuestions.length} question
+          {sortedQuestions.length !== 1 ? "s" : ""}
+          {selectedCategories.length > 0 &&
+            selectedCategories.length < QUESTION_CATEGORIES.length && (
+              <> from {selectedCategories.join(", ")}</>
+            )}
         </div>
       )}
 

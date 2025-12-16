@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Dialog,
@@ -6,9 +6,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { QuestionCard } from '@/components/question-card';
-import { QuestionPrompt } from '@/lib/questions';
+} from "@/components/ui/dialog";
+import { QuestionCard } from "@/components/question-card";
+import { QuestionPrompt } from "@/lib/questions";
 
 interface UnlockQuestionModalProps {
   isOpen: boolean;
@@ -43,7 +43,8 @@ export function UnlockQuestionModal({
             Answer to Unlock {targetSecretAuthor}&apos;s Secret
           </DialogTitle>
           <DialogDescription className="text-sm">
-            Share your own answer to this question (Level {requiredSpiciness}+) to see their secret
+            Share your own answer to this question (Level {requiredSpiciness}+)
+            to see their secret
           </DialogDescription>
         </DialogHeader>
 

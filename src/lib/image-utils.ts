@@ -25,7 +25,7 @@ export async function fileToBase64(file: File): Promise<string> {
     };
 
     reader.onerror = () => {
-      reject(new Error('Failed to read file'));
+      reject(new Error("Failed to read file"));
     };
 
     reader.readAsDataURL(file);
@@ -38,11 +38,11 @@ export async function fileToBase64(file: File): Promise<string> {
  */
 export function validateImageFile(
   file: File,
-  maxSizeMB: number = 5
+  maxSizeMB: number = 5,
 ): string | null {
   // Check if it's an image
-  if (!file.type.startsWith('image/')) {
-    return 'File must be an image (PNG, JPG, GIF, or WebP)';
+  if (!file.type.startsWith("image/")) {
+    return "File must be an image (PNG, JPG, GIF, or WebP)";
   }
 
   // Check file size
@@ -52,9 +52,14 @@ export function validateImageFile(
   }
 
   // Check specific formats we support
-  const supportedFormats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  const supportedFormats = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+  ];
   if (!supportedFormats.includes(file.type)) {
-    return 'Unsupported image format. Please use JPG, PNG, GIF, or WebP';
+    return "Unsupported image format. Please use JPG, PNG, GIF, or WebP";
   }
 
   return null;
@@ -64,13 +69,13 @@ export function validateImageFile(
  * Formats file size in human-readable format
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
 
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB'];
+  const sizes = ["Bytes", "KB", "MB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+  return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 }
 
 /**
@@ -87,7 +92,7 @@ export function createThumbnail(base64Image: string): string {
  * Extracts image dimensions from a base64 data URL
  */
 export async function getImageDimensions(
-  base64: string
+  base64: string,
 ): Promise<{ width: number; height: number }> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -97,7 +102,7 @@ export async function getImageDimensions(
     };
 
     img.onerror = () => {
-      reject(new Error('Failed to load image'));
+      reject(new Error("Failed to load image"));
     };
 
     img.src = base64;
@@ -110,7 +115,7 @@ export async function getImageDimensions(
  */
 export async function compressImageIfNeeded(
   file: File,
-  maxSizeMB: number = 5
+  maxSizeMB: number = 5,
 ): Promise<string> {
   const sizeMB = file.size / (1024 * 1024);
 
@@ -121,7 +126,9 @@ export async function compressImageIfNeeded(
 
   // For now, reject large files
   // In production, implement canvas-based compression
-  throw new Error(`Image is too large (${sizeMB.toFixed(1)}MB). Please choose a smaller image.`);
+  throw new Error(
+    `Image is too large (${sizeMB.toFixed(1)}MB). Please choose a smaller image.`,
+  );
 }
 
 /**
@@ -130,7 +137,7 @@ export async function compressImageIfNeeded(
  */
 export async function uploadImageToBlob(
   file: File,
-  pathname: string
+  pathname: string,
 ): Promise<string> {
   // Validate first
   const validationError = validateImageFile(file);
@@ -139,7 +146,7 @@ export async function uploadImageToBlob(
   }
 
   // Upload to Vercel Blob
-  const { uploadImage } = await import('./blob-storage');
+  const { uploadImage } = await import("./blob-storage");
   return uploadImage(file, pathname);
 }
 
@@ -148,7 +155,7 @@ export async function uploadImageToBlob(
  */
 export async function processImageForStorage(
   file: File,
-  pathname: string
+  pathname: string,
 ): Promise<{ base64: string; url: string }> {
   const validationError = validateImageFile(file);
   if (validationError) {

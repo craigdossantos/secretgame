@@ -1,10 +1,16 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { TextIcon, SlidersHorizontal, CheckSquare, Lock, Unlock } from 'lucide-react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  TextIcon,
+  SlidersHorizontal,
+  CheckSquare,
+  Lock,
+  Unlock,
+} from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
@@ -14,9 +20,9 @@ export default function Home() {
     setIsCreating(true);
 
     try {
-      const response = await fetch('/api/rooms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/rooms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           setupMode: true,
         }),
@@ -25,15 +31,15 @@ export default function Home() {
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error(data.error || 'Failed to create room');
+        toast.error(data.error || "Failed to create room");
         return;
       }
 
       // Redirect to room in setup mode
       router.push(`/rooms/${data.roomId}`);
     } catch (error) {
-      console.error('Failed to create room:', error);
-      toast.error('Failed to create room. Please try again.');
+      console.error("Failed to create room:", error);
+      toast.error("Failed to create room. Please try again.");
     } finally {
       setIsCreating(false);
     }
@@ -51,14 +57,17 @@ export default function Home() {
             <span>◆ ◆ ◆</span>
           </div>
           <p className="text-xl text-muted-foreground max-w-lg mx-auto">
-            Ask about friend&apos;s secrets. Answer anonymously. Unlock their secrets by sharing your answers.
+            Ask about friend&apos;s secrets. Answer anonymously. Unlock their
+            secrets by sharing your answers.
           </p>
         </div>
 
         {/* How It Works - Visual Explanation */}
         <div className="space-y-8 mb-12">
           <div className="text-center">
-            <h2 className="text-2xl font-serif mb-6 art-deco-text">How It Works</h2>
+            <h2 className="text-2xl font-serif mb-6 art-deco-text">
+              How It Works
+            </h2>
           </div>
 
           {/* Step 1: Choose Questions */}
@@ -67,7 +76,9 @@ export default function Home() {
               1
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2">Choose Your Questions</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                Choose Your Questions
+              </h3>
               <p className="text-muted-foreground mb-3">
                 Pick from different question types or create your own
               </p>
@@ -96,7 +107,8 @@ export default function Home() {
             <div className="flex-1">
               <h3 className="text-lg font-semibold mb-2">Everyone Answers</h3>
               <p className="text-muted-foreground">
-                Each person rates how vulnerable their answer is with 🌶️ chili peppers
+                Each person rates how vulnerable their answer is with 🌶️ chili
+                peppers
               </p>
             </div>
           </div>
@@ -107,9 +119,12 @@ export default function Home() {
               3
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2">Unlock Others&apos; Secrets</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                Unlock Others&apos; Secrets
+              </h3>
               <p className="text-muted-foreground mb-3">
-                Share a secret with matching spiciness to see someone else&apos;s answer
+                Share a secret with matching spiciness to see someone
+                else&apos;s answer
               </p>
               <div className="flex gap-3">
                 <div className="flex-1 p-4 rounded-lg bg-card border border-border text-center">
@@ -117,11 +132,15 @@ export default function Home() {
                   <div className="text-sm text-muted-foreground">Locked</div>
                   <div className="text-xs mt-1">Need 🌶️🌶️🌶️</div>
                 </div>
-                <div className="flex items-center justify-center text-2xl">→</div>
+                <div className="flex items-center justify-center text-2xl">
+                  →
+                </div>
                 <div className="flex-1 p-4 rounded-lg bg-primary/10 border border-primary text-center">
                   <Unlock className="w-6 h-6 mx-auto mb-2 text-primary" />
                   <div className="text-sm font-medium">Unlocked!</div>
-                  <div className="text-xs mt-1 text-muted-foreground">You shared 🌶️🌶️🌶️</div>
+                  <div className="text-xs mt-1 text-muted-foreground">
+                    You shared 🌶️🌶️🌶️
+                  </div>
                 </div>
               </div>
             </div>
@@ -135,7 +154,8 @@ export default function Home() {
             <div className="flex-1">
               <h3 className="text-lg font-semibold mb-2">Connect Deeper</h3>
               <p className="text-muted-foreground">
-                The more vulnerable you are, the more you unlock. Build genuine connections.
+                The more vulnerable you are, the more you unlock. Build genuine
+                connections.
               </p>
             </div>
           </div>
@@ -149,7 +169,7 @@ export default function Home() {
             className="art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 px-12 py-6 text-lg art-deco-text art-deco-glow h-auto"
             size="lg"
           >
-            {isCreating ? 'Creating Room...' : 'Create Room'}
+            {isCreating ? "Creating Room..." : "Create Room"}
           </Button>
           <p className="text-sm text-muted-foreground mt-4">
             Free to use · No sign up required · Private by default

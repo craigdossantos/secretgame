@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 export async function GET() {
   try {
@@ -7,12 +7,15 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       hasSession: !!session,
-      user: session?.user || null
+      user: session?.user || null,
     });
   } catch (error) {
-    return NextResponse.json({
-      success: false,
-      error: String(error)
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: String(error),
+      },
+      { status: 500 },
+    );
   }
 }

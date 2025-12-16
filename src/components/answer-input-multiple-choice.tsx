@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Input } from '@/components/ui/input';
-import { MultipleChoiceConfig } from '@/lib/questions';
+import { useState } from "react";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
+import { MultipleChoiceConfig } from "@/lib/questions";
 
 interface AnswerInputMultipleChoiceProps {
   config: MultipleChoiceConfig;
@@ -16,21 +16,21 @@ interface AnswerInputMultipleChoiceProps {
 export function AnswerInputMultipleChoice({
   config,
   value,
-  onChange
+  onChange,
 }: AnswerInputMultipleChoiceProps) {
   const { options, allowMultiple, allowCustomOptions } = config;
-  const [customOptionText, setCustomOptionText] = useState('');
+  const [customOptionText, setCustomOptionText] = useState("");
   const [isCustomSelected, setIsCustomSelected] = useState(false);
 
   // Check if current value contains a custom option (not in predefined options)
-  const customValue = value.find(v => !options.includes(v)) || '';
+  const customValue = value.find((v) => !options.includes(v)) || "";
   if (customValue && customValue !== customOptionText) {
     setCustomOptionText(customValue);
     setIsCustomSelected(true);
   }
 
   const handleSingleSelect = (selectedValue: string) => {
-    if (selectedValue === '__custom__') {
+    if (selectedValue === "__custom__") {
       setIsCustomSelected(true);
       // Don't update value yet - wait for text input
       onChange([]);
@@ -41,20 +41,20 @@ export function AnswerInputMultipleChoice({
   };
 
   const handleMultipleSelect = (option: string, checked: boolean) => {
-    if (option === '__custom__') {
+    if (option === "__custom__") {
       setIsCustomSelected(checked);
       if (!checked) {
         // Remove custom option if unchecked
-        setCustomOptionText('');
-        onChange(value.filter(v => options.includes(v)));
+        setCustomOptionText("");
+        onChange(value.filter((v) => options.includes(v)));
       }
     } else {
       if (checked) {
         // Remove any existing custom value and add selected option
-        const newValue = [...value.filter(v => options.includes(v)), option];
+        const newValue = [...value.filter((v) => options.includes(v)), option];
         onChange(newValue);
       } else {
-        onChange(value.filter(v => v !== option));
+        onChange(value.filter((v) => v !== option));
       }
     }
   };
@@ -64,7 +64,7 @@ export function AnswerInputMultipleChoice({
     if (text.trim()) {
       if (allowMultiple) {
         // Keep predefined selections and add/update custom text
-        const baseSelections = value.filter(v => options.includes(v));
+        const baseSelections = value.filter((v) => options.includes(v));
         onChange([...baseSelections, text.trim()]);
       } else {
         // Replace entire value with custom text
@@ -72,7 +72,7 @@ export function AnswerInputMultipleChoice({
       }
     } else if (allowMultiple) {
       // Clear custom text but keep predefined selections
-      onChange(value.filter(v => options.includes(v)));
+      onChange(value.filter((v) => options.includes(v)));
     } else {
       // Clear value entirely
       onChange([]);
@@ -90,7 +90,9 @@ export function AnswerInputMultipleChoice({
               <Checkbox
                 id={`option-${index}`}
                 checked={value.includes(option)}
-                onCheckedChange={(checked) => handleMultipleSelect(option, checked as boolean)}
+                onCheckedChange={(checked) =>
+                  handleMultipleSelect(option, checked as boolean)
+                }
                 className="h-5 w-5 rounded border-2 border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
               />
               <label
@@ -109,7 +111,9 @@ export function AnswerInputMultipleChoice({
                 <Checkbox
                   id="option-custom"
                   checked={isCustomSelected}
-                  onCheckedChange={(checked) => handleMultipleSelect('__custom__', checked as boolean)}
+                  onCheckedChange={(checked) =>
+                    handleMultipleSelect("__custom__", checked as boolean)
+                  }
                   className="h-5 w-5 rounded border-2 border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                 />
                 <label
@@ -134,7 +138,7 @@ export function AnswerInputMultipleChoice({
         </div>
         {value.length > 0 && (
           <p className="text-xs text-gray-500 mt-2">
-            {value.length} option{value.length !== 1 ? 's' : ''} selected
+            {value.length} option{value.length !== 1 ? "s" : ""} selected
           </p>
         )}
       </div>
@@ -146,7 +150,7 @@ export function AnswerInputMultipleChoice({
     <div className="space-y-3">
       <Label className="text-sm text-gray-700">Select one option:</Label>
       <RadioGroup
-        value={isCustomSelected ? '__custom__' : (value[0] || '')}
+        value={isCustomSelected ? "__custom__" : value[0] || ""}
         onValueChange={handleSingleSelect}
       >
         <div className="space-y-2">

@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Lock, Users, Loader2 } from 'lucide-react';
-import { SecretAnswerDisplay } from '@/components/secret-answer-display';
-import { MCCollaborativeDisplay } from '@/components/mc-collaborative-display';
-import { toast } from 'sonner';
-import { QuestionPrompt } from '@/lib/questions';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Lock, Users, Loader2 } from "lucide-react";
+import { SecretAnswerDisplay } from "@/components/secret-answer-display";
+import { MCCollaborativeDisplay } from "@/components/mc-collaborative-display";
+import { toast } from "sonner";
+import { QuestionPrompt } from "@/lib/questions";
 
 interface CollaborativeAnswer {
   id: string;
@@ -40,7 +40,7 @@ interface CollaborativeAnswersModalProps {
   onOpenChange: (open: boolean) => void;
   questionId: string;
   questionText: string;
-  question?: QuestionPrompt;  // Optional full question object with config
+  question?: QuestionPrompt; // Optional full question object with config
   roomId: string;
   onUnlock?: (secretId: string) => void;
 }
@@ -66,25 +66,25 @@ export function CollaborativeAnswersModal({
 
       // Get current user ID from cookies
       const userId = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('userId='))
-        ?.split('=')[1];
+        .split("; ")
+        .find((row) => row.startsWith("userId="))
+        ?.split("=")[1];
       setCurrentUserId(userId || null);
 
       const response = await fetch(
-        `/api/questions/${questionId}/answers?roomId=${roomId}`
+        `/api/questions/${questionId}/answers?roomId=${roomId}`,
       );
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to load answers');
+        throw new Error(data.error || "Failed to load answers");
       }
 
       setAnswers(data.answers || []);
     } catch (err) {
-      console.error('Failed to load collaborative answers:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load answers');
-      toast.error('Failed to load answers');
+      console.error("Failed to load collaborative answers:", err);
+      setError(err instanceof Error ? err.message : "Failed to load answers");
+      toast.error("Failed to load answers");
     } finally {
       setLoading(false);
     }
@@ -123,11 +123,7 @@ export function CollaborativeAnswersModal({
         {error && !loading && (
           <div className="text-center py-8">
             <p className="text-sm text-destructive">{error}</p>
-            <Button
-              variant="outline"
-              onClick={loadAnswers}
-              className="mt-4"
-            >
+            <Button variant="outline" onClick={loadAnswers} className="mt-4">
               Try Again
             </Button>
           </div>
@@ -140,7 +136,8 @@ export function CollaborativeAnswersModal({
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Users className="h-4 w-4" />
               <span>
-                {answers.length} {answers.length === 1 ? 'person' : 'people'} answered
+                {answers.length} {answers.length === 1 ? "person" : "people"}{" "}
+                answered
               </span>
             </div>
 
@@ -152,22 +149,24 @@ export function CollaborativeAnswersModal({
             )}
 
             {/* Multiple Choice Collaborative Display */}
-            {question?.questionType === 'multipleChoice' &&
+            {question?.questionType === "multipleChoice" &&
               question?.answerConfig &&
-              question.answerConfig.type === 'multipleChoice' &&
+              question.answerConfig.type === "multipleChoice" &&
               currentUserId &&
-              answers.every(a => a.isUnlocked) && (
+              answers.every((a) => a.isUnlocked) && (
                 <div className="border rounded-lg p-4 bg-card/50">
                   <MCCollaborativeDisplay
                     options={question.answerConfig.config.options}
                     answers={answers
-                      .filter(a => a.answerData && a.isUnlocked)
-                      .map(a => ({
+                      .filter((a) => a.answerData && a.isUnlocked)
+                      .map((a) => ({
                         userId: a.authorId,
                         userName: a.authorName,
                         userAvatar: a.authorAvatar,
                         isAnonymous: a.isAnonymous,
-                        selected: ((a.answerData as { selected?: string[] })?.selected || []),
+                        selected:
+                          (a.answerData as { selected?: string[] })?.selected ||
+                          [],
                       }))}
                     currentUserId={currentUserId}
                   />
@@ -186,7 +185,9 @@ export function CollaborativeAnswersModal({
                     {answer.isAnonymous ? (
                       <>
                         <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
-                          <span className="text-sm font-medium text-primary">?</span>
+                          <span className="text-sm font-medium text-primary">
+                            ?
+                          </span>
                         </div>
                         <span className="text-sm font-medium text-muted-foreground">
                           Anonymous
@@ -200,7 +201,9 @@ export function CollaborativeAnswersModal({
                             {answer.authorName.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm font-medium">{answer.authorName}</span>
+                        <span className="text-sm font-medium">
+                          {answer.authorName}
+                        </span>
                       </>
                     )}
                     {answer.isOwnSecret && (
@@ -223,11 +226,11 @@ export function CollaborativeAnswersModal({
                 {/* Answer content */}
                 {answer.isUnlocked ? (
                   <div className="space-y-2">
-                    {answer.answerType && answer.answerType !== 'text' ? (
+                    {answer.answerType && answer.answerType !== "text" ? (
                       <SecretAnswerDisplay
                         answerType={answer.answerType}
                         answerData={answer.answerData}
-                        body={answer.body || ''}
+                        body={answer.body || ""}
                       />
                     ) : (
                       <p className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -255,16 +258,20 @@ export function CollaborativeAnswersModal({
                 {answer.isUnlocked && (
                   <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2 border-t">
                     <span>
-                      {answer.buyersCount} {answer.buyersCount === 1 ? 'unlock' : 'unlocks'}
+                      {answer.buyersCount}{" "}
+                      {answer.buyersCount === 1 ? "unlock" : "unlocks"}
                     </span>
                     {answer.avgRating && (
                       <span>★ {answer.avgRating.toFixed(1)} avg rating</span>
                     )}
                     <span>
-                      {new Date(answer.createdAt).toLocaleDateString(undefined, {
-                        month: 'short',
-                        day: 'numeric',
-                      })}
+                      {new Date(answer.createdAt).toLocaleDateString(
+                        undefined,
+                        {
+                          month: "short",
+                          day: "numeric",
+                        },
+                      )}
                     </span>
                   </div>
                 )}

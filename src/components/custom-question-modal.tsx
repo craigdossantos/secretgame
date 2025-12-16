@@ -1,18 +1,24 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChiliRating } from '@/components/chili-rating';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ChiliRating } from "@/components/chili-rating";
 import {
   QuestionPrompt,
   QuestionCategory,
@@ -21,9 +27,15 @@ import {
   QUESTION_TYPE_LABELS,
   QUESTION_TYPE_DESCRIPTIONS,
   createNewQuestion,
-  Tag
-} from '@/lib/questions';
-import { MessageSquare, SlidersHorizontal, CheckSquare, Plus, X } from 'lucide-react';
+  Tag,
+} from "@/lib/questions";
+import {
+  MessageSquare,
+  SlidersHorizontal,
+  CheckSquare,
+  Plus,
+  X,
+} from "lucide-react";
 
 interface CustomQuestionModalProps {
   isOpen: boolean;
@@ -36,24 +48,28 @@ export function CustomQuestionModal({
   isOpen,
   onClose,
   onCreateQuestion,
-  initialQuestion
+  initialQuestion,
 }: CustomQuestionModalProps) {
   // Basic question state
-  const [questionText, setQuestionText] = useState('');
-  const [questionType, setQuestionType] = useState<QuestionType>('text');
-  const [category, setCategory] = useState<QuestionCategory>('Personal');
+  const [questionText, setQuestionText] = useState("");
+  const [questionType, setQuestionType] = useState<QuestionType>("text");
+  const [category, setCategory] = useState<QuestionCategory>("Personal");
   const [spiciness, setSpiciness] = useState(3);
   const [isCreating, setIsCreating] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // Slider configuration state
   const [sliderMin, setSliderMin] = useState(1);
   const [sliderMax, setSliderMax] = useState(10);
-  const [sliderMinLabel, setSliderMinLabel] = useState('Not at all');
-  const [sliderMaxLabel, setSliderMaxLabel] = useState('Extremely');
+  const [sliderMinLabel, setSliderMinLabel] = useState("Not at all");
+  const [sliderMaxLabel, setSliderMaxLabel] = useState("Extremely");
 
   // Multiple choice configuration state
-  const [mcOptions, setMcOptions] = useState<string[]>(['Option 1', 'Option 2', 'Option 3']);
+  const [mcOptions, setMcOptions] = useState<string[]>([
+    "Option 1",
+    "Option 2",
+    "Option 3",
+  ]);
   const [mcAllowMultiple, setMcAllowMultiple] = useState(false);
   const [mcAllowCustomOptions, setMcAllowCustomOptions] = useState(false);
 
@@ -61,18 +77,19 @@ export function CustomQuestionModal({
   const [allowImageUpload, setAllowImageUpload] = useState(false);
 
   // Simple validation - only require question text and max 200 chars
-  const isFormValid = questionText.trim().length > 0 && questionText.trim().length <= 200;
+  const isFormValid =
+    questionText.trim().length > 0 && questionText.trim().length <= 200;
 
   // Populate form when editing existing question
   useEffect(() => {
     if (initialQuestion) {
       setQuestionText(initialQuestion.question);
-      setQuestionType(initialQuestion.questionType || 'text');
+      setQuestionType(initialQuestion.questionType || "text");
       setCategory(initialQuestion.category as QuestionCategory);
       setSpiciness(initialQuestion.suggestedLevel);
 
       // Populate slider config if present
-      if (initialQuestion.answerConfig?.type === 'slider') {
+      if (initialQuestion.answerConfig?.type === "slider") {
         const config = initialQuestion.answerConfig.config;
         setSliderMin(config.min);
         setSliderMax(config.max);
@@ -81,7 +98,7 @@ export function CustomQuestionModal({
       }
 
       // Populate multiple choice config if present
-      if (initialQuestion.answerConfig?.type === 'multipleChoice') {
+      if (initialQuestion.answerConfig?.type === "multipleChoice") {
         const config = initialQuestion.answerConfig.config;
         setMcOptions(config.options);
         setMcAllowMultiple(config.allowMultiple);
@@ -97,24 +114,22 @@ export function CustomQuestionModal({
     e.preventDefault();
     if (!isFormValid) return;
 
-    setError('');
+    setError("");
     setIsCreating(true);
 
     try {
       // Add custom tag
-      const additionalTags: Tag[] = [
-        { name: 'custom', type: 'format' }
-      ];
+      const additionalTags: Tag[] = [{ name: "custom", type: "format" }];
 
       const newQuestion = initialQuestion
         ? { ...initialQuestion } // Preserve existing question properties when editing
         : createNewQuestion(
-          questionText.trim(),
-          category,
-          spiciness,
-          'medium',
-          additionalTags
-        );
+            questionText.trim(),
+            category,
+            spiciness,
+            "medium",
+            additionalTags,
+          );
 
       // Update the question text, category, and spiciness
       newQuestion.question = questionText.trim();
@@ -125,54 +140,54 @@ export function CustomQuestionModal({
       newQuestion.questionType = questionType;
 
       // Add type-specific configuration
-      if (questionType === 'slider') {
+      if (questionType === "slider") {
         newQuestion.answerConfig = {
-          type: 'slider',
+          type: "slider",
           config: {
             min: sliderMin,
             max: sliderMax,
             minLabel: sliderMinLabel,
             maxLabel: sliderMaxLabel,
-            step: 1
-          }
+            step: 1,
+          },
         };
-      } else if (questionType === 'multipleChoice') {
+      } else if (questionType === "multipleChoice") {
         newQuestion.answerConfig = {
-          type: 'multipleChoice',
+          type: "multipleChoice",
           config: {
-            options: mcOptions.filter(opt => opt.trim().length > 0),
+            options: mcOptions.filter((opt) => opt.trim().length > 0),
             allowMultiple: mcAllowMultiple,
             allowCustomOptions: mcAllowCustomOptions,
-            showDistribution: true
-          }
+            showDistribution: true,
+          },
         };
       } else {
-        newQuestion.answerConfig = { type: 'text' };
+        newQuestion.answerConfig = { type: "text" };
       }
 
       // Add image upload permission for text questions
-      if (questionType === 'text') {
+      if (questionType === "text") {
         newQuestion.allowImageUpload = allowImageUpload;
       }
 
       onCreateQuestion(newQuestion);
 
       // Reset form
-      setQuestionText('');
-      setQuestionType('text');
-      setCategory('Personal');
+      setQuestionText("");
+      setQuestionType("text");
+      setCategory("Personal");
       setSpiciness(3);
       setSliderMin(1);
       setSliderMax(10);
-      setSliderMinLabel('Not at all');
-      setSliderMaxLabel('Extremely');
-      setMcOptions(['Option 1', 'Option 2', 'Option 3']);
+      setSliderMinLabel("Not at all");
+      setSliderMaxLabel("Extremely");
+      setMcOptions(["Option 1", "Option 2", "Option 3"]);
       setMcAllowMultiple(false);
       setMcAllowCustomOptions(false);
       setAllowImageUpload(false);
       onClose();
     } catch {
-      setError('Failed to create question. Please try again.');
+      setError("Failed to create question. Please try again.");
     } finally {
       setIsCreating(false);
     }
@@ -180,19 +195,19 @@ export function CustomQuestionModal({
 
   const handleClose = () => {
     if (isCreating) return;
-    setQuestionText('');
-    setQuestionType('text');
-    setCategory('Personal');
+    setQuestionText("");
+    setQuestionType("text");
+    setCategory("Personal");
     setSpiciness(3);
     setSliderMin(1);
     setSliderMax(10);
-    setSliderMinLabel('Not at all');
-    setSliderMaxLabel('Extremely');
-    setMcOptions(['Option 1', 'Option 2', 'Option 3']);
+    setSliderMinLabel("Not at all");
+    setSliderMaxLabel("Extremely");
+    setMcOptions(["Option 1", "Option 2", "Option 3"]);
     setMcAllowMultiple(false);
     setMcAllowCustomOptions(false);
     setAllowImageUpload(false);
-    setError('');
+    setError("");
     onClose();
   };
 
@@ -200,7 +215,7 @@ export function CustomQuestionModal({
   const typeIcons = {
     text: MessageSquare,
     slider: SlidersHorizontal,
-    multipleChoice: CheckSquare
+    multipleChoice: CheckSquare,
   };
 
   // Multiple choice handlers
@@ -224,7 +239,7 @@ export function CustomQuestionModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
         <DialogHeader className="p-6 pb-4">
           <DialogTitle className="text-xl font-serif">
-            {initialQuestion ? 'Edit Question' : 'Add a Question'}
+            {initialQuestion ? "Edit Question" : "Add a Question"}
           </DialogTitle>
         </DialogHeader>
 
@@ -242,7 +257,11 @@ export function CustomQuestionModal({
                 maxLength={200}
               />
               <div className="flex justify-end text-xs text-muted-foreground">
-                <span className={questionText.length > 200 ? 'text-destructive' : ''}>
+                <span
+                  className={
+                    questionText.length > 200 ? "text-destructive" : ""
+                  }
+                >
                   {questionText.length}/200
                 </span>
               </div>
@@ -252,51 +271,62 @@ export function CustomQuestionModal({
             <div className="space-y-3">
               <Label>Answer Type *</Label>
               <div className="grid grid-cols-3 gap-3">
-                {(['text', 'slider', 'multipleChoice'] as QuestionType[]).map((type) => {
-                  const Icon = typeIcons[type];
-                  const isSelected = questionType === type;
+                {(["text", "slider", "multipleChoice"] as QuestionType[]).map(
+                  (type) => {
+                    const Icon = typeIcons[type];
+                    const isSelected = questionType === type;
 
-                  return (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => setQuestionType(type)}
-                      className={`
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setQuestionType(type)}
+                        className={`
                         relative p-4 rounded-lg border transition-all
                         flex flex-col items-center gap-2 text-center
-                        ${isSelected
-                          ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
-                          : 'border-border hover:border-primary/40 hover:bg-accent/30'
+                        ${
+                          isSelected
+                            ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                            : "border-border hover:border-primary/40 hover:bg-accent/30"
                         }
                       `}
-                    >
-                      <Icon className={`w-5 h-5 ${isSelected ? 'text-primary' : 'text-muted-foreground'}`} />
-                      <div className="space-y-0.5">
-                        <div className={`text-xs font-medium ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}>
-                          {QUESTION_TYPE_LABELS[type]}
+                      >
+                        <Icon
+                          className={`w-5 h-5 ${isSelected ? "text-primary" : "text-muted-foreground"}`}
+                        />
+                        <div className="space-y-0.5">
+                          <div
+                            className={`text-xs font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}
+                          >
+                            {QUESTION_TYPE_LABELS[type]}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground/70 leading-tight">
+                            {QUESTION_TYPE_DESCRIPTIONS[type]}
+                          </div>
                         </div>
-                        <div className="text-[10px] text-muted-foreground/70 leading-tight">
-                          {QUESTION_TYPE_DESCRIPTIONS[type]}
-                        </div>
-                      </div>
-                      {isSelected && (
-                        <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-primary" />
-                      )}
-                    </button>
-                  );
-                })}
+                        {isSelected && (
+                          <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-primary" />
+                        )}
+                      </button>
+                    );
+                  },
+                )}
               </div>
             </div>
 
             {/* Slider Configuration (Progressive Disclosure) */}
-            {questionType === 'slider' && (
+            {questionType === "slider" && (
               <div className="space-y-4 p-4 rounded-lg border border-border bg-accent/20">
-                <div className="text-sm font-medium text-foreground">Slider Configuration</div>
+                <div className="text-sm font-medium text-foreground">
+                  Slider Configuration
+                </div>
 
                 {/* Min/Max Values */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="slider-min" className="text-xs">Minimum Value</Label>
+                    <Label htmlFor="slider-min" className="text-xs">
+                      Minimum Value
+                    </Label>
                     <Input
                       id="slider-min"
                       type="number"
@@ -306,7 +336,9 @@ export function CustomQuestionModal({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="slider-max" className="text-xs">Maximum Value</Label>
+                    <Label htmlFor="slider-max" className="text-xs">
+                      Maximum Value
+                    </Label>
                     <Input
                       id="slider-max"
                       type="number"
@@ -320,7 +352,9 @@ export function CustomQuestionModal({
                 {/* Min/Max Labels */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="slider-min-label" className="text-xs">Left Label</Label>
+                    <Label htmlFor="slider-min-label" className="text-xs">
+                      Left Label
+                    </Label>
                     <Input
                       id="slider-min-label"
                       type="text"
@@ -331,7 +365,9 @@ export function CustomQuestionModal({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="slider-max-label" className="text-xs">Right Label</Label>
+                    <Label htmlFor="slider-max-label" className="text-xs">
+                      Right Label
+                    </Label>
                     <Input
                       id="slider-max-label"
                       type="text"
@@ -345,21 +381,29 @@ export function CustomQuestionModal({
 
                 {/* Preview */}
                 <div className="pt-2 border-t border-border/50">
-                  <div className="text-xs text-muted-foreground mb-2">Preview:</div>
+                  <div className="text-xs text-muted-foreground mb-2">
+                    Preview:
+                  </div>
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">{sliderMin} {sliderMinLabel && `(${sliderMinLabel})`}</span>
+                    <span className="text-muted-foreground">
+                      {sliderMin} {sliderMinLabel && `(${sliderMinLabel})`}
+                    </span>
                     <div className="flex-1 mx-3 h-1 bg-border rounded" />
-                    <span className="text-muted-foreground">{sliderMax} {sliderMaxLabel && `(${sliderMaxLabel})`}</span>
+                    <span className="text-muted-foreground">
+                      {sliderMax} {sliderMaxLabel && `(${sliderMaxLabel})`}
+                    </span>
                   </div>
                 </div>
               </div>
             )}
 
             {/* Multiple Choice Configuration (Progressive Disclosure) */}
-            {questionType === 'multipleChoice' && (
+            {questionType === "multipleChoice" && (
               <div className="space-y-4 p-4 rounded-lg border border-border bg-accent/20">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-foreground">Multiple Choice Options</div>
+                  <div className="text-sm font-medium text-foreground">
+                    Multiple Choice Options
+                  </div>
                   <Button
                     type="button"
                     variant="ghost"
@@ -401,21 +445,25 @@ export function CustomQuestionModal({
                 {/* Allow Multiple Selection Toggle */}
                 <div className="flex items-center justify-between pt-2 border-t border-border/50">
                   <div className="space-y-0.5">
-                    <div className="text-xs font-medium">Allow Multiple Selections</div>
-                    <div className="text-[10px] text-muted-foreground">Users can select more than one option</div>
+                    <div className="text-xs font-medium">
+                      Allow Multiple Selections
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">
+                      Users can select more than one option
+                    </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => setMcAllowMultiple(!mcAllowMultiple)}
                     className={`
                       relative inline-flex h-5 w-9 items-center rounded-full transition-colors
-                      ${mcAllowMultiple ? 'bg-primary' : 'bg-border'}
+                      ${mcAllowMultiple ? "bg-primary" : "bg-border"}
                     `}
                   >
                     <span
                       className={`
                         inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform
-                        ${mcAllowMultiple ? 'translate-x-5' : 'translate-x-0.5'}
+                        ${mcAllowMultiple ? "translate-x-5" : "translate-x-0.5"}
                       `}
                     />
                   </button>
@@ -424,21 +472,27 @@ export function CustomQuestionModal({
                 {/* Allow Custom Options Toggle */}
                 <div className="flex items-center justify-between pt-2 border-t border-border/50">
                   <div className="space-y-0.5">
-                    <div className="text-xs font-medium">Allow Custom Options</div>
-                    <div className="text-[10px] text-muted-foreground">Users can enter their own &quot;Other&quot; answer</div>
+                    <div className="text-xs font-medium">
+                      Allow Custom Options
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">
+                      Users can enter their own &quot;Other&quot; answer
+                    </div>
                   </div>
                   <button
                     type="button"
-                    onClick={() => setMcAllowCustomOptions(!mcAllowCustomOptions)}
+                    onClick={() =>
+                      setMcAllowCustomOptions(!mcAllowCustomOptions)
+                    }
                     className={`
                       relative inline-flex h-5 w-9 items-center rounded-full transition-colors
-                      ${mcAllowCustomOptions ? 'bg-primary' : 'bg-border'}
+                      ${mcAllowCustomOptions ? "bg-primary" : "bg-border"}
                     `}
                   >
                     <span
                       className={`
                         inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform
-                        ${mcAllowCustomOptions ? 'translate-x-5' : 'translate-x-0.5'}
+                        ${mcAllowCustomOptions ? "translate-x-5" : "translate-x-0.5"}
                       `}
                     />
                   </button>
@@ -447,14 +501,18 @@ export function CustomQuestionModal({
             )}
 
             {/* Text Question Configuration (Image Upload Option) */}
-            {questionType === 'text' && (
+            {questionType === "text" && (
               <div className="space-y-3 p-4 rounded-lg border border-border bg-accent/20">
-                <div className="text-sm font-medium text-foreground">Text Answer Options</div>
+                <div className="text-sm font-medium text-foreground">
+                  Text Answer Options
+                </div>
 
                 {/* Allow Image Upload Toggle */}
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5 flex-1">
-                    <div className="text-xs font-medium">Allow Image Upload</div>
+                    <div className="text-xs font-medium">
+                      Allow Image Upload
+                    </div>
                     <div className="text-[10px] text-muted-foreground">
                       Users can upload an image instead of typing text
                     </div>
@@ -464,14 +522,18 @@ export function CustomQuestionModal({
                     onClick={() => setAllowImageUpload(!allowImageUpload)}
                     className={`
                       relative inline-flex h-5 w-9 items-center rounded-full transition-colors
-                      ${allowImageUpload ? 'bg-green-500' : 'bg-gray-300'}
+                      ${allowImageUpload ? "bg-green-500" : "bg-gray-300"}
                     `}
-                    aria-label={allowImageUpload ? 'Image upload enabled' : 'Image upload disabled'}
+                    aria-label={
+                      allowImageUpload
+                        ? "Image upload enabled"
+                        : "Image upload disabled"
+                    }
                   >
                     <span
                       className={`
                         inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm transition-transform
-                        ${allowImageUpload ? 'translate-x-5' : 'translate-x-0.5'}
+                        ${allowImageUpload ? "translate-x-5" : "translate-x-0.5"}
                       `}
                     />
                   </button>
@@ -480,7 +542,8 @@ export function CustomQuestionModal({
                 {allowImageUpload && (
                   <div className="pt-2 border-t border-border/50">
                     <div className="text-[10px] text-muted-foreground leading-relaxed">
-                      💡 Images will be limited to 5MB and support JPG, PNG, GIF, and WebP formats. Users can add an optional caption.
+                      💡 Images will be limited to 5MB and support JPG, PNG,
+                      GIF, and WebP formats. Users can add an optional caption.
                     </div>
                   </div>
                 )}
@@ -493,7 +556,10 @@ export function CustomQuestionModal({
             {/* Category */}
             <div className="space-y-2">
               <Label>Category *</Label>
-              <Select value={category} onValueChange={(value: QuestionCategory) => setCategory(value)}>
+              <Select
+                value={category}
+                onValueChange={(value: QuestionCategory) => setCategory(value)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -517,11 +583,11 @@ export function CustomQuestionModal({
                   size="md"
                 />
                 <div className="text-xs text-muted-foreground">
-                  {spiciness === 1 && 'Mild - Safe topics'}
-                  {spiciness === 2 && 'Medium - Slightly personal'}
-                  {spiciness === 3 && 'Hot - Personal but comfortable'}
-                  {spiciness === 4 && 'Very Hot - Quite personal'}
-                  {spiciness === 5 && 'Extreme - Very private/sensitive'}
+                  {spiciness === 1 && "Mild - Safe topics"}
+                  {spiciness === 2 && "Medium - Slightly personal"}
+                  {spiciness === 3 && "Hot - Personal but comfortable"}
+                  {spiciness === 4 && "Very Hot - Quite personal"}
+                  {spiciness === 5 && "Extreme - Very private/sensitive"}
                 </div>
               </div>
             </div>
@@ -549,7 +615,13 @@ export function CustomQuestionModal({
                 disabled={!isFormValid || isCreating}
                 className="flex-1"
               >
-                {isCreating ? (initialQuestion ? 'Saving...' : 'Adding...') : (initialQuestion ? 'Save Question' : 'Add Question')}
+                {isCreating
+                  ? initialQuestion
+                    ? "Saving..."
+                    : "Adding..."
+                  : initialQuestion
+                    ? "Save Question"
+                    : "Add Question"}
               </Button>
             </div>
           </form>

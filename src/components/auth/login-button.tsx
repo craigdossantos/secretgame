@@ -1,17 +1,20 @@
-'use client';
+"use client";
 
-import { signIn } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
-import { LogIn } from 'lucide-react';
+import { signIn } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { LogIn } from "lucide-react";
 
 interface LoginButtonProps {
   redirectTo?: string;
-  variant?: 'default' | 'outline' | 'ghost';
+  variant?: "default" | "outline" | "ghost";
 }
 
-export function LoginButton({ redirectTo = '/', variant = 'default' }: LoginButtonProps) {
+export function LoginButton({
+  redirectTo = "/",
+  variant = "default",
+}: LoginButtonProps) {
   const handleLogin = async () => {
-    await signIn('google', { callbackUrl: redirectTo });
+    await signIn("google", { callbackUrl: redirectTo });
   };
 
   return (

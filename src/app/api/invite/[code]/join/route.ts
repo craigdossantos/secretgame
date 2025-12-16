@@ -1,21 +1,18 @@
-import { NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
+import { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
 import {
   findRoomByInviteCode,
   countRoomMembers,
   findRoomMember,
   insertRoomMember,
-  upsertUser
-} from '@/lib/db/supabase';
-import {
-  errorResponse,
-  successResponse
-} from '@/lib/api/helpers';
+  upsertUser,
+} from "@/lib/db/supabase";
+import { errorResponse, successResponse } from "@/lib/api/helpers";
 
 // POST /api/invite/[code]/join - Join a room via invite code
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ code: string }> }
+  context: { params: Promise<{ code: string }> },
 ) {
   try {
     const { code } = await context.params;
@@ -26,7 +23,10 @@ export async function POST(
     const session = await auth();
     if (!session?.user?.id) {
       console.log(`❌ No authentication session found`);
-      return errorResponse('Authentication required. Please sign in first.', 401);
+      return errorResponse(
+        "Authentication required. Please sign in first.",
+        401,
+      );
     }
 
     const userId = session.user.id;
@@ -37,7 +37,7 @@ export async function POST(
     await upsertUser({
       id: userId,
       email: session.user.email!,
-      name: session.user.name || 'Anonymous',
+      name: session.user.name || "Anonymous",
       avatarUrl: session.user.image || null,
     });
 
@@ -46,7 +46,7 @@ export async function POST(
 
     if (!room) {
       console.log(`❌ Invalid invite code: ${code}`);
-      return errorResponse('Invalid invite code', 404);
+      return errorResponse("Invalid invite code", 404);
     }
 
     console.log(`🏠 Found room: ${room.name}`);
@@ -54,8 +54,10 @@ export async function POST(
     // Check room capacity
     const memberCount = await countRoomMembers(room.id);
     if (memberCount >= room.maxMembers) {
-      console.log(`❌ Room is full: ${room.name} (${memberCount}/${room.maxMembers})`);
-      return errorResponse('This room is full', 403);
+      console.log(
+        `❌ Room is full: ${room.name} (${memberCount}/${room.maxMembers})`,
+      );
+      return errorResponse("This room is full", 403);
     }
 
     console.log(`👥 Room has ${memberCount}/${room.maxMembers} members`);
@@ -75,13 +77,13 @@ export async function POST(
 
     const responseData = {
       roomId: room.id,
-      roomName: room.name || 'Secret Room',
+      roomName: room.name || "Secret Room",
       userId,
     };
 
     return successResponse(responseData);
   } catch (error) {
-    console.error('❌ Failed to join room:', error);
-    return errorResponse('Failed to join room', 500);
+    console.error("❌ Failed to join room:", error);
+    return errorResponse("Failed to join room", 500);
   }
 }

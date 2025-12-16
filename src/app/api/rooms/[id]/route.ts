@@ -1,20 +1,18 @@
-import { NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
+import { NextRequest } from "next/server";
+import { auth } from "@/lib/auth";
 import {
   findRoomById,
   findRoomMember,
   countRoomMembers,
   findRoomQuestions,
-} from '@/lib/db/supabase';
-import {
-  errorResponse,
-  successResponse
-} from '@/lib/api/helpers';
+  updateRoom,
+} from "@/lib/db/supabase";
+import { errorResponse, successResponse } from "@/lib/api/helpers";
 
 // GET /api/rooms/[id] - Get room details and secrets
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const roomId = (await params).id;
@@ -26,21 +24,21 @@ export async function GET(
 
     if (!userId) {
       const cookieStore = request.cookies;
-      userId = cookieStore.get('userId')?.value;
+      userId = cookieStore.get("userId")?.value;
     }
 
     if (!userId) {
-      return errorResponse('Authentication required', 401);
+      return errorResponse("Authentication required", 401);
     }
 
     // Get room details from Supabase
-    console.log(`🔍 Looking for room: ${roomId}`);
+    console.log(`🔍 Looking for room: ${roomId} `);
     const room = await findRoomById(roomId);
-    console.log(`🏠 Found room:`, room ? 'YES' : 'NO');
+    console.log(`🏠 Found room: `, room ? "YES" : "NO");
 
     if (!room) {
       console.log(`❌ Room ${roomId} not found in database`);
-      return errorResponse('Room not found', 404);
+      return errorResponse("Room not found", 404);
     }
 
     // Check if user is a member
@@ -63,12 +61,12 @@ export async function GET(
 
     // Separate curated questions (have questionId) from custom questions
     const questionIds = roomQuestions
-      .filter(q => q.questionId)
-      .map(q => q.questionId!);
+      .filter((q) => q.questionId)
+      .map((q) => q.questionId!);
 
     const customQuestions = roomQuestions
-      .filter(q => !q.questionId)
-      .map(q => ({
+      .filter((q) => !q.questionId)
+      .map((q) => ({
         id: q.id,
         question: q.question!,
         category: q.category,
@@ -93,7 +91,56 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('Failed to get room:', error);
-    return errorResponse('Failed to get room', 500);
+    console.error("Failed to get room:", error);
+    return errorResponse("Failed to get room", 500);
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> },
+) {
+  try {
+    const roomId = (await context.params).id;
+    const body = await request.json();
+    const { name } = body;
+
+    if (!name || typeof name !== "string" || name.trim().length === 0) {
+      return errorResponse("Room name is required", 400);
+    }
+
+    // Get authenticated user
+    const session = await auth();
+    let userId = session?.user?.id;
+
+    if (!userId) {
+      const cookieStore = request.cookies;
+      userId = cookieStore.get("userId")?.value;
+    }
+
+    if (!userId) {
+      return errorResponse("Authentication required", 401);
+    }
+
+    // Find the room
+    const room = await findRoomById(roomId);
+    if (!room) {
+      return errorResponse("Room not found", 404);
+    }
+
+    // Verify ownership
+    if (room.ownerId !== userId) {
+      return errorResponse("Only the room owner can rename the room", 403);
+    }
+
+    // Update room
+    const updatedRoom = await updateRoom(roomId, {
+      name: name.trim(),
+    });
+
+    return successResponse({ room: updatedRoom });
+  } catch (error) {
+    console.error("Failed to update room:", error);
+    return errorResponse("Failed to update room", 500);
   }
 }

@@ -39,7 +39,10 @@ export default function RootLayout({
           {/* Fixed navigation header */}
           <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-              <Link href="/" className="text-xl font-serif font-semibold hover:opacity-80 transition-opacity">
+              <Link
+                href="/"
+                className="text-xl font-serif font-semibold hover:opacity-80 transition-opacity"
+              >
                 The Secret Game
               </Link>
               <UserMenu />
@@ -47,9 +50,7 @@ export default function RootLayout({
           </nav>
 
           {/* Main content with padding for fixed header */}
-          <div className="pt-16">
-            {children}
-          </div>
+          <div className="pt-16">{children}</div>
           <Toaster />
         </SessionProvider>
       </body>

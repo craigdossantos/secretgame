@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Maximize2 } from 'lucide-react';
-import Image from 'next/image';
-import { ImageModalViewer } from './image-modal-viewer';
-import { Button } from './ui/button';
-import { type ImageData } from '@/lib/image-utils';
+import { useState } from "react";
+import { Maximize2 } from "lucide-react";
+import Image from "next/image";
+import { ImageModalViewer } from "./image-modal-viewer";
+import { Button } from "./ui/button";
+import { type ImageData } from "@/lib/image-utils";
 
 interface ImageAnswerDisplayProps {
   imageData: ImageData;
@@ -14,7 +14,7 @@ interface ImageAnswerDisplayProps {
 
 export function ImageAnswerDisplay({
   imageData,
-  className = '',
+  className = "",
 }: ImageAnswerDisplayProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -25,7 +25,7 @@ export function ImageAnswerDisplay({
         <div className="relative group rounded-xl overflow-hidden border border-border bg-muted">
           <Image
             src={imageData.imageBase64}
-            alt={imageData.caption || 'Uploaded image'}
+            alt={imageData.caption || "Uploaded image"}
             className="w-full h-auto max-h-96 object-contain cursor-pointer transition-transform group-hover:scale-[1.02]"
             onClick={() => setIsModalOpen(true)}
             width={500} // Placeholder width, adjust as needed or use 'fill'
@@ -52,7 +52,9 @@ export function ImageAnswerDisplay({
         {/* Caption */}
         {imageData.caption && (
           <div className="px-1">
-            <p className="text-sm text-foreground italic">{imageData.caption}</p>
+            <p className="text-sm text-foreground italic">
+              {imageData.caption}
+            </p>
           </div>
         )}
       </div>
@@ -63,7 +65,7 @@ export function ImageAnswerDisplay({
         caption={imageData.caption}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        alt={imageData.caption || 'Uploaded image'}
+        alt={imageData.caption || "Uploaded image"}
       />
     </>
   );

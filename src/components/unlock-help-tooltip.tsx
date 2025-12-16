@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Info, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Info, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface UnlockHelpTooltipProps {
   spiciness: number;
@@ -15,7 +15,7 @@ export function UnlockHelpTooltip({ spiciness }: UnlockHelpTooltipProps) {
 
   useEffect(() => {
     // Check if user has seen the tooltip before
-    const hasSeenTooltip = localStorage.getItem('hasSeenUnlockTooltip');
+    const hasSeenTooltip = localStorage.getItem("hasSeenUnlockTooltip");
 
     if (!hasSeenTooltip && !dismissed) {
       // Show tooltip after a short delay
@@ -28,7 +28,7 @@ export function UnlockHelpTooltip({ spiciness }: UnlockHelpTooltipProps) {
   }, [dismissed]);
 
   const handleDismiss = () => {
-    localStorage.setItem('hasSeenUnlockTooltip', 'true');
+    localStorage.setItem("hasSeenUnlockTooltip", "true");
     setShow(false);
     setDismissed(true);
   };
@@ -54,11 +54,9 @@ export function UnlockHelpTooltip({ spiciness }: UnlockHelpTooltipProps) {
               <div className="flex-1 pr-6">
                 <h4 className="font-semibold mb-1 text-sm">How to Unlock</h4>
                 <p className="text-xs text-white/90 leading-relaxed">
-                  To see this secret, share your own secret with a spiciness rating of{' '}
-                  <span className="font-bold">
-                    {spiciness}🌶️
-                  </span>{' '}
-                  or higher. The more vulnerable you are, the more you learn!
+                  To see this secret, share your own secret with a spiciness
+                  rating of <span className="font-bold">{spiciness}🌶️</span> or
+                  higher. The more vulnerable you are, the more you learn!
                 </p>
               </div>
               <Button
@@ -74,7 +72,8 @@ export function UnlockHelpTooltip({ spiciness }: UnlockHelpTooltipProps) {
             {/* Action hint */}
             <div className="mt-3 pt-3 border-t border-white/20">
               <p className="text-xs text-white/80">
-                Click &quot;Unlock&quot; below to share a secret and reveal this one
+                Click &quot;Unlock&quot; below to share a secret and reveal this
+                one
               </p>
             </div>
           </div>

@@ -1,5 +1,5 @@
 // Simple in-memory mock database for development
-import { createId } from '@paralleldrive/cuid2';
+import { createId } from "@paralleldrive/cuid2";
 
 interface User {
   id: string;
@@ -27,7 +27,7 @@ interface CustomQuestion {
   question: string;
   category: string;
   suggestedLevel: number;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
   createdBy: string; // userId
   createdAt: Date;
   // New fields for question types
@@ -57,10 +57,10 @@ interface Secret {
   // New fields for typed answers
   answerType?: string; // 'text' | 'slider' | 'multipleChoice' | etc.
   answerData?: unknown; // Type-specific answer data (JSON):
-                        // - slider: { value: number }
-                        // - multipleChoice: { selected: string[] }
-                        // - personPicker: { selectedUserIds: string[] }
-                        // - imageUpload: { imageUrl: string, imageBase64?: string }
+  // - slider: { value: number }
+  // - multipleChoice: { selected: string[] }
+  // - personPicker: { selectedUserIds: string[] }
+  // - imageUpload: { imageUrl: string, imageBase64?: string }
   isAnonymous?: boolean; // If true, hide author identity
 }
 
@@ -106,7 +106,9 @@ class MockDatabase {
   }
 
   async findRoomByInviteCode(inviteCode: string): Promise<Room | undefined> {
-    return Array.from(this.rooms.values()).find(r => r.inviteCode === inviteCode);
+    return Array.from(this.rooms.values()).find(
+      (r) => r.inviteCode === inviteCode,
+    );
   }
 
   async updateRoom(id: string, updates: Partial<Room>): Promise<void> {
@@ -122,17 +124,24 @@ class MockDatabase {
     this.roomMembers.set(key, member);
   }
 
-  async findRoomMember(roomId: string, userId: string): Promise<RoomMember | undefined> {
+  async findRoomMember(
+    roomId: string,
+    userId: string,
+  ): Promise<RoomMember | undefined> {
     const key = `${roomId}:${userId}`;
     return this.roomMembers.get(key);
   }
 
   async findRoomMembers(roomId: string): Promise<RoomMember[]> {
-    return Array.from(this.roomMembers.values()).filter(m => m.roomId === roomId);
+    return Array.from(this.roomMembers.values()).filter(
+      (m) => m.roomId === roomId,
+    );
   }
 
   async countRoomMembers(roomId: string): Promise<number> {
-    return Array.from(this.roomMembers.values()).filter(m => m.roomId === roomId).length;
+    return Array.from(this.roomMembers.values()).filter(
+      (m) => m.roomId === roomId,
+    ).length;
   }
 
   // Secrets
@@ -146,7 +155,7 @@ class MockDatabase {
 
   async findRoomSecrets(roomId: string): Promise<Secret[]> {
     return Array.from(this.secrets.values())
-      .filter(s => s.roomId === roomId && !s.isHidden)
+      .filter((s) => s.roomId === roomId && !s.isHidden)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
@@ -162,14 +171,19 @@ class MockDatabase {
     this.secretAccess.set(access.id, access);
   }
 
-  async findSecretAccess(secretId: string, buyerId: string): Promise<SecretAccess | undefined> {
+  async findSecretAccess(
+    secretId: string,
+    buyerId: string,
+  ): Promise<SecretAccess | undefined> {
     return Array.from(this.secretAccess.values()).find(
-      a => a.secretId === secretId && a.buyerId === buyerId
+      (a) => a.secretId === secretId && a.buyerId === buyerId,
     );
   }
 
   async findUserSecretAccess(buyerId: string): Promise<SecretAccess[]> {
-    return Array.from(this.secretAccess.values()).filter(a => a.buyerId === buyerId);
+    return Array.from(this.secretAccess.values()).filter(
+      (a) => a.buyerId === buyerId,
+    );
   }
 
   // Secret Ratings
@@ -177,9 +191,13 @@ class MockDatabase {
     this.secretRatings.set(rating.id, rating);
   }
 
-  async updateSecretRating(secretId: string, raterId: string, rating: number): Promise<void> {
+  async updateSecretRating(
+    secretId: string,
+    raterId: string,
+    rating: number,
+  ): Promise<void> {
     const existingRating = Array.from(this.secretRatings.values()).find(
-      r => r.secretId === secretId && r.raterId === raterId
+      (r) => r.secretId === secretId && r.raterId === raterId,
     );
 
     if (existingRating) {
@@ -197,7 +215,9 @@ class MockDatabase {
   }
 
   async findSecretRatings(secretId: string): Promise<SecretRating[]> {
-    return Array.from(this.secretRatings.values()).filter(r => r.secretId === secretId);
+    return Array.from(this.secretRatings.values()).filter(
+      (r) => r.secretId === secretId,
+    );
   }
 }
 

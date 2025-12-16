@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { X } from 'lucide-react';
-import Image from 'next/image';
-import { Button } from './ui/button';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { X } from "lucide-react";
+import Image from "next/image";
+import { Button } from "./ui/button";
 
 interface ImageModalViewerProps {
   imageUrl: string;
@@ -18,7 +18,7 @@ export function ImageModalViewer({
   caption,
   isOpen,
   onClose,
-  alt = 'Image',
+  alt = "Image",
 }: ImageModalViewerProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

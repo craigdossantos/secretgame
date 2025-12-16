@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { SliderConfig, MultipleChoiceConfig } from '@/lib/questions';
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle2 } from 'lucide-react';
-import { ImageAnswerDisplay } from '@/components/image-answer-display';
+import { SliderConfig, MultipleChoiceConfig } from "@/lib/questions";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2 } from "lucide-react";
+import { ImageAnswerDisplay } from "@/components/image-answer-display";
 
 interface SecretAnswerDisplayProps {
   answerType: string;
@@ -16,16 +16,17 @@ export function SecretAnswerDisplay({
   answerType,
   answerData,
   body,
-  config
+  config,
 }: SecretAnswerDisplayProps) {
   // Handle slider answer display
-  if (answerType === 'slider' && answerData && typeof answerData === 'object') {
+  if (answerType === "slider" && answerData && typeof answerData === "object") {
     const sliderAnswer = answerData as { value: number };
     const sliderValue = sliderAnswer.value;
 
     // If we have config, use it for visual representation
-    if (config && 'min' in config) {
-      const percentage = ((sliderValue - config.min) / (config.max - config.min)) * 100;
+    if (config && "min" in config) {
+      const percentage =
+        ((sliderValue - config.min) / (config.max - config.min)) * 100;
 
       return (
         <div className="space-y-3">
@@ -34,9 +35,7 @@ export function SecretAnswerDisplay({
             <div className="text-5xl font-bold text-blue-600 mb-2">
               {sliderValue}
             </div>
-            <div className="text-sm text-gray-600">
-              out of {config.max}
-            </div>
+            <div className="text-sm text-gray-600">out of {config.max}</div>
           </div>
 
           {/* Visual Bar */}
@@ -74,22 +73,38 @@ export function SecretAnswerDisplay({
   }
 
   // Handle image upload answer display
-  if (answerType === 'imageUpload' && answerData && typeof answerData === 'object') {
-    const imageData = answerData as { imageBase64: string; caption?: string; mimeType: string; fileSize: number; fileName: string };
+  if (
+    answerType === "imageUpload" &&
+    answerData &&
+    typeof answerData === "object"
+  ) {
+    const imageData = answerData as {
+      imageBase64: string;
+      caption?: string;
+      mimeType: string;
+      fileSize: number;
+      fileName: string;
+    };
     return <ImageAnswerDisplay imageData={imageData} />;
   }
 
   // Handle multiple choice answer display
-  if (answerType === 'multipleChoice' && answerData && typeof answerData === 'object') {
+  if (
+    answerType === "multipleChoice" &&
+    answerData &&
+    typeof answerData === "object"
+  ) {
     const mcAnswer = answerData as { selected: string[] };
     const selectedOptions = mcAnswer.selected || [];
 
     // If we have config, show all options with visual indicators
-    if (config && 'options' in config) {
+    if (config && "options" in config) {
       return (
         <div className="space-y-2">
           <div className="text-sm font-medium text-gray-700 mb-3">
-            {selectedOptions.length === 1 ? 'Selected option:' : `Selected ${selectedOptions.length} options:`}
+            {selectedOptions.length === 1
+              ? "Selected option:"
+              : `Selected ${selectedOptions.length} options:`}
           </div>
           <div className="space-y-2">
             {config.options.map((option, index) => {
@@ -99,14 +114,16 @@ export function SecretAnswerDisplay({
                   key={index}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 transition-all ${
                     isSelected
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 bg-gray-50 opacity-50'
+                      ? "border-green-500 bg-green-50"
+                      : "border-gray-200 bg-gray-50 opacity-50"
                   }`}
                 >
                   {isSelected && (
                     <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
                   )}
-                  <span className={`text-sm ${isSelected ? 'font-medium text-gray-900' : 'text-gray-500'}`}>
+                  <span
+                    className={`text-sm ${isSelected ? "font-medium text-gray-900" : "text-gray-500"}`}
+                  >
                     {option}
                   </span>
                 </div>
@@ -123,7 +140,11 @@ export function SecretAnswerDisplay({
         <div className="text-sm font-medium text-gray-700 mb-2">Selected:</div>
         <div className="flex flex-wrap gap-2">
           {selectedOptions.map((option, index) => (
-            <Badge key={index} variant="default" className="bg-green-600 hover:bg-green-700">
+            <Badge
+              key={index}
+              variant="default"
+              className="bg-green-600 hover:bg-green-700"
+            >
               {option}
             </Badge>
           ))}

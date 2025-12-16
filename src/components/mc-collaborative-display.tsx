@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle2 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2 } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from "@/components/ui/tooltip";
 
 interface AnswerWithUser {
   userId: string;
@@ -32,15 +32,15 @@ export function MCCollaborativeDisplay({
   // Group answers by option
   const answersByOption = new Map<string, AnswerWithUser[]>();
 
-  options.forEach(option => {
+  options.forEach((option) => {
     answersByOption.set(option, []);
   });
 
   // Also track custom answers (if any)
   const customAnswers: AnswerWithUser[] = [];
 
-  answers.forEach(answer => {
-    answer.selected.forEach(selectedOption => {
+  answers.forEach((answer) => {
+    answer.selected.forEach((selectedOption) => {
       if (options.includes(selectedOption)) {
         answersByOption.get(selectedOption)?.push(answer);
       } else {
@@ -56,14 +56,16 @@ export function MCCollaborativeDisplay({
   return (
     <div className="space-y-3">
       <div className="text-sm font-medium text-muted-foreground mb-3">
-        {totalAnswers} {totalAnswers === 1 ? 'person' : 'people'} answered
+        {totalAnswers} {totalAnswers === 1 ? "person" : "people"} answered
       </div>
 
       <div className="space-y-2">
         {options.map((option, index) => {
           const answersForOption = answersByOption.get(option) || [];
           const percentage =
-            totalAnswers > 0 ? Math.round((answersForOption.length / totalAnswers) * 100) : 0;
+            totalAnswers > 0
+              ? Math.round((answersForOption.length / totalAnswers) * 100)
+              : 0;
 
           return (
             <div key={index} className="border rounded-lg p-3 bg-card/50">
@@ -100,7 +102,9 @@ export function MCCollaborativeDisplay({
                           <div className="cursor-pointer">
                             {answer.isAnonymous ? (
                               <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
-                                <span className="text-xs font-medium text-primary">?</span>
+                                <span className="text-xs font-medium text-primary">
+                                  ?
+                                </span>
                               </div>
                             ) : (
                               <Avatar className="h-6 w-6 border-2 border-background">
@@ -114,7 +118,7 @@ export function MCCollaborativeDisplay({
                         </TooltipTrigger>
                         <TooltipContent>
                           <p className="text-xs">
-                            {answer.isAnonymous ? 'Anonymous' : answer.userName}
+                            {answer.isAnonymous ? "Anonymous" : answer.userName}
                           </p>
                         </TooltipContent>
                       </Tooltip>
@@ -132,14 +136,17 @@ export function MCCollaborativeDisplay({
             <div className="text-sm font-medium mb-2">Other answers:</div>
             <div className="space-y-1">
               {customAnswers.map((answer, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 text-xs text-muted-foreground"
+                >
                   {answer.isAnonymous ? (
                     <span>• Anonymous:</span>
                   ) : (
                     <span>• {answer.userName}:</span>
                   )}
                   <span className="font-medium text-foreground">
-                    {answer.selected.find(s => !options.includes(s))}
+                    {answer.selected.find((s) => !options.includes(s))}
                   </span>
                 </div>
               ))}

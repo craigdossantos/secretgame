@@ -1,6 +1,6 @@
-import { createId } from '@paralleldrive/cuid2';
-import { cookies } from 'next/headers';
-import { NextResponse, NextRequest } from 'next/server';
+import { createId } from "@paralleldrive/cuid2";
+import { cookies } from "next/headers";
+import { NextResponse, NextRequest } from "next/server";
 
 // Generate a unique invite code
 export function generateInviteCode(): string {
@@ -11,12 +11,12 @@ export function generateInviteCode(): string {
 // Get current user ID from session (temporary solution)
 export async function getCurrentUserId(): Promise<string | null> {
   const cookieStore = await cookies();
-  return cookieStore.get('userId')?.value || null;
+  return cookieStore.get("userId")?.value || null;
 }
 
 // Get user ID from cookies in API routes (synchronous version for NextRequest)
 export function getUserIdFromCookies(request: NextRequest): string | null {
-  const userId = request.cookies.get('userId')?.value;
+  const userId = request.cookies.get("userId")?.value;
   return userId || null;
 }
 
@@ -24,14 +24,14 @@ export function getUserIdFromCookies(request: NextRequest): string | null {
 // Note: In Next.js 15, cookies must be set on the NextResponse object
 export function createUserCookie(userId: string) {
   return {
-    name: 'userId',
+    name: "userId",
     value: userId,
     options: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax' as const,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax" as const,
       maxAge: 60 * 60 * 24 * 30, // 30 days
-    }
+    },
   };
 }
 
@@ -61,10 +61,10 @@ export function successResponse(
     options: {
       httpOnly?: boolean;
       secure?: boolean;
-      sameSite?: 'strict' | 'lax' | 'none';
+      sameSite?: "strict" | "lax" | "none";
       maxAge?: number;
-    }
-  }
+    };
+  },
 ) {
   const response = NextResponse.json(data, { status });
 

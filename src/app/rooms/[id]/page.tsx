@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { QuestionCard } from '@/components/question-card';
-import { SecretCard } from '@/components/secret-card';
-import { UnlockDrawer } from '@/components/unlock-drawer';
-import { UnlockQuestionModal } from '@/components/unlock-question-modal';
-import { CustomQuestionModal } from '@/components/custom-question-modal';
-import { WelcomeModal } from '@/components/welcome-modal';
-import { UserIdentityHeader } from '@/components/user-identity-header';
-import { SetupModeView } from '@/components/setup-mode-view';
-import { CollaborativeAnswersModal } from '@/components/collaborative-answers-modal';
-import { EmptyState } from '@/components/empty-state';
-import { parseQuestions, QuestionPrompt, mockQuestions } from '@/lib/questions';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ArrowLeft, Users, Copy, Check, Plus } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { SecretCard } from "@/components/secret-card";
+import { UnlockDrawer } from "@/components/unlock-drawer";
+import { UnlockQuestionModal } from "@/components/unlock-question-modal";
+import { CustomQuestionModal } from "@/components/custom-question-modal";
+import { WelcomeModal } from "@/components/welcome-modal";
+import { UserIdentityHeader } from "@/components/user-identity-header";
+import { SetupModeView } from "@/components/setup-mode-view";
+import { CollaborativeAnswersModal } from "@/components/collaborative-answers-modal";
+import { SingleQuestionView } from "@/components/single-question-view";
+import { EmptyState } from "@/components/empty-state";
+import { parseQuestions, QuestionPrompt, mockQuestions } from "@/lib/questions";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft, Users, Copy, Check, Plus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 interface Room {
   id: string;
@@ -76,7 +76,9 @@ export default function RoomPage() {
 
   const [room, setRoom] = useState<Room | null>(null);
   const [roomQuestions, setRoomQuestions] = useState<QuestionPrompt[]>([]); // All questions in room
-  const [displayedQuestions, setDisplayedQuestions] = useState<QuestionPrompt[]>([]); // 3 currently shown
+  const [displayedQuestions, setDisplayedQuestions] = useState<
+    QuestionPrompt[]
+  >([]); // 3 currently shown
   const [secrets, setSecrets] = useState<Secret[]>([]);
   const [answeredQuestionIds, setAnsweredQuestionIds] = useState<string[]>([]);
   const [skippedQuestionIds, setSkippedQuestionIds] = useState<string[]>([]);
@@ -84,14 +86,17 @@ export default function RoomPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [unlockDrawerOpen, setUnlockDrawerOpen] = useState(false);
-  const [selectedSecretToUnlock, setSelectedSecretToUnlock] = useState<Secret | null>(null);
+  const [selectedSecretToUnlock, setSelectedSecretToUnlock] =
+    useState<Secret | null>(null);
   const [unlockQuestionModalOpen, setUnlockQuestionModalOpen] = useState(false);
-  const [questionForUnlock, setQuestionForUnlock] = useState<QuestionPrompt | null>(null);
+  const [questionForUnlock, setQuestionForUnlock] =
+    useState<QuestionPrompt | null>(null);
   const [isCopied, setIsCopied] = useState(false);
-  const [isCustomQuestionModalOpen, setIsCustomQuestionModalOpen] = useState(false);
-  const [userSpicinessRatings, setUserSpicinessRatings] = useState<Record<string, number>>({});
+  const [isCustomQuestionModalOpen, setIsCustomQuestionModalOpen] =
+    useState(false);
   const [collaborativeModalOpen, setCollaborativeModalOpen] = useState(false);
-  const [selectedCollaborativeQuestion, setSelectedCollaborativeQuestion] = useState<QuestionPrompt | null>(null);
+  const [selectedCollaborativeQuestion, setSelectedCollaborativeQuestion] =
+    useState<QuestionPrompt | null>(null);
 
   // Load room data and questions
   useEffect(() => {
@@ -102,21 +107,21 @@ export default function RoomPage() {
         // Load room details
         const roomResponse = await fetch(`/api/rooms/${roomId}`);
         if (!roomResponse.ok) {
-          throw new Error('Room not found');
+          throw new Error("Room not found");
         }
         const roomData = await roomResponse.json();
         setRoom(roomData.room);
 
         // Get current user ID from cookies
         const userId = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('userId='))
-          ?.split('=')[1];
+          .split("; ")
+          .find((row) => row.startsWith("userId="))
+          ?.split("=")[1];
         setCurrentUserId(userId || null);
 
         // Load questions from YAML file
         try {
-          const questionsResponse = await fetch('/questions.yaml');
+          const questionsResponse = await fetch("/questions.yaml");
           if (questionsResponse.ok) {
             const yamlContent = await questionsResponse.text();
             const parsedQuestions = parseQuestions(yamlContent);
@@ -125,104 +130,122 @@ export default function RoomPage() {
             const roomQs: QuestionPrompt[] = [];
 
             // Add selected regular questions
-            if (roomData.room.questionIds && roomData.room.questionIds.length > 0) {
-              const selectedQuestions = parsedQuestions.filter(q =>
-                roomData.room.questionIds.includes(q.id)
+            if (
+              roomData.room.questionIds &&
+              roomData.room.questionIds.length > 0
+            ) {
+              const selectedQuestions = parsedQuestions.filter((q) =>
+                roomData.room.questionIds.includes(q.id),
               );
               roomQs.push(...selectedQuestions);
             }
 
             // Add custom questions
-            console.log('🏠 LOADING CUSTOM QUESTIONS');
-            console.log('Custom questions from API:', roomData.room.customQuestions);
-
-            if (roomData.room.customQuestions && roomData.room.customQuestions.length > 0) {
-              const customQuestions = roomData.room.customQuestions.map((cq: {
-                id: string;
-                question: string;
-                category: string;
-                suggestedLevel: number;
-                difficulty: string;
-                createdAt: string | Date;
-                questionType?: string;
-                answerConfig?: unknown;
-                allowAnonymous?: boolean;
-                allowImageUpload?: boolean;
-              }) => ({
-                id: cq.id,
-                question: cq.question,
-                category: cq.category,
-                suggestedLevel: cq.suggestedLevel,
-                difficulty: cq.difficulty,
-                tags: [{ name: cq.category.toLowerCase(), type: 'category' as const }],
-                archived: false,
-                createdAt: cq.createdAt,
-                updatedAt: cq.createdAt,
-                // Include type-specific fields
-                questionType: cq.questionType,
-                answerConfig: cq.answerConfig,
-                allowAnonymous: cq.allowAnonymous,
-                allowImageUpload: cq.allowImageUpload  // Fixed: Include allowImageUpload
-              }));
-              console.log('📋 MAPPED CUSTOM QUESTIONS:', customQuestions);
+            if (
+              roomData.room.customQuestions &&
+              roomData.room.customQuestions.length > 0
+            ) {
+              const customQuestions = roomData.room.customQuestions.map(
+                (cq: {
+                  id: string;
+                  question: string;
+                  category: string;
+                  suggestedLevel: number;
+                  difficulty: string;
+                  createdAt: string | Date;
+                  questionType?: string;
+                  answerConfig?: unknown;
+                  allowAnonymous?: boolean;
+                  allowImageUpload?: boolean;
+                }) => ({
+                  id: cq.id,
+                  question: cq.question,
+                  category: cq.category,
+                  suggestedLevel: cq.suggestedLevel,
+                  difficulty: cq.difficulty,
+                  tags: [
+                    {
+                      name: cq.category.toLowerCase(),
+                      type: "category" as const,
+                    },
+                  ],
+                  archived: false,
+                  createdAt: cq.createdAt,
+                  updatedAt: cq.createdAt,
+                  // Include type-specific fields
+                  questionType: cq.questionType,
+                  answerConfig: cq.answerConfig,
+                  allowAnonymous: cq.allowAnonymous,
+                  allowImageUpload: cq.allowImageUpload, // Fixed: Include allowImageUpload
+                }),
+              );
               roomQs.push(...customQuestions);
             }
 
             setRoomQuestions(roomQs);
           } else {
             // Fallback to mock questions
-            console.warn('Could not load questions.yaml, using mock questions');
+            console.warn("Could not load questions.yaml, using mock questions");
 
             const roomQs: QuestionPrompt[] = [];
 
             // Add selected regular questions
-            if (roomData.room.questionIds && roomData.room.questionIds.length > 0) {
-              const selectedQuestions = mockQuestions.filter(q =>
-                roomData.room.questionIds.includes(q.id)
+            if (
+              roomData.room.questionIds &&
+              roomData.room.questionIds.length > 0
+            ) {
+              const selectedQuestions = mockQuestions.filter((q) =>
+                roomData.room.questionIds.includes(q.id),
               );
               roomQs.push(...selectedQuestions);
             }
 
             // Add custom questions
-            console.log('🏠 LOADING CUSTOM QUESTIONS');
-            console.log('Custom questions from API:', roomData.room.customQuestions);
-
-            if (roomData.room.customQuestions && roomData.room.customQuestions.length > 0) {
-              const customQuestions = roomData.room.customQuestions.map((cq: {
-                id: string;
-                question: string;
-                category: string;
-                suggestedLevel: number;
-                difficulty: string;
-                createdAt: string | Date;
-                questionType?: string;
-                answerConfig?: unknown;
-                allowAnonymous?: boolean;
-                allowImageUpload?: boolean;
-              }) => ({
-                id: cq.id,
-                question: cq.question,
-                category: cq.category,
-                suggestedLevel: cq.suggestedLevel,
-                difficulty: cq.difficulty,
-                tags: [{ name: cq.category.toLowerCase(), type: 'category' as const }],
-                archived: false,
-                createdAt: cq.createdAt,
-                updatedAt: cq.createdAt,
-                // Include type-specific fields
-                questionType: cq.questionType,
-                answerConfig: cq.answerConfig,
-                allowAnonymous: cq.allowAnonymous,
-                allowImageUpload: cq.allowImageUpload  // Fixed: Include allowImageUpload
-              }));
-              console.log('📋 MAPPED CUSTOM QUESTIONS:', customQuestions);
+            if (
+              roomData.room.customQuestions &&
+              roomData.room.customQuestions.length > 0
+            ) {
+              const customQuestions = roomData.room.customQuestions.map(
+                (cq: {
+                  id: string;
+                  question: string;
+                  category: string;
+                  suggestedLevel: number;
+                  difficulty: string;
+                  createdAt: string | Date;
+                  questionType?: string;
+                  answerConfig?: unknown;
+                  allowAnonymous?: boolean;
+                  allowImageUpload?: boolean;
+                }) => ({
+                  id: cq.id,
+                  question: cq.question,
+                  category: cq.category,
+                  suggestedLevel: cq.suggestedLevel,
+                  difficulty: cq.difficulty,
+                  tags: [
+                    {
+                      name: cq.category.toLowerCase(),
+                      type: "category" as const,
+                    },
+                  ],
+                  archived: false,
+                  createdAt: cq.createdAt,
+                  updatedAt: cq.createdAt,
+                  // Include type-specific fields
+                  questionType: cq.questionType,
+                  answerConfig: cq.answerConfig,
+                  allowAnonymous: cq.allowAnonymous,
+                  allowImageUpload: cq.allowImageUpload, // Fixed: Include allowImageUpload
+                }),
+              );
               roomQs.push(...customQuestions);
             }
 
             setRoomQuestions(roomQs);
           }
         } catch (questionsError) {
-          console.warn('Error loading questions:', questionsError);
+          console.warn("Error loading questions:", questionsError);
           setRoomQuestions([]);
         }
 
@@ -232,9 +255,8 @@ export default function RoomPage() {
           const secretsData = await secretsResponse.json();
           setSecrets(secretsData.secrets || []);
         }
-
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load room');
+        setError(err instanceof Error ? err.message : "Failed to load room");
       } finally {
         setLoading(false);
       }
@@ -248,7 +270,9 @@ export default function RoomPage() {
   // Helper: Update the 3 displayed questions
   const updateDisplayedQuestions = React.useCallback(() => {
     const availableQuestions = roomQuestions.filter(
-      q => !answeredQuestionIds.includes(q.id) && !skippedQuestionIds.includes(q.id)
+      (q) =>
+        !answeredQuestionIds.includes(q.id) &&
+        !skippedQuestionIds.includes(q.id),
     );
 
     // Always show up to 3 questions
@@ -261,72 +285,23 @@ export default function RoomPage() {
     if (roomQuestions.length > 0) {
       updateDisplayedQuestions();
     }
-  }, [roomQuestions, answeredQuestionIds, skippedQuestionIds, updateDisplayedQuestions]);
+  }, [
+    roomQuestions,
+    answeredQuestionIds,
+    skippedQuestionIds,
+    updateDisplayedQuestions,
+  ]);
 
   const handleSkipQuestion = (questionId: string) => {
-    setSkippedQuestionIds(prev => [...prev, questionId]);
+    setSkippedQuestionIds((prev) => [...prev, questionId]);
     // updateDisplayedQuestions will be called by useEffect
   };
 
-  const handleSubmitAnswer = async (answer: {
-    questionId: string;
-    body: string;
-    selfRating: number;
-    importance: number;
-    answerType?: string;
-    answerData?: unknown;
-    isAnonymous?: boolean;
-  }) => {
-    try {
-      // Submit answer as a secret
-      const response = await fetch('/api/secrets', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          roomId,
-          questionId: answer.questionId,
-          body: answer.body,
-          selfRating: answer.selfRating,
-          importance: answer.importance,
-          answerType: answer.answerType,
-          answerData: answer.answerData,
-          isAnonymous: answer.isAnonymous,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit answer');
-      }
-
-      const data = await response.json();
-      toast.success(data.message || 'Secret submitted successfully!');
-
-      // Mark question as answered
-      if (!answeredQuestionIds.includes(answer.questionId)) {
-        setAnsweredQuestionIds(prev => [...prev, answer.questionId]);
-      }
-
-      // Reload secrets to show the new one
-      const secretsResponse = await fetch(`/api/rooms/${roomId}/secrets`);
-      if (secretsResponse.ok) {
-        const secretsData = await secretsResponse.json();
-        setSecrets(secretsData.secrets || []);
-      }
-
-    } catch (error) {
-      console.error('Failed to submit answer:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to submit answer');
-    }
-  };
-
   const handleUnlock = (secretId: string) => {
-    const secret = secrets.find(s => s.id === secretId);
+    const secret = secrets.find((s) => s.id === secretId);
     if (secret && secret.questionId) {
       // Find the question for this secret
-      const question = roomQuestions.find(q => q.id === secret.questionId);
+      const question = roomQuestions.find((q) => q.id === secret.questionId);
 
       if (question) {
         // Show question-based unlock modal
@@ -360,29 +335,32 @@ export default function RoomPage() {
 
     try {
       // Submit answer to unlock the target secret
-      const response = await fetch(`/api/secrets/${selectedSecretToUnlock.id}/unlock`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `/api/secrets/${selectedSecretToUnlock.id}/unlock`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            roomId,
+            questionId: answer.questionId,
+            body: answer.body,
+            selfRating: answer.selfRating,
+            importance: answer.importance,
+            answerType: answer.answerType,
+            answerData: answer.answerData,
+            isAnonymous: answer.isAnonymous,
+          }),
         },
-        body: JSON.stringify({
-          roomId,
-          questionId: answer.questionId,
-          body: answer.body,
-          selfRating: answer.selfRating,
-          importance: answer.importance,
-          answerType: answer.answerType,
-          answerData: answer.answerData,
-          isAnonymous: answer.isAnonymous,
-        }),
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to unlock secret');
+        throw new Error(errorData.error || "Failed to unlock secret");
       }
 
-      toast.success('Secret unlocked! Your answer has been shared.');
+      toast.success("Secret unlocked! Your answer has been shared.");
 
       // Close modal
       setUnlockQuestionModalOpen(false);
@@ -391,7 +369,7 @@ export default function RoomPage() {
 
       // Mark question as answered
       if (!answeredQuestionIds.includes(answer.questionId)) {
-        setAnsweredQuestionIds(prev => [...prev, answer.questionId]);
+        setAnsweredQuestionIds((prev) => [...prev, answer.questionId]);
       }
 
       // Reload secrets to show both the new answer and unlocked secret
@@ -401,8 +379,10 @@ export default function RoomPage() {
         setSecrets(secretsData.secrets || []);
       }
     } catch (error) {
-      console.error('Failed to unlock secret:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to unlock secret');
+      console.error("Failed to unlock secret:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to unlock secret",
+      );
     }
   };
 
@@ -414,27 +394,31 @@ export default function RoomPage() {
     if (!selectedSecretToUnlock) return;
 
     try {
-      const response = await fetch(`/api/secrets/${selectedSecretToUnlock.id}/unlock`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `/api/secrets/${selectedSecretToUnlock.id}/unlock`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            roomId,
+            questionId:
+              selectedSecretToUnlock.questionId || selectedSecretToUnlock.id, // Use secret's questionId
+            body: unlockData.body,
+            selfRating: unlockData.selfRating,
+            importance: unlockData.importance,
+          }),
         },
-        body: JSON.stringify({
-          roomId,
-          questionId: selectedSecretToUnlock.questionId || selectedSecretToUnlock.id, // Use secret's questionId
-          body: unlockData.body,
-          selfRating: unlockData.selfRating,
-          importance: unlockData.importance,
-        }),
-      });
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to unlock secret');
+        throw new Error(errorData.error || "Failed to unlock secret");
       }
 
       await response.json();
-      toast.success('Secret unlocked!');
+      toast.success("Secret unlocked!");
 
       // Reload secrets to show unlocked state
       const secretsResponse = await fetch(`/api/rooms/${roomId}/secrets`);
@@ -446,8 +430,10 @@ export default function RoomPage() {
       setUnlockDrawerOpen(false);
       setSelectedSecretToUnlock(null);
     } catch (error) {
-      console.error('Failed to unlock secret:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to unlock secret');
+      console.error("Failed to unlock secret:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to unlock secret",
+      );
       throw error; // Re-throw so UnlockDrawer can handle loading state
     }
   };
@@ -455,30 +441,32 @@ export default function RoomPage() {
   const handleRate = async (secretId: string, rating: number) => {
     try {
       const response = await fetch(`/api/secrets/${secretId}/rate`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ rating }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to rate secret');
+        throw new Error(errorData.error || "Failed to rate secret");
       }
 
       const data = await response.json();
-      toast.success('Rating submitted!');
+      toast.success("Rating submitted!");
 
       // Update the secret in state with new average
-      setSecrets(prevSecrets =>
-        prevSecrets.map(s =>
-          s.id === secretId ? { ...s, avgRating: data.avgRating } : s
-        )
+      setSecrets((prevSecrets) =>
+        prevSecrets.map((s) =>
+          s.id === secretId ? { ...s, avgRating: data.avgRating } : s,
+        ),
       );
     } catch (error) {
-      console.error('Failed to rate secret:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to submit rating');
+      console.error("Failed to rate secret:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to submit rating",
+      );
     }
   };
 
@@ -487,16 +475,9 @@ export default function RoomPage() {
       const inviteUrl = `${window.location.origin}/invite/${room.inviteCode}`;
       await navigator.clipboard.writeText(inviteUrl);
       setIsCopied(true);
-      toast.success('Invite link copied to clipboard!');
+      toast.success("Invite link copied to clipboard!");
       setTimeout(() => setIsCopied(false), 2000);
     }
-  };
-
-  const handleRateSpiciness = (questionId: string, spiciness: number) => {
-    setUserSpicinessRatings(prev => ({
-      ...prev,
-      [questionId]: spiciness
-    }));
   };
 
   const handleCreateCustomQuestion = async (customQuestion: QuestionPrompt) => {
@@ -505,28 +486,28 @@ export default function RoomPage() {
         question: customQuestion.question,
         category: customQuestion.category,
         suggestedLevel: customQuestion.suggestedLevel,
-        difficulty: customQuestion.difficulty || 'medium',
-        questionType: customQuestion.questionType || 'text',
+        difficulty: customQuestion.difficulty || "medium",
+        questionType: customQuestion.questionType || "text",
         answerConfig: customQuestion.answerConfig,
         allowAnonymous: customQuestion.allowAnonymous || false,
-        allowImageUpload: customQuestion.allowImageUpload || false,  // Fixed: Include allowImageUpload
+        allowImageUpload: customQuestion.allowImageUpload || false, // Fixed: Include allowImageUpload
       };
 
       const response = await fetch(`/api/rooms/${roomId}/questions`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to add custom question');
+        throw new Error(errorData.error || "Failed to add custom question");
       }
 
       const data = await response.json();
-      toast.success('Question added to room!');
+      toast.success("Question added to room!");
 
       // Add the new question to roomQuestions
       const newQuestion: QuestionPrompt = {
@@ -535,30 +516,39 @@ export default function RoomPage() {
         category: data.question.category,
         suggestedLevel: data.question.suggestedLevel,
         difficulty: data.question.difficulty,
-        tags: [{ name: data.question.category.toLowerCase(), type: 'category' as const }],
+        tags: [
+          {
+            name: data.question.category.toLowerCase(),
+            type: "category" as const,
+          },
+        ],
         archived: false,
         createdAt: data.question.createdAt,
         updatedAt: data.question.createdAt,
         // Type-specific fields
-        questionType: data.question.questionType || 'text',
+        questionType: data.question.questionType || "text",
         answerConfig: data.question.answerConfig,
         allowAnonymous: data.question.allowAnonymous || false,
-        allowImageUpload: data.question.allowImageUpload || false  // Fixed: Include allowImageUpload
+        allowImageUpload: data.question.allowImageUpload || false, // Fixed: Include allowImageUpload
       };
 
       // Prepend to room questions (add to start)
-      setRoomQuestions(prev => [newQuestion, ...prev]);
+      setRoomQuestions((prev) => [newQuestion, ...prev]);
 
       // Prepend to displayed questions (add to start), pushing oldest off if needed
-      setDisplayedQuestions(prev => {
+      setDisplayedQuestions((prev) => {
         const updated = [newQuestion, ...prev];
         return updated.slice(0, 3); // Keep only first 3
       });
 
       setIsCustomQuestionModalOpen(false);
     } catch (error) {
-      console.error('Failed to add custom question:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to add custom question');
+      console.error("Failed to add custom question:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to add custom question",
+      );
     }
   };
 
@@ -570,7 +560,7 @@ export default function RoomPage() {
       try {
         const roomResponse = await fetch(`/api/rooms/${roomId}`);
         if (!roomResponse.ok) {
-          throw new Error('Room not found');
+          throw new Error("Room not found");
         }
         const roomData = await roomResponse.json();
         setRoom(roomData.room);
@@ -578,7 +568,7 @@ export default function RoomPage() {
         // Force reload to get questions and secrets
         window.location.reload();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load room');
+        setError(err instanceof Error ? err.message : "Failed to load room");
         setLoading(false);
       }
     };
@@ -589,7 +579,6 @@ export default function RoomPage() {
     setSelectedCollaborativeQuestion(question);
     setCollaborativeModalOpen(true);
   };
-
 
   if (loading) {
     return (
@@ -639,10 +628,12 @@ export default function RoomPage() {
     return (
       <div className="min-h-screen bg-background art-deco-pattern flex items-center justify-center">
         <div className="text-center art-deco-border p-8 bg-card/50 backdrop-blur-sm art-deco-glow max-w-md">
-          <h1 className="text-2xl font-serif text-foreground mb-2 art-deco-text art-deco-shadow">Room Not Found</h1>
+          <h1 className="text-2xl font-serif text-foreground mb-2 art-deco-text art-deco-shadow">
+            Room Not Found
+          </h1>
           <p className="text-muted-foreground mb-6">{error}</p>
           <Button
-            onClick={() => router.push('/')}
+            onClick={() => router.push("/")}
             variant="outline"
             className="bg-secondary border-border hover:bg-primary hover:text-primary-foreground transition-all"
           >
@@ -661,8 +652,12 @@ export default function RoomPage() {
 
   return (
     <div className="min-h-screen bg-background art-deco-pattern">
-      {/* Welcome Modal */}
-      <WelcomeModal roomName={room?.name} />
+      {/* Welcome Modal - Show if not logged in */}
+      <WelcomeModal
+        roomName={room?.name}
+        memberCount={room?.memberCount}
+        isOpen={!currentUserId}
+      />
 
       {/* Header */}
       <div className="bg-card/80 backdrop-blur-sm border-b border-border sticky top-0 z-10">
@@ -673,19 +668,23 @@ export default function RoomPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => router.push('/')}
+                onClick={() => router.push("/")}
                 className="rounded-full hover:bg-primary/10"
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
               <div>
                 <h1 className="text-2xl font-serif text-foreground art-deco-text art-deco-shadow">
-                  {room?.name || 'Secret Room'}
+                  {room?.name || "Secret Room"}
                 </h1>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="secondary" className="text-xs flex items-center gap-1 bg-secondary/50 border border-border">
+                  <Badge
+                    variant="secondary"
+                    className="text-xs flex items-center gap-1 bg-secondary/50 border border-border"
+                  >
                     <Users className="w-3 h-3" />
-                    {room?.memberCount || 1} member{room?.memberCount !== 1 ? 's' : ''}
+                    {room?.memberCount || 1} member
+                    {room?.memberCount !== 1 ? "s" : ""}
                   </Badge>
                 </div>
               </div>
@@ -705,9 +704,11 @@ export default function RoomPage() {
             <div className="art-deco-border bg-card/50 backdrop-blur-sm p-4 art-deco-glow">
               <div className="flex items-center gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-primary font-medium mb-2 art-deco-text">Invite Link</p>
+                  <p className="text-xs text-primary font-medium mb-2 art-deco-text">
+                    Invite Link
+                  </p>
                   <p className="text-sm font-mono text-foreground break-all">
-                    {`${typeof window !== 'undefined' ? window.location.origin : ''}/invite/${room.inviteCode}`}
+                    {`${typeof window !== "undefined" ? window.location.origin : ""}/invite/${room.inviteCode}`}
                   </p>
                 </div>
                 <Button
@@ -749,44 +750,35 @@ export default function RoomPage() {
             action={
               room?.ownerId === currentUserId
                 ? {
-                    label: 'Add Questions to Room',
+                    label: "Add Questions to Room",
                     onClick: () => router.push(`/admin?room=${roomId}`),
                   }
                 : undefined
             }
           />
         ) : (
-          /* Unified Feed: Questions at top, Secrets below */
           <div className="space-y-8">
-            {/* Unanswered Questions (3 at a time) */}
+            {/* Unanswered Questions (Single View) */}
             {displayedQuestions.length > 0 && (
               <div>
                 <div className="art-deco-divider mb-6">
                   <span>◆ ◆ ◆</span>
                 </div>
-                <div className="mb-6 text-center">
-                  <h2 className="text-2xl font-serif text-foreground art-deco-text art-deco-shadow">
-                    Answer Questions to Share Secrets
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Click a question to flip it and share your answer
-                  </p>
-                </div>
 
-                {/* Question Cards Grid - 3 columns */}
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-4">
-                  {displayedQuestions.map((question) => (
-                    <QuestionCard
-                      key={question.id}
-                      question={question}
-                      isAnswered={answeredQuestionIds.includes(question.id)}
-                      onSubmit={handleSubmitAnswer}
-                      onSkip={handleSkipQuestion}
-                      onRateSpiciness={handleRateSpiciness}
-                      userSpicinessRating={userSpicinessRatings[question.id] || 0}
-                    />
-                  ))}
-                </div>
+                <SingleQuestionView
+                  questions={roomQuestions.filter(
+                    (q) =>
+                      !answeredQuestionIds.includes(q.id) &&
+                      !skippedQuestionIds.includes(q.id),
+                  )}
+                  currentIndex={0}
+                  onNext={() => {}}
+                  onPrev={() => {}}
+                  onAnswer={() => {
+                    // Answer handling is done within SingleQuestionView
+                  }}
+                  onSkip={(q) => handleSkipQuestion(q.id)}
+                />
               </div>
             )}
 
@@ -839,7 +831,8 @@ export default function RoomPage() {
                     Your Answered Questions
                   </h2>
                   <p className="text-sm text-muted-foreground mt-2">
-                    View all answers from the group for questions you&apos;ve answered
+                    View all answers from the group for questions you&apos;ve
+                    answered
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -847,7 +840,7 @@ export default function RoomPage() {
                     .filter((q) => answeredQuestionIds.includes(q.id))
                     .map((question) => {
                       const questionSecretCount = secrets.filter(
-                        (s) => s.questionId === question.id
+                        (s) => s.questionId === question.id,
                       ).length;
                       return (
                         <Card
@@ -860,13 +853,17 @@ export default function RoomPage() {
                             </p>
                             <div className="flex items-center justify-between">
                               <Badge variant="secondary" className="text-xs">
-                                {questionSecretCount}{' '}
-                                {questionSecretCount === 1 ? 'answer' : 'answers'}
+                                {questionSecretCount}{" "}
+                                {questionSecretCount === 1
+                                  ? "answer"
+                                  : "answers"}
                               </Badge>
                               <Button
                                 size="sm"
                                 variant="outline"
-                                onClick={() => handleViewCollaborativeAnswers(question)}
+                                onClick={() =>
+                                  handleViewCollaborativeAnswers(question)
+                                }
                                 className="text-xs"
                               >
                                 View All Answers
@@ -891,7 +888,8 @@ export default function RoomPage() {
                     Secrets ({secrets.length})
                   </h2>
                   <p className="text-sm text-muted-foreground mt-2">
-                    Your secrets appear unlocked. Unlock others&apos; by sharing secrets of equal or higher spiciness.
+                    Your secrets appear unlocked. Unlock others&apos; by sharing
+                    secrets of equal or higher spiciness.
                   </p>
                 </div>
 
@@ -919,22 +917,25 @@ export default function RoomPage() {
                     Secrets (0)
                   </h2>
                   <p className="text-sm text-muted-foreground mt-2">
-                    Example of how secrets will appear - answer a question to share yours!
+                    Example of how secrets will appear - answer a question to
+                    share yours!
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   <SecretCard
                     secret={{
-                      id: 'example-secret',
-                      body: 'This is an example of a locked secret. The actual content is hidden until you unlock it by sharing a secret of equal or higher spiciness level. Secrets keep the conversation interesting and build trust in your group!',
+                      id: "example-secret",
+                      body: "This is an example of a locked secret. The actual content is hidden until you unlock it by sharing a secret of equal or higher spiciness level. Secrets keep the conversation interesting and build trust in your group!",
                       selfRating: 3,
                       importance: 4,
                       avgRating: null,
                       buyersCount: 0,
-                      authorName: 'Example User',
+                      authorName: "Example User",
                       createdAt: new Date().toISOString(),
                       isUnlocked: false,
-                      questionText: displayedQuestions[0]?.question || 'What\'s something you\'ve never told anyone?'
+                      questionText:
+                        displayedQuestions[0]?.question ||
+                        "What's something you've never told anyone?",
                     }}
                     onUnlock={() => {}}
                     onRate={() => {}}

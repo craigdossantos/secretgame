@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { User } from 'lucide-react';
-import { ProfileDrawer } from '@/components/profile-drawer';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { User } from "lucide-react";
+import { ProfileDrawer } from "@/components/profile-drawer";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface UserInfo {
   id: string;
@@ -25,14 +25,14 @@ export function UserIdentityHeader() {
   const fetchCurrentUser = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/users/me');
+      const response = await fetch("/api/users/me");
       const data = await response.json();
 
       if (data.user) {
         setUser(data.user);
       }
     } catch (error) {
-      console.error('Failed to fetch user:', error);
+      console.error("Failed to fetch user:", error);
     } finally {
       setLoading(false);
     }

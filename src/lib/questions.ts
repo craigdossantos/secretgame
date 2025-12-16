@@ -1,14 +1,14 @@
 export interface Tag {
   name: string;
-  type: 'category' | 'topic' | 'priority' | 'mood' | 'format';
+  type: "category" | "topic" | "priority" | "mood" | "format";
   color?: string;
 }
 
 // Question Types - Different input/answer formats
 export type QuestionType =
-  | 'text'              // Traditional text answer (current default)
-  | 'slider'            // Numeric slider with custom labels
-  | 'multipleChoice';   // Single or multi-select options
+  | "text" // Traditional text answer (current default)
+  | "slider" // Numeric slider with custom labels
+  | "multipleChoice"; // Single or multi-select options
 
 // Type-specific configuration for questions
 export interface SliderConfig {
@@ -28,13 +28,13 @@ export interface MultipleChoiceConfig {
 }
 
 export type AnswerConfig =
-  | { type: 'text' }
-  | { type: 'slider'; config: SliderConfig }
-  | { type: 'multipleChoice'; config: MultipleChoiceConfig };
+  | { type: "text" }
+  | { type: "slider"; config: SliderConfig }
+  | { type: "multipleChoice"; config: MultipleChoiceConfig };
 
 // Unlock requirements for bounty system
 export interface UnlockRequirement {
-  type: 'matchSpiciness' | 'answerAnyQuestion' | 'answerSpecificQuestion';
+  type: "matchSpiciness" | "answerAnyQuestion" | "answerSpecificQuestion";
   bountyQuestionId?: string; // Required if type is 'answerSpecificQuestion'
 }
 
@@ -43,11 +43,12 @@ export interface QuestionPrompt {
   question: string;
   category: string; // Keep for backward compatibility, will be migrated to tags
   suggestedLevel: number; // 1-5
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty?: "easy" | "medium" | "hard";
+  spiciness?: number; // 1-5
   archived?: boolean;
   tags?: Tag[];
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
   // New fields for question types
   questionType?: QuestionType; // Defaults to 'text' for backward compatibility
   answerConfig?: AnswerConfig; // Type-specific configuration
@@ -57,29 +58,29 @@ export interface QuestionPrompt {
 }
 
 export type QuestionCategory =
-  | 'Personal'
-  | 'Relationships'
-  | 'Embarrassing'
-  | 'Fears & Dreams'
-  | 'Opinions'
-  | 'Work/School'
-  | 'Random';
+  | "Personal"
+  | "Relationships"
+  | "Embarrassing"
+  | "Fears & Dreams"
+  | "Opinions"
+  | "Work/School"
+  | "Random";
 
 export const QUESTION_CATEGORIES: QuestionCategory[] = [
-  'Personal',
-  'Relationships',
-  'Embarrassing',
-  'Fears & Dreams',
-  'Opinions',
-  'Work/School',
-  'Random'
+  "Personal",
+  "Relationships",
+  "Embarrassing",
+  "Fears & Dreams",
+  "Opinions",
+  "Work/School",
+  "Random",
 ];
 
 // Convert category to tag
 export function categoryToTag(category: string): Tag {
   return {
     name: category.toLowerCase(),
-    type: 'category'
+    type: "category",
   };
 }
 
@@ -87,7 +88,7 @@ export function categoryToTag(category: string): Tag {
 // Note: Currently unused as we apply variant="artdeco" directly to Badge components
 // Kept for backward compatibility if needed
 export function getTagStyles(): string {
-  return 'art-deco-tag';
+  return "art-deco-tag";
 }
 
 // YAML question structure
@@ -115,13 +116,13 @@ function hashString(str: string): string {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32-bit integer
   }
   return Math.abs(hash).toString(36); // Base36 for shorter IDs
 }
 
-import yaml from 'js-yaml';
+import yaml from "js-yaml";
 
 // Parse questions from YAML format
 export function parseQuestions(yamlContent: string): QuestionPrompt[] {
@@ -129,61 +130,63 @@ export function parseQuestions(yamlContent: string): QuestionPrompt[] {
     const parsed = yaml.load(yamlContent) as { questions?: YAMLQuestion[] };
 
     if (!parsed || !parsed.questions || !Array.isArray(parsed.questions)) {
-      console.warn('Invalid YAML structure: missing questions array');
+      console.warn("Invalid YAML structure: missing questions array");
       return [];
     }
 
-    const questions: QuestionPrompt[] = parsed.questions.map((q: YAMLQuestion) => {
-      const category = q.category || 'Random';
-      const questionType = q.type || 'text';
-      const spiciness = q.spiciness || 3;
-      const difficulty = q.difficulty || 'medium';
+    const questions: QuestionPrompt[] = parsed.questions.map(
+      (q: YAMLQuestion) => {
+        const category = q.category || "Random";
+        const questionType = q.type || "text";
+        const spiciness = q.spiciness || 3;
+        const difficulty = q.difficulty || "medium";
 
-      // Base question object with stable hash-based ID
-      const questionPrompt: QuestionPrompt = {
-        id: `q_${hashString(q.question)}`,
-        question: q.question,
-        category,
-        suggestedLevel: spiciness,
-        difficulty: difficulty as 'easy' | 'medium' | 'hard',
-        tags: [categoryToTag(category)],
-        archived: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        questionType: questionType as QuestionType
-      };
-
-      // Add type-specific configuration
-      if (questionType === 'slider' && q.slider) {
-        questionPrompt.answerConfig = {
-          type: 'slider',
-          config: {
-            min: q.slider.min || 1,
-            max: q.slider.max || 10,
-            minLabel: q.slider.minLabel || '',
-            maxLabel: q.slider.maxLabel || '',
-            step: q.slider.step || 1
-          }
+        // Base question object with stable hash-based ID
+        const questionPrompt: QuestionPrompt = {
+          id: `q_${hashString(q.question)}`,
+          question: q.question,
+          category,
+          suggestedLevel: spiciness,
+          difficulty: difficulty as "easy" | "medium" | "hard",
+          tags: [categoryToTag(category)],
+          archived: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          questionType: questionType as QuestionType,
         };
-      } else if (questionType === 'multipleChoice' && q.multipleChoice) {
-        questionPrompt.answerConfig = {
-          type: 'multipleChoice',
-          config: {
-            options: q.multipleChoice.options || [],
-            allowMultiple: q.multipleChoice.allowMultiple || false,
-            showDistribution: true
-          }
-        };
-      } else {
-        questionPrompt.answerConfig = { type: 'text' };
-      }
 
-      return questionPrompt;
-    });
+        // Add type-specific configuration
+        if (questionType === "slider" && q.slider) {
+          questionPrompt.answerConfig = {
+            type: "slider",
+            config: {
+              min: q.slider.min || 1,
+              max: q.slider.max || 10,
+              minLabel: q.slider.minLabel || "",
+              maxLabel: q.slider.maxLabel || "",
+              step: q.slider.step || 1,
+            },
+          };
+        } else if (questionType === "multipleChoice" && q.multipleChoice) {
+          questionPrompt.answerConfig = {
+            type: "multipleChoice",
+            config: {
+              options: q.multipleChoice.options || [],
+              allowMultiple: q.multipleChoice.allowMultiple || false,
+              showDistribution: true,
+            },
+          };
+        } else {
+          questionPrompt.answerConfig = { type: "text" };
+        }
+
+        return questionPrompt;
+      },
+    );
 
     return questions;
   } catch (error) {
-    console.error('Error parsing YAML:', error);
+    console.error("Error parsing YAML:", error);
     return [];
   }
 }
@@ -191,17 +194,19 @@ export function parseQuestions(yamlContent: string): QuestionPrompt[] {
 // Filter questions by category
 export function filterQuestionsByCategory(
   questions: QuestionPrompt[],
-  selectedCategories: string[]
+  selectedCategories: string[],
 ): QuestionPrompt[] {
   if (selectedCategories.length === 0) {
     return questions;
   }
 
-  return questions.filter(q => selectedCategories.includes(q.category));
+  return questions.filter((q) => selectedCategories.includes(q.category));
 }
 
 // Get tag counts for filtering
-export function getTagCounts(questions: QuestionPrompt[]): Record<string, number> {
+export function getTagCounts(
+  questions: QuestionPrompt[],
+): Record<string, number> {
   const counts: Record<string, number> = {};
 
   for (const question of questions) {
@@ -216,7 +221,9 @@ export function getTagCounts(questions: QuestionPrompt[]): Record<string, number
 }
 
 // Get category counts (backward compatibility)
-export function getCategoryCounts(questions: QuestionPrompt[]): Record<string, number> {
+export function getCategoryCounts(
+  questions: QuestionPrompt[],
+): Record<string, number> {
   const counts: Record<string, number> = {};
 
   for (const question of questions) {
@@ -227,11 +234,13 @@ export function getCategoryCounts(questions: QuestionPrompt[]): Record<string, n
 }
 
 // Get a curated mix of 12 questions from different categories
-export function getCuratedQuestions(questions: QuestionPrompt[]): QuestionPrompt[] {
+export function getCuratedQuestions(
+  questions: QuestionPrompt[],
+): QuestionPrompt[] {
   if (questions.length === 0) return [];
 
   // Filter out archived questions
-  const activeQuestions = questions.filter(q => !q.archived);
+  const activeQuestions = questions.filter((q) => !q.archived);
 
   // Group questions by category
   const questionsByCategory: Record<string, QuestionPrompt[]> = {};
@@ -263,11 +272,17 @@ export function getCuratedQuestions(questions: QuestionPrompt[]): QuestionPrompt
 }
 
 // Get 3 random questions from different categories for homepage
-export function getRandomQuestions(questions: QuestionPrompt[], count: number = 3, excludeIds: string[] = []): QuestionPrompt[] {
+export function getRandomQuestions(
+  questions: QuestionPrompt[],
+  count: number = 3,
+  excludeIds: string[] = [],
+): QuestionPrompt[] {
   if (questions.length === 0) return [];
 
   // Filter out archived questions and excluded questions
-  const activeQuestions = questions.filter(q => !q.archived && !excludeIds.includes(q.id));
+  const activeQuestions = questions.filter(
+    (q) => !q.archived && !excludeIds.includes(q.id),
+  );
 
   if (activeQuestions.length === 0) return [];
 
@@ -291,7 +306,9 @@ export function getRandomQuestions(questions: QuestionPrompt[], count: number = 
     if (shuffled.length > 0) {
       selectedQuestions.push(shuffled[0]);
       // Remove selected question from the pool
-      questionsByCategory[category] = categoryQuestions.filter(q => q.id !== shuffled[0].id);
+      questionsByCategory[category] = categoryQuestions.filter(
+        (q) => q.id !== shuffled[0].id,
+      );
     }
   }
 
@@ -306,7 +323,9 @@ export function getRandomQuestions(questions: QuestionPrompt[], count: number = 
 
     // Remove from the pool
     for (const category of Object.keys(questionsByCategory)) {
-      questionsByCategory[category] = questionsByCategory[category].filter(q => q.id !== selectedQuestion.id);
+      questionsByCategory[category] = questionsByCategory[category].filter(
+        (q) => q.id !== selectedQuestion.id,
+      );
     }
   }
 
@@ -314,27 +333,37 @@ export function getRandomQuestions(questions: QuestionPrompt[], count: number = 
 }
 
 // Admin helper functions
-export function getActiveQuestions(questions: QuestionPrompt[]): QuestionPrompt[] {
-  return questions.filter(q => !q.archived);
+export function getActiveQuestions(
+  questions: QuestionPrompt[],
+): QuestionPrompt[] {
+  return questions.filter((q) => !q.archived);
 }
 
-export function getArchivedQuestions(questions: QuestionPrompt[]): QuestionPrompt[] {
-  return questions.filter(q => q.archived);
+export function getArchivedQuestions(
+  questions: QuestionPrompt[],
+): QuestionPrompt[] {
+  return questions.filter((q) => q.archived);
 }
 
-export function archiveQuestion(questionId: string, questions: QuestionPrompt[]): QuestionPrompt[] {
-  return questions.map(q =>
+export function archiveQuestion(
+  questionId: string,
+  questions: QuestionPrompt[],
+): QuestionPrompt[] {
+  return questions.map((q) =>
     q.id === questionId
       ? { ...q, archived: true, updatedAt: new Date().toISOString() }
-      : q
+      : q,
   );
 }
 
-export function unarchiveQuestion(questionId: string, questions: QuestionPrompt[]): QuestionPrompt[] {
-  return questions.map(q =>
+export function unarchiveQuestion(
+  questionId: string,
+  questions: QuestionPrompt[],
+): QuestionPrompt[] {
+  return questions.map((q) =>
     q.id === questionId
       ? { ...q, archived: false, updatedAt: new Date().toISOString() }
-      : q
+      : q,
   );
 }
 
@@ -342,8 +371,8 @@ export function createNewQuestion(
   question: string,
   category: QuestionCategory,
   suggestedLevel: number,
-  difficulty: 'easy' | 'medium' | 'hard',
-  additionalTags: Tag[] = []
+  difficulty: "easy" | "medium" | "hard",
+  additionalTags: Tag[] = [],
 ): QuestionPrompt {
   const now = new Date().toISOString();
   const categoryTag = categoryToTag(category);
@@ -352,7 +381,7 @@ export function createNewQuestion(
   const allTags = [categoryTag, ...additionalTags];
 
   return {
-    id: `${category.toLowerCase().replace(/[^a-z0-9]/g, '')}_${Date.now()}`,
+    id: `${category.toLowerCase().replace(/[^a-z0-9]/g, "")}_${Date.now()}`,
     question,
     category,
     suggestedLevel,
@@ -360,23 +389,29 @@ export function createNewQuestion(
     tags: allTags,
     archived: false,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   };
 }
 
 export function updateQuestion(
   questionId: string,
   questions: QuestionPrompt[],
-  updates: Partial<QuestionPrompt>
+  updates: Partial<QuestionPrompt>,
 ): QuestionPrompt[] {
-  return questions.map(q => {
+  return questions.map((q) => {
     if (q.id === questionId) {
-      const updatedQuestion = { ...q, ...updates, updatedAt: new Date().toISOString() };
+      const updatedQuestion = {
+        ...q,
+        ...updates,
+        updatedAt: new Date().toISOString(),
+      };
 
       // If tags are being updated, ensure category is always included
       if (updates.tags) {
         const categoryTag = categoryToTag(q.category);
-        const otherTags = updates.tags.filter(tag => tag.name !== categoryTag.name);
+        const otherTags = updates.tags.filter(
+          (tag) => tag.name !== categoryTag.name,
+        );
         updatedQuestion.tags = [categoryTag, ...otherTags];
       }
 
@@ -389,108 +424,109 @@ export function updateQuestion(
 // Mock questions data (fallback if markdown fails to load)
 export const mockQuestions: QuestionPrompt[] = [
   {
-    id: 'personal_1',
+    id: "personal_1",
     question: "What's a habit you have that you think is weird?",
-    category: 'Personal',
+    category: "Personal",
     suggestedLevel: 2,
-    difficulty: 'easy',
-    tags: [categoryToTag('Personal'), { name: 'quirky', type: 'topic' }],
-    archived: false
+    difficulty: "easy",
+    tags: [categoryToTag("Personal"), { name: "quirky", type: "topic" }],
+    archived: false,
   },
   {
-    id: 'relationships_1',
+    id: "relationships_1",
     question: "Who was your first crush and what happened?",
-    category: 'Relationships',
+    category: "Relationships",
     suggestedLevel: 3,
-    difficulty: 'medium',
-    tags: [categoryToTag('Relationships'), { name: 'dating', type: 'topic' }],
-    archived: false
+    difficulty: "medium",
+    tags: [categoryToTag("Relationships"), { name: "dating", type: "topic" }],
+    archived: false,
   },
   {
-    id: 'embarrassing_1',
-    question: "What's the most embarrassing thing that's happened to you in public?",
-    category: 'Embarrassing',
+    id: "embarrassing_1",
+    question:
+      "What's the most embarrassing thing that's happened to you in public?",
+    category: "Embarrassing",
     suggestedLevel: 4,
-    difficulty: 'medium',
-    tags: [categoryToTag('Embarrassing'), { name: 'funny', type: 'mood' }],
-    archived: false
+    difficulty: "medium",
+    tags: [categoryToTag("Embarrassing"), { name: "funny", type: "mood" }],
+    archived: false,
   },
   {
-    id: 'fears_1',
+    id: "fears_1",
     question: "What's your biggest regret in life so far?",
-    category: 'Fears & Dreams',
+    category: "Fears & Dreams",
     suggestedLevel: 5,
-    difficulty: 'hard',
-    tags: [categoryToTag('Fears & Dreams'), { name: 'deep', type: 'mood' }],
-    archived: false
+    difficulty: "hard",
+    tags: [categoryToTag("Fears & Dreams"), { name: "deep", type: "mood" }],
+    archived: false,
   },
   {
-    id: 'opinions_1',
+    id: "opinions_1",
     question: "What's an unpopular opinion you hold?",
-    category: 'Opinions',
+    category: "Opinions",
     suggestedLevel: 3,
-    difficulty: 'medium',
-    tags: [categoryToTag('Opinions'), { name: 'controversial', type: 'topic' }],
-    archived: false
+    difficulty: "medium",
+    tags: [categoryToTag("Opinions"), { name: "controversial", type: "topic" }],
+    archived: false,
   },
   {
-    id: 'work_1',
+    id: "work_1",
     question: "What's the worst mistake you've made at work/school?",
-    category: 'Work/School',
+    category: "Work/School",
     suggestedLevel: 4,
-    difficulty: 'medium',
-    tags: [categoryToTag('Work/School'), { name: 'career', type: 'topic' }],
-    archived: false
+    difficulty: "medium",
+    tags: [categoryToTag("Work/School"), { name: "career", type: "topic" }],
+    archived: false,
   },
   {
-    id: 'random_1',
+    id: "random_1",
     question: "What's your weirdest guilty pleasure?",
-    category: 'Random',
+    category: "Random",
     suggestedLevel: 2,
-    difficulty: 'easy',
-    tags: [categoryToTag('Random'), { name: 'fun', type: 'mood' }],
-    archived: false
-  }
+    difficulty: "easy",
+    tags: [categoryToTag("Random"), { name: "fun", type: "mood" }],
+    archived: false,
+  },
 ];
 
 // Question Type Labels and Descriptions
 export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
-  text: 'Text Answer',
-  slider: 'Slider Scale',
-  multipleChoice: 'Multiple Choice'
+  text: "Text Answer",
+  slider: "Slider Scale",
+  multipleChoice: "Multiple Choice",
 };
 
 export const QUESTION_TYPE_DESCRIPTIONS: Record<QuestionType, string> = {
-  text: 'Traditional text-based answer (up to 100 words)',
-  slider: 'Numeric scale with custom labels (e.g., 1-10)',
-  multipleChoice: 'Select from predefined options'
+  text: "Traditional text-based answer (up to 100 words)",
+  slider: "Numeric scale with custom labels (e.g., 1-10)",
+  multipleChoice: "Select from predefined options",
 };
 
 // Helper: Get default config for a question type
 export function getDefaultAnswerConfig(type: QuestionType): AnswerConfig {
   switch (type) {
-    case 'text':
-      return { type: 'text' };
-    case 'slider':
+    case "text":
+      return { type: "text" };
+    case "slider":
       return {
-        type: 'slider',
+        type: "slider",
         config: {
           min: 1,
           max: 10,
-          minLabel: 'Not at all',
-          maxLabel: 'Extremely',
-          step: 1
-        }
+          minLabel: "Not at all",
+          maxLabel: "Extremely",
+          step: 1,
+        },
       };
-    case 'multipleChoice':
+    case "multipleChoice":
       return {
-        type: 'multipleChoice',
+        type: "multipleChoice",
         config: {
-          options: ['Option 1', 'Option 2', 'Option 3'],
+          options: ["Option 1", "Option 2", "Option 3"],
           allowMultiple: false,
           useRoomMembers: false,
-          showDistribution: true
-        }
+          showDistribution: true,
+        },
       };
   }
 }

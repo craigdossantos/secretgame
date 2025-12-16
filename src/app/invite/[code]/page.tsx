@@ -1,11 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Users, Loader2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Users, Loader2 } from "lucide-react";
 
 interface RoomInfo {
   roomId: string;
@@ -21,16 +28,16 @@ export default function InvitePage({
   params: Promise<{ code: string }>;
 }) {
   const router = useRouter();
-  const [code, setCode] = useState<string>('');
+  const [code, setCode] = useState<string>("");
   const [roomInfo, setRoomInfo] = useState<RoomInfo | null>(null);
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Unwrap params
   useEffect(() => {
-    params.then(p => setCode(p.code));
+    params.then((p) => setCode(p.code));
   }, [params]);
 
   // Fetch room info
@@ -46,14 +53,14 @@ export default function InvitePage({
         const data = await response.json();
 
         if (!response.ok) {
-          setError(data.error || 'Invalid invite link');
+          setError(data.error || "Invalid invite link");
           return;
         }
 
         setRoomInfo(data);
       } catch (err) {
-        console.error('Failed to fetch room info:', err);
-        setError('Failed to load invite');
+        console.error("Failed to fetch room info:", err);
+        setError("Failed to load invite");
       } finally {
         setLoading(false);
       }
@@ -66,12 +73,12 @@ export default function InvitePage({
     e.preventDefault();
 
     if (!userName.trim()) {
-      setError('Please enter your name');
+      setError("Please enter your name");
       return;
     }
 
     if (userName.trim().length > 50) {
-      setError('Name must be 50 characters or less');
+      setError("Name must be 50 characters or less");
       return;
     }
 
@@ -80,23 +87,23 @@ export default function InvitePage({
       setError(null);
 
       const response = await fetch(`/api/invite/${code}/join`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userName: userName.trim() }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Failed to join room');
+        setError(data.error || "Failed to join room");
         return;
       }
 
       // Successfully joined - redirect to room
       router.push(`/rooms/${data.roomId}`);
     } catch (err) {
-      console.error('Failed to join room:', err);
-      setError('Failed to join room');
+      console.error("Failed to join room:", err);
+      setError("Failed to join room");
     } finally {
       setJoining(false);
     }
@@ -128,7 +135,7 @@ export default function InvitePage({
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => router.push('/')}
+              onClick={() => router.push("/")}
             >
               Go to Homepage
             </Button>
@@ -146,14 +153,15 @@ export default function InvitePage({
           <CardHeader>
             <CardTitle>Room is Full</CardTitle>
             <CardDescription>
-              {roomInfo.roomName} has reached its maximum capacity of {roomInfo.maxMembers} members.
+              {roomInfo.roomName} has reached its maximum capacity of{" "}
+              {roomInfo.maxMembers} members.
             </CardDescription>
           </CardHeader>
           <CardFooter>
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => router.push('/')}
+              onClick={() => router.push("/")}
             >
               Create Your Own Room
             </Button>
@@ -170,7 +178,11 @@ export default function InvitePage({
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">You&apos;re Invited!</CardTitle>
           <CardDescription className="text-base mt-2">
-            Join <span className="font-semibold text-foreground">{roomInfo?.roomName}</span> to share secrets and discover truths
+            Join{" "}
+            <span className="font-semibold text-foreground">
+              {roomInfo?.roomName}
+            </span>{" "}
+            to share secrets and discover truths
           </CardDescription>
         </CardHeader>
 
@@ -179,7 +191,9 @@ export default function InvitePage({
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
             <Users className="h-4 w-4" />
             <span>
-              {roomInfo?.memberCount} {roomInfo?.memberCount === 1 ? 'person' : 'people'} already playing
+              {roomInfo?.memberCount}{" "}
+              {roomInfo?.memberCount === 1 ? "person" : "people"} already
+              playing
             </span>
           </div>
 
@@ -224,7 +238,7 @@ export default function InvitePage({
                   Joining...
                 </>
               ) : (
-                'Join Room'
+                "Join Room"
               )}
             </Button>
           </form>

@@ -1,19 +1,19 @@
-import { NextAuthConfig } from 'next-auth';
-import Google from 'next-auth/providers/google';
-import { createId } from '@paralleldrive/cuid2';
-import { insertUser, findUserById, findUserByEmail } from '@/lib/db/supabase';
+import { NextAuthConfig } from "next-auth";
+import Google from "next-auth/providers/google";
+import { createId } from "@paralleldrive/cuid2";
+import { insertUser, findUserById, findUserByEmail } from "@/lib/db/supabase";
 
 export const authConfig = {
-  basePath: '/api/auth',
+  basePath: "/api/auth",
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          prompt: 'consent',
-          access_type: 'offline',
-          response_type: 'code',
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
         },
       },
     }),
@@ -22,9 +22,10 @@ export const authConfig = {
     async signIn({ user, account, profile }) {
       try {
         // On sign-in, sync user with our database
-        if (account?.provider === 'google' && profile?.email) {
+        if (account?.provider === "google" && profile?.email) {
           // Use Google's sub (subject) as the user ID for consistency
-          const googleId = (profile as { sub?: string }).sub || user.id || createId();
+          const googleId =
+            (profile as { sub?: string }).sub || user.id || createId();
 
           // Check if user exists by email first (handles ID migration)
           const existingUserByEmail = await findUserByEmail(profile.email);
@@ -41,7 +42,7 @@ export const authConfig = {
               await insertUser({
                 id: googleId,
                 email: profile.email,
-                name: profile.name || profile.email.split('@')[0],
+                name: profile.name || profile.email.split("@")[0],
                 avatarUrl: (profile as { picture?: string }).picture || null,
               });
               user.id = googleId;
@@ -52,7 +53,7 @@ export const authConfig = {
         }
         return true;
       } catch (error) {
-        console.error('SignIn callback error:', error);
+        console.error("SignIn callback error:", error);
         return false;
       }
     },
@@ -68,7 +69,7 @@ export const authConfig = {
             ...session.user,
             id: dbUser.id,
             name: dbUser.name,
-            email: dbUser.email || '',
+            email: dbUser.email || "",
             image: dbUser.avatarUrl || undefined,
           };
         } else {
@@ -76,9 +77,9 @@ export const authConfig = {
           session.user = {
             ...session.user,
             id: token.sub,
-            name: token.name as string || '',
-            email: token.email as string || '',
-            image: token.picture as string || undefined,
+            name: (token.name as string) || "",
+            email: (token.email as string) || "",
+            image: (token.picture as string) || undefined,
           };
         }
       }
@@ -95,11 +96,11 @@ export const authConfig = {
     },
   },
   session: {
-    strategy: 'jwt', // Use JWT instead of database sessions for simplicity
+    strategy: "jwt", // Use JWT instead of database sessions for simplicity
   },
   pages: {
-    signIn: '/', // Redirect to homepage for sign-in
-    error: '/', // Redirect errors to homepage
+    signIn: "/", // Redirect to homepage for sign-in
+    error: "/", // Redirect errors to homepage
   },
   secret: process.env.NEXTAUTH_SECRET,
 } satisfies NextAuthConfig;

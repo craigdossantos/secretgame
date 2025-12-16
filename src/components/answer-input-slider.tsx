@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { SliderConfig } from '@/lib/questions';
+import { useState } from "react";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { SliderConfig } from "@/lib/questions";
 
 interface AnswerInputSliderProps {
   config: SliderConfig;
@@ -11,7 +11,11 @@ interface AnswerInputSliderProps {
   onChange: (value: number) => void;
 }
 
-export function AnswerInputSlider({ config, value, onChange }: AnswerInputSliderProps) {
+export function AnswerInputSlider({
+  config,
+  value,
+  onChange,
+}: AnswerInputSliderProps) {
   const [localValue, setLocalValue] = useState(value);
 
   const handleValueChange = (newValue: number[]) => {
@@ -21,7 +25,8 @@ export function AnswerInputSlider({ config, value, onChange }: AnswerInputSlider
   };
 
   // Calculate percentage for visual feedback
-  const percentage = ((localValue - config.min) / (config.max - config.min)) * 100;
+  const percentage =
+    ((localValue - config.min) / (config.max - config.min)) * 100;
 
   return (
     <div className="space-y-3">

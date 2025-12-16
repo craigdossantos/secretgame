@@ -1,10 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { QuestionSelector } from '@/components/question-selector';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { mockQuestions, QuestionPrompt, getCuratedQuestions } from '@/lib/questions';
+import { useState } from "react";
+import { QuestionSelector } from "@/components/question-selector";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  mockQuestions,
+  QuestionPrompt,
+  getCuratedQuestions,
+} from "@/lib/questions";
 
 export default function QuestionSelectorDemoPage() {
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
@@ -13,20 +17,27 @@ export default function QuestionSelectorDemoPage() {
   // Get a curated set of questions for demonstration
   const availableQuestions = getCuratedQuestions(mockQuestions);
 
-  const handleSelectionChange = (selectedIds: string[], newCustomQuestions: QuestionPrompt[]) => {
+  const handleSelectionChange = (
+    selectedIds: string[],
+    newCustomQuestions: QuestionPrompt[],
+  ) => {
     setSelectedQuestionIds(selectedIds);
     setCustomQuestions(newCustomQuestions);
   };
 
   const handleCreateRoom = () => {
-    console.log('Creating room with selected questions:', selectedQuestionIds);
-    console.log('Custom questions:', customQuestions);
+    console.log("Creating room with selected questions:", selectedQuestionIds);
+    console.log("Custom questions:", customQuestions);
     // In a real implementation, this would call the API to create a room
-    alert(`Room would be created with ${selectedQuestionIds.length} selected questions!`);
+    alert(
+      `Room would be created with ${selectedQuestionIds.length} selected questions!`,
+    );
   };
 
   const allQuestions = [...availableQuestions, ...customQuestions];
-  const selectedQuestions = allQuestions.filter(q => selectedQuestionIds.includes(q.id));
+  const selectedQuestions = allQuestions.filter((q) =>
+    selectedQuestionIds.includes(q.id),
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -37,8 +48,9 @@ export default function QuestionSelectorDemoPage() {
             Question Selector Demo
           </h1>
           <p className="text-gray-600">
-            This demonstrates the QuestionSelector component for The Secret Game.
-            Select exactly 3 questions to create a room with custom question curation.
+            This demonstrates the QuestionSelector component for The Secret
+            Game. Select exactly 3 questions to create a room with custom
+            question curation.
           </p>
         </Card>
 
@@ -59,7 +71,8 @@ export default function QuestionSelectorDemoPage() {
                   Ready to Create Room!
                 </h3>
                 <p className="text-green-700 text-sm">
-                  You&apos;ve selected {selectedQuestionIds.length} questions for your room.
+                  You&apos;ve selected {selectedQuestionIds.length} questions
+                  for your room.
                 </p>
               </div>
               <Button
@@ -74,7 +87,9 @@ export default function QuestionSelectorDemoPage() {
 
         {/* Debug Information */}
         <Card className="p-6 bg-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Debug Information</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Debug Information
+          </h3>
           <div className="space-y-3 text-sm">
             <div>
               <strong>Available Questions:</strong> {availableQuestions.length}
@@ -83,13 +98,14 @@ export default function QuestionSelectorDemoPage() {
               <strong>Custom Questions:</strong> {customQuestions.length}
             </div>
             <div>
-              <strong>Selected Question IDs:</strong> [{selectedQuestionIds.join(', ')}]
+              <strong>Selected Question IDs:</strong> [
+              {selectedQuestionIds.join(", ")}]
             </div>
             {selectedQuestions.length > 0 && (
               <div>
                 <strong>Selected Questions:</strong>
                 <ul className="list-disc list-inside mt-2 space-y-1">
-                  {selectedQuestions.map(q => (
+                  {selectedQuestions.map((q) => (
                     <li key={q.id} className="text-gray-700">
                       <span className="font-medium">{q.id}:</span> {q.question}
                     </li>

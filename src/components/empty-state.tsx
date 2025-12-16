@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
+import { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 
 interface EmptyStateProps {
   icon?: string; // Emoji or icon
@@ -12,7 +12,13 @@ interface EmptyStateProps {
   children?: ReactNode;
 }
 
-export function EmptyState({ icon, title, description, action, children }: EmptyStateProps) {
+export function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+  children,
+}: EmptyStateProps) {
   return (
     <div className="text-center py-12 art-deco-border bg-card/30 backdrop-blur-sm art-deco-glow">
       {icon && (
