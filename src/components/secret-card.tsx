@@ -14,15 +14,18 @@ import { SliderConfig } from "@/lib/questions";
 
 interface Secret {
   id: string;
+  roomId?: string;
+  authorId?: string;
   body: string;
   selfRating: number;
   importance: number;
-  avgRating: number | null;
+  avgRating?: number | null;
   buyersCount: number;
   authorName: string;
-  authorAvatar?: string;
+  authorAvatar?: string | null;
   createdAt: string; // ISO string from API
   isUnlocked?: boolean;
+  isHidden?: boolean;
   questionText?: string;
   // Typed answer support
   answerType?: string;
@@ -93,7 +96,7 @@ export function SecretCard({ secret, onUnlock, onRate }: SecretCardProps) {
             ) : (
               <>
                 <Avatar className="w-8 h-8 border-2 border-border">
-                  <AvatarImage src={secret.authorAvatar} />
+                  <AvatarImage src={secret.authorAvatar ?? undefined} />
                   <AvatarFallback className="bg-primary/20 text-primary">
                     {secret.authorName[0]}
                   </AvatarFallback>
