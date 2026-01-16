@@ -10,6 +10,7 @@ import {
 import { successResponse, errorResponse } from "@/lib/api/helpers";
 import { getSessionUserWithUpsert } from "@/lib/api/auth-helpers";
 import { parseQuestions } from "@/lib/questions";
+import { getPublicEnv } from "@/lib/env";
 
 export async function GET(
   request: NextRequest,
@@ -63,7 +64,7 @@ export async function GET(
     // Load regular questions from markdown for curated questions
     try {
       const questionsResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/questions.md`,
+        `${getPublicEnv().NEXT_PUBLIC_BASE_URL}/questions.md`,
       );
       if (questionsResponse.ok) {
         const markdownContent = await questionsResponse.text();

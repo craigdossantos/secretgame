@@ -13,6 +13,7 @@ import {
   errorResponse,
   successResponse,
 } from "@/lib/api/helpers";
+import { getServerEnv, isProduction } from "@/lib/env";
 
 export async function POST(request: NextRequest) {
   try {
@@ -126,7 +127,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const inviteUrl = `${process.env.NEXTAUTH_URL}/invite/${inviteCode}`;
+    const inviteUrl = `${getServerEnv().NEXTAUTH_URL}/invite/${inviteCode}`;
 
     const response = successResponse({
       roomId,
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
     if (!session?.user?.id) {
       response.cookies.set("userId", userId, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: isProduction(),
         path: "/",
         maxAge: 60 * 60 * 24 * 30, // 30 days
         sameSite: "lax",

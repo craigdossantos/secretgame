@@ -2,6 +2,7 @@ import { createId } from "@paralleldrive/cuid2";
 import { cookies } from "next/headers";
 import { NextResponse, NextRequest } from "next/server";
 import { randomBytes } from "crypto";
+import { isProduction } from "@/lib/env";
 
 // Generate a unique invite code using cryptographically secure random bytes
 export function generateInviteCode(): string {
@@ -35,7 +36,7 @@ export function createUserCookie(userId: string) {
     value: userId,
     options: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction(),
       sameSite: "lax" as const,
       maxAge: 60 * 60 * 24 * 30, // 30 days
     },

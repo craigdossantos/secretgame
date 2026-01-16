@@ -4,9 +4,15 @@ import { SliderConfig, MultipleChoiceConfig } from "@/lib/questions";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2 } from "lucide-react";
 import { ImageAnswerDisplay } from "@/components/image-answer-display";
+import {
+  AnswerType,
+  isSliderAnswerData,
+  isMultipleChoiceAnswerData,
+  isImageUploadAnswerData,
+} from "@/types/models";
 
 interface SecretAnswerDisplayProps {
-  answerType: string;
+  answerType: AnswerType | string;
   answerData?: unknown;
   body: string; // Fallback text representation
   config?: SliderConfig | MultipleChoiceConfig; // Question config for context
@@ -18,10 +24,9 @@ export function SecretAnswerDisplay({
   body,
   config,
 }: SecretAnswerDisplayProps) {
-  // Handle slider answer display
-  if (answerType === "slider" && answerData && typeof answerData === "object") {
-    const sliderAnswer = answerData as { value: number };
-    const sliderValue = sliderAnswer.value;
+  // Handle slider answer display with type guard
+  if (answerType === "slider" && isSliderAnswerData(answerData)) {
+    const sliderValue = answerData.value;
 
     // If we have config, use it for visual representation
     if (config && "min" in config) {
@@ -72,30 +77,25 @@ export function SecretAnswerDisplay({
     );
   }
 
-  // Handle image upload answer display
-  if (
-    answerType === "imageUpload" &&
-    answerData &&
-    typeof answerData === "object"
-  ) {
-    const imageData = answerData as {
-      imageBase64: string;
-      caption?: string;
-      mimeType: string;
-      fileSize: number;
-      fileName: string;
+  // Handle image upload answer display with type guard
+  if (answerType === "imageUpload" && isImageUploadAnswerData(answerData)) {
+    // Build ImageData object with required fields, using defaults for missing metadata
+    const imageData = {
+      imageBase64: answerData.imageBase64,
+      caption: answerData.caption,
+      mimeType: (answerData as { mimeType?: string }).mimeType || "image/jpeg",
+      fileSize: (answerData as { fileSize?: number }).fileSize || 0,
+      fileName: (answerData as { fileName?: string }).fileName || "image",
     };
     return <ImageAnswerDisplay imageData={imageData} />;
   }
 
-  // Handle multiple choice answer display
+  // Handle multiple choice answer display with type guard
   if (
     answerType === "multipleChoice" &&
-    answerData &&
-    typeof answerData === "object"
+    isMultipleChoiceAnswerData(answerData)
   ) {
-    const mcAnswer = answerData as { selected: string[] };
-    const selectedOptions = mcAnswer.selected || [];
+    const selectedOptions = answerData.selected;
 
     // If we have config, show all options with visual indicators
     if (config && "options" in config) {

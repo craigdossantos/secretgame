@@ -1,12 +1,68 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { Session } from "next-auth";
 import { upsertUser } from "@/lib/db/supabase";
+import { errorResponse } from "@/lib/api/helpers";
 
 export interface AuthResult {
   userId: string;
   session: Session | null;
   isAnonymous: boolean;
+}
+
+/**
+ * Result type for withAuth helper - discriminated union for type-safe handling
+ */
+export type WithAuthResult =
+  | { success: true; data: AuthResult; error: null }
+  | { success: false; data: null; error: NextResponse };
+
+/**
+ * Session validation helper for API routes.
+ * Returns either auth data or a ready-to-return error response.
+ *
+ * Usage:
+ * ```ts
+ * const authResult = await withAuth();
+ * if (!authResult.success) return authResult.error;
+ * const { userId } = authResult.data;
+ * ```
+ *
+ * @param options.requireSession - If true, only NextAuth sessions are accepted (no cookie fallback)
+ * @param options.upsertUser - If true, ensures user exists in database
+ * @returns Object with success boolean, data (AuthResult), and error (NextResponse)
+ */
+export async function withAuth(options?: {
+  requireSession?: boolean;
+  upsertUser?: boolean;
+}): Promise<WithAuthResult> {
+  const { requireSession = true, upsertUser: shouldUpsert = true } =
+    options ?? {};
+
+  let result: AuthResult | null = null;
+
+  if (requireSession && shouldUpsert) {
+    result = await getSessionUserWithUpsert();
+  } else if (requireSession) {
+    result = await getSessionUser();
+  } else {
+    // This path requires a request object, so we fallback to session-based auth
+    result = await getSessionUser();
+  }
+
+  if (!result) {
+    return {
+      success: false,
+      data: null,
+      error: errorResponse("Authentication required", 401),
+    };
+  }
+
+  return {
+    success: true,
+    data: result,
+    error: null,
+  };
 }
 
 /**

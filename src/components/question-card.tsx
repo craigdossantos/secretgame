@@ -14,6 +14,7 @@ import { ChiliRating } from "@/components/chili-rating";
 import { AnswerInputSlider } from "@/components/answer-input-slider";
 import { AnswerInputMultipleChoice } from "@/components/answer-input-multiple-choice";
 import { ImageUploadInput } from "@/components/image-upload-input";
+import { toBoolean } from "@/lib/utils";
 import {
   QuestionPrompt,
   SliderConfig,
@@ -236,7 +237,7 @@ export function QuestionCard({
                   id="answer-anonymous-slider"
                   checked={isAnonymous}
                   onCheckedChange={(checked) =>
-                    setIsAnonymous(checked as boolean)
+                    setIsAnonymous(toBoolean(checked))
                   }
                   className="h-4 w-4"
                 />
@@ -339,7 +340,7 @@ export function QuestionCard({
                   id="answer-anonymous-mc"
                   checked={isAnonymous}
                   onCheckedChange={(checked) =>
-                    setIsAnonymous(checked as boolean)
+                    setIsAnonymous(toBoolean(checked))
                   }
                   className="h-4 w-4"
                 />
@@ -552,7 +553,7 @@ export function QuestionCard({
                     id="answer-anonymous-text"
                     checked={isAnonymous}
                     onCheckedChange={(checked) =>
-                      setIsAnonymous(checked as boolean)
+                      setIsAnonymous(toBoolean(checked))
                     }
                     className="h-4 w-4"
                   />

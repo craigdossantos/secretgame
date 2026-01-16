@@ -82,6 +82,148 @@ export interface SecretRating {
 }
 
 // ============================================================================
+// ANSWER DATA TYPES (for typed answers)
+// ============================================================================
+
+/**
+ * Answer types supported by the system
+ */
+export type AnswerType = "text" | "slider" | "multipleChoice" | "imageUpload";
+
+/**
+ * Slider answer data
+ * Used when questionType is "slider"
+ */
+export interface SliderAnswerData {
+  value: number;
+}
+
+/**
+ * Multiple choice answer data
+ * Used when questionType is "multipleChoice"
+ */
+export interface MultipleChoiceAnswerData {
+  selected: string[];
+}
+
+/**
+ * Image upload answer data
+ * Used when questionType is "imageUpload"
+ */
+export interface ImageUploadAnswerData {
+  imageBase64: string;
+  caption?: string;
+}
+
+/**
+ * Text answer data (default)
+ * For plain text answers, the body field is used directly
+ */
+export interface TextAnswerData {
+  text?: string; // Optional, body field is primary
+}
+
+/**
+ * Union type for all answer data types
+ */
+export type AnswerData =
+  | SliderAnswerData
+  | MultipleChoiceAnswerData
+  | ImageUploadAnswerData
+  | TextAnswerData;
+
+// ============================================================================
+// TYPE GUARDS (runtime validation)
+// ============================================================================
+
+/**
+ * Check if value is a valid SliderAnswerData
+ */
+export function isSliderAnswerData(data: unknown): data is SliderAnswerData {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "value" in data &&
+    typeof (data as SliderAnswerData).value === "number"
+  );
+}
+
+/**
+ * Check if value is a valid MultipleChoiceAnswerData
+ */
+export function isMultipleChoiceAnswerData(
+  data: unknown,
+): data is MultipleChoiceAnswerData {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "selected" in data &&
+    Array.isArray((data as MultipleChoiceAnswerData).selected) &&
+    (data as MultipleChoiceAnswerData).selected.every(
+      (item) => typeof item === "string",
+    )
+  );
+}
+
+/**
+ * Check if value is a valid ImageUploadAnswerData
+ */
+export function isImageUploadAnswerData(
+  data: unknown,
+): data is ImageUploadAnswerData {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "imageBase64" in data &&
+    typeof (data as ImageUploadAnswerData).imageBase64 === "string"
+  );
+}
+
+/**
+ * Check if value is a valid TextAnswerData
+ */
+export function isTextAnswerData(data: unknown): data is TextAnswerData {
+  if (data === null || data === undefined) return true;
+  if (typeof data !== "object") return false;
+  const textData = data as TextAnswerData;
+  return textData.text === undefined || typeof textData.text === "string";
+}
+
+/**
+ * Get typed answer data based on answerType
+ * Returns null if data doesn't match expected type
+ */
+export function getTypedAnswerData<T extends AnswerType>(
+  answerType: T,
+  data: unknown,
+): T extends "slider"
+  ? SliderAnswerData | null
+  : T extends "multipleChoice"
+    ? MultipleChoiceAnswerData | null
+    : T extends "imageUpload"
+      ? ImageUploadAnswerData | null
+      : TextAnswerData | null {
+  switch (answerType) {
+    case "slider":
+      return (isSliderAnswerData(data) ? data : null) as ReturnType<
+        typeof getTypedAnswerData<T>
+      >;
+    case "multipleChoice":
+      return (isMultipleChoiceAnswerData(data) ? data : null) as ReturnType<
+        typeof getTypedAnswerData<T>
+      >;
+    case "imageUpload":
+      return (isImageUploadAnswerData(data) ? data : null) as ReturnType<
+        typeof getTypedAnswerData<T>
+      >;
+    default:
+      return (
+        isTextAnswerData(data) ? (data as TextAnswerData) : null
+      ) as ReturnType<typeof getTypedAnswerData<T>>;
+  }
+}
+
+// ============================================================================
 // EXTENDED TYPES (for UI components and API responses)
 // ============================================================================
 

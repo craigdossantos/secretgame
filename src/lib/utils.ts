@@ -5,6 +5,23 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Type for Radix UI Checkbox checked state
+ * Can be boolean or 'indeterminate' for tri-state checkboxes
+ */
+export type CheckedState = boolean | "indeterminate";
+
+/**
+ * Safely converts Radix UI Checkbox checked state to boolean.
+ * Treats 'indeterminate' as false for binary checkbox usage.
+ *
+ * Usage:
+ *   onCheckedChange={(checked) => setIsChecked(toBoolean(checked))}
+ */
+export function toBoolean(checked: CheckedState): boolean {
+  return checked === true;
+}
+
 /** Maximum allowed word count for secrets */
 export const MAX_WORD_COUNT = 100;
 
