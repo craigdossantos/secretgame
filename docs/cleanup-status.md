@@ -194,11 +194,21 @@ src/
 
 ## Next Session Checklist
 
-1. [ ] Complete Sprint 3 integration (console.logs, room split, auth helpers, word count)
-2. [ ] Run tests to verify no regressions
-3. [ ] Commit completed work
-4. [ ] Merge to main
-5. [ ] Consider starting Sprint 1 (Security) or Sprint 2 (Accessibility)
+### Sprint 3 ✅ COMPLETED (2025-01-15)
+
+- [x] Remove debug console.logs (80 statements)
+- [x] Integrate room page split (997→176 lines)
+- [x] Add word count utility to utils.ts
+- [x] Integrate auth helpers into API routes
+- [x] Run build and tests - no regressions
+
+### Sprint 1: Security Hardening (NEXT)
+
+1. [ ] Replace `Math.random()` with `crypto.randomBytes()` - `src/lib/api/helpers.ts`
+2. [ ] Fix secret metadata exposure - `src/app/api/rooms/[id]/secrets/route.ts`
+3. [ ] Add room membership validation - `src/app/api/secrets/[id]/unlock/route.ts`
+4. [ ] Set cookies to `httpOnly: true`
+5. [ ] Add rate limiting (optional for MVP)
 
 ---
 
