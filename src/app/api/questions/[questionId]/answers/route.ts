@@ -1,13 +1,12 @@
 import { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
 import {
   findRoomMember,
   findRoomSecrets,
   findUserById,
   findUserSecretAccess,
-  upsertUser,
 } from "@/lib/db/supabase";
 import { successResponse, errorResponse } from "@/lib/api/helpers";
+import { getSessionUserWithUpsert } from "@/lib/api/auth-helpers";
 
 // GET /api/questions/[questionId]/answers - Get all answers for a specific question
 // Only accessible if the current user has also answered this question
@@ -18,20 +17,12 @@ export async function GET(
   try {
     const { questionId } = await context.params;
 
-    // Get user session from NextAuth
-    const session = await auth();
-    if (!session?.user?.id) {
+    // Get authenticated user with database upsert
+    const authResult = await getSessionUserWithUpsert();
+    if (!authResult) {
       return errorResponse("Authentication required", 401);
     }
-    const userId = session.user.id;
-
-    // Upsert user to ensure they exist in database
-    await upsertUser({
-      id: userId,
-      email: session.user.email!,
-      name: session.user.name || "Anonymous",
-      avatarUrl: session.user.image || null,
-    });
+    const { userId } = authResult;
 
     // Get roomId from query params
     const { searchParams } = new URL(request.url);
@@ -41,14 +32,9 @@ export async function GET(
       return errorResponse("roomId is required", 400);
     }
 
-    console.log(
-      `🔍 Fetching collaborative answers for question ${questionId} in room ${roomId}`,
-    );
-
     // Verify user is a member of the room
     const membership = await findRoomMember(roomId, userId);
     if (!membership) {
-      console.log(`❌ User ${userId} is not a member of room ${roomId}`);
       return errorResponse("You must be a member of this room", 403);
     }
 
@@ -59,22 +45,15 @@ export async function GET(
     );
 
     if (!userAnswered) {
-      console.log(`❌ User ${userId} has not answered question ${questionId}`);
       return errorResponse(
         "You must answer this question before viewing others' answers",
         403,
       );
     }
 
-    console.log(`✅ User has answered, fetching all answers...`);
-
     // Get all secrets for this question
     const questionSecrets = allSecrets.filter(
       (s) => s.questionId === questionId,
-    );
-
-    console.log(
-      `📦 Found ${questionSecrets.length} total answers for question`,
     );
 
     // Get all users who answered (for enrichment)
@@ -87,8 +66,6 @@ export async function GET(
     const unlockedSecretIds = new Set(
       userAccess.map((access) => access.secretId),
     );
-
-    console.log(`🔓 User has unlocked ${unlockedSecretIds.size} secrets`);
 
     // Format secrets for response
     const formattedSecrets = questionSecrets.map((secret) => {
@@ -126,17 +103,12 @@ export async function GET(
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
 
-    console.log(
-      `✅ Returning ${formattedSecrets.length} answers for question ${questionId}`,
-    );
-
     return successResponse({
       answers: formattedSecrets,
       questionId,
       totalAnswers: formattedSecrets.length,
     });
-  } catch (error) {
-    console.error("❌ Failed to fetch collaborative answers:", error);
+  } catch {
     return errorResponse("Failed to fetch answers", 500);
   }
 }

@@ -73,23 +73,15 @@ export async function POST(request: NextRequest) {
     // Auto-generate room name if not provided
     const roomName = name || `Room ${inviteCode.slice(0, 6)}`;
 
-    console.log(`🏗️ Creating room:`, roomId);
-
     // Insert room into Supabase
-    try {
-      await insertRoom({
-        id: roomId,
-        name: roomName,
-        ownerId: userId,
-        inviteCode,
-        maxMembers: 20,
-        setupMode,
-      });
-      console.log(`✅ Room created successfully:`, roomId);
-    } catch (insertError) {
-      console.error(`❌ Failed to insert room:`, insertError);
-      throw insertError;
-    }
+    await insertRoom({
+      id: roomId,
+      name: roomName,
+      ownerId: userId,
+      inviteCode,
+      maxMembers: 20,
+      setupMode,
+    });
 
     // Add owner as first member
     await insertRoomMember({
@@ -157,8 +149,7 @@ export async function POST(request: NextRequest) {
     }
 
     return response;
-  } catch (error) {
-    console.error("Failed to create room:", error);
+  } catch {
     return errorResponse("Failed to create room", 500);
   }
 }
@@ -176,8 +167,7 @@ export async function GET() {
     const userRooms = await findUserRooms(session.user.id);
 
     return successResponse({ rooms: userRooms });
-  } catch (error) {
-    console.error("Failed to get rooms:", error);
+  } catch {
     return errorResponse("Failed to get rooms", 500);
   }
 }

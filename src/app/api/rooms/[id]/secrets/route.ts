@@ -1,15 +1,14 @@
 import { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
 import {
   findRoomById,
   findRoomMember,
   findRoomSecrets,
   findUserSecretAccess,
   findUserById,
-  upsertUser,
   findRoomQuestions,
 } from "@/lib/db/supabase";
 import { successResponse, errorResponse } from "@/lib/api/helpers";
+import { getSessionUserWithUpsert } from "@/lib/api/auth-helpers";
 import { parseQuestions } from "@/lib/questions";
 
 export async function GET(
@@ -19,59 +18,36 @@ export async function GET(
   try {
     const { id: roomId } = await params;
 
-    // Get user session from NextAuth
-    const session = await auth();
-    if (!session?.user?.id) {
+    // Get authenticated user (handles session and upsert)
+    const authResult = await getSessionUserWithUpsert();
+    if (!authResult) {
       return errorResponse("Authentication required", 401);
     }
-    const userId = session.user.id;
-
-    // Upsert user to ensure they exist in database
-    await upsertUser({
-      id: userId,
-      email: session.user.email!,
-      name: session.user.name || "Anonymous",
-      avatarUrl: session.user.image || null,
-    });
-
-    console.log(`🔍 Fetching secrets for room ${roomId}, user ${userId}`);
+    const { userId } = authResult;
 
     // Verify room exists
     const room = await findRoomById(roomId);
     if (!room) {
-      console.log(`❌ Room ${roomId} not found`);
       return errorResponse("Room not found", 404);
     }
-
-    console.log(`🏠 Found room: ${room.name}`);
 
     // Verify user is a member
     const membership = await findRoomMember(roomId, userId);
     if (!membership) {
-      console.log(`❌ User ${userId} is not a member of room ${roomId}`);
       return errorResponse("You must be a member of this room", 403);
     }
 
-    console.log(`✅ User is a member, fetching secrets...`);
-
     // Get all secrets for this room
     const allSecrets = await findRoomSecrets(roomId);
-    console.log(`📦 Found ${allSecrets.length} total secrets in room`);
 
     // Get room questions from database
     const roomQuestions = await findRoomQuestions(roomId);
     const validQuestionIds = new Set(roomQuestions.map((q) => q.id));
 
-    console.log(`📋 Room has ${roomQuestions.length} questions`);
-
     const filteredSecrets = allSecrets.filter((secret) => {
       // Only include secrets that have a questionId and it's in the room's questions
       return secret.questionId && validQuestionIds.has(secret.questionId);
     });
-
-    console.log(
-      `🔒 Filtered to ${filteredSecrets.length} secrets for room questions`,
-    );
 
     // Load questions to get question text
     const questionsMap = new Map<string, string>();
@@ -106,9 +82,7 @@ export async function GET(
         });
       }
     } catch {
-      console.warn(
-        "Could not load questions.md, some question text may be missing",
-      );
+      // Could not load questions.md, some question text may be missing
     }
 
     // For each secret, check if current user has access
@@ -116,8 +90,6 @@ export async function GET(
     const unlockedSecretIds = new Set(
       userSecretAccess.map((access) => access.secretId),
     );
-
-    console.log(`🔓 User has unlocked ${unlockedSecretIds.size} secrets`);
 
     // Get user info for authors
     const secretsWithAccess = await Promise.all(
@@ -151,13 +123,10 @@ export async function GET(
       }),
     );
 
-    console.log(`✅ Returning ${secretsWithAccess.length} secrets to client`);
-
     return successResponse({
       secrets: secretsWithAccess,
     });
-  } catch (error) {
-    console.error("❌ Error fetching room secrets:", error);
+  } catch {
     return errorResponse("Failed to fetch secrets", 500);
   }
 }

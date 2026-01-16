@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
 import {
   findSecretById,
   findRoomMember,
@@ -9,10 +8,11 @@ import {
   insertSecret,
   insertSecretAccess,
   updateSecret,
-  upsertUser,
 } from "@/lib/db/supabase";
 import { successResponse, errorResponse } from "@/lib/api/helpers";
+import { getSessionUserWithUpsert } from "@/lib/api/auth-helpers";
 import { createId } from "@paralleldrive/cuid2";
+import { countWords, MAX_WORD_COUNT } from "@/lib/utils";
 
 interface UnlockRequestBody {
   questionId: string;
@@ -28,28 +28,16 @@ export async function POST(
   try {
     const { id: secretId } = await params;
 
-    // Get user session from NextAuth
-    const session = await auth();
-    if (!session?.user?.id) {
+    // Get authenticated user (ensures they exist in database)
+    const authResult = await getSessionUserWithUpsert();
+    if (!authResult) {
       return errorResponse("Authentication required", 401);
     }
-    const userId = session.user.id;
-
-    // Upsert user to ensure they exist in database
-    await upsertUser({
-      id: userId,
-      email: session.user.email!,
-      name: session.user.name || "Anonymous",
-      avatarUrl: session.user.image || null,
-    });
+    const { userId } = authResult;
 
     // Parse request body
     const data: UnlockRequestBody = await request.json();
     const { questionId, body, selfRating, importance } = data;
-
-    console.log(
-      `🔓 Attempting to unlock secret ${secretId} for user ${userId}`,
-    );
 
     // Validate required fields
     if (
@@ -62,14 +50,13 @@ export async function POST(
     }
 
     // Validate word count (≤100 words)
-    const wordCount = body
-      .trim()
-      .split(/\s+/)
-      .filter((word) => word.length > 0).length;
-    if (wordCount > 100) {
-      return errorResponse("Secret must be 100 words or less", 400);
+    const wordCount = countWords(body);
+    if (wordCount > MAX_WORD_COUNT) {
+      return errorResponse(
+        `Secret must be ${MAX_WORD_COUNT} words or less`,
+        400,
+      );
     }
-
     if (wordCount === 0) {
       return errorResponse("Secret cannot be empty", 400);
     }
@@ -82,28 +69,22 @@ export async function POST(
     // Find the secret to unlock
     const secretToUnlock = await findSecretById(secretId);
     if (!secretToUnlock) {
-      console.log(`❌ Secret ${secretId} not found`);
       return errorResponse("Secret not found", 404);
     }
 
     // Prevent unlocking your own secret
     if (secretToUnlock.authorId === userId) {
-      console.log(`❌ User ${userId} attempted to unlock their own secret`);
       return errorResponse("You cannot unlock your own secret", 400);
     }
 
     // Check if user already has access
     const existingAccess = await findSecretAccess(secretId, userId);
     if (existingAccess) {
-      console.log(`❌ User ${userId} already has access to secret ${secretId}`);
       return errorResponse("You have already unlocked this secret", 400);
     }
 
     // Validate: submitted secret rating must be >= required rating
     if (selfRating < secretToUnlock.selfRating) {
-      console.log(
-        `❌ Submitted rating ${selfRating} < required rating ${secretToUnlock.selfRating}`,
-      );
       return errorResponse(
         `Your secret must have a rating of ${secretToUnlock.selfRating} or higher`,
         400,
@@ -113,9 +94,6 @@ export async function POST(
     // Verify user is a member of the room
     const membership = await findRoomMember(secretToUnlock.roomId, userId);
     if (!membership) {
-      console.log(
-        `❌ User ${userId} is not a member of room ${secretToUnlock.roomId}`,
-      );
       return errorResponse("You must be a member of this room", 403);
     }
 
@@ -127,9 +105,6 @@ export async function POST(
 
     if (existingUserSecret) {
       // Update existing secret
-      console.log(
-        `♻️ Updating existing secret ${existingUserSecret.id} for unlock payment`,
-      );
       await updateSecret(existingUserSecret.id, {
         body: body.trim(),
         selfRating,
@@ -138,8 +113,6 @@ export async function POST(
     } else {
       // Create new secret (user's answer to unlock)
       const newSecretId = createId();
-
-      console.log(`🆕 Creating new secret ${newSecretId} as unlock payment`);
 
       const newSecret = {
         id: newSecretId,
@@ -162,7 +135,6 @@ export async function POST(
 
     // Grant access to the unlocked secret
     const accessId = createId();
-    console.log(`🔑 Granting access to secret ${secretId} for user ${userId}`);
 
     await insertSecretAccess({
       id: accessId,
@@ -180,13 +152,8 @@ export async function POST(
     const updatedSecret = await findSecretById(secretId);
 
     if (!updatedSecret) {
-      console.log(`❌ Failed to fetch updated secret ${secretId}`);
       return errorResponse("Failed to fetch updated secret", 500);
     }
-
-    console.log(
-      `✅ Secret ${secretId} unlocked successfully by user ${userId}`,
-    );
 
     return successResponse({
       message: "Secret unlocked successfully",
@@ -206,8 +173,7 @@ export async function POST(
         questionId: updatedSecret.questionId,
       },
     });
-  } catch (error) {
-    console.error("❌ Error unlocking secret:", error);
+  } catch {
     return errorResponse("Failed to unlock secret", 500);
   }
 }

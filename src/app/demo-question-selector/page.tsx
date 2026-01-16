@@ -26,8 +26,6 @@ export default function QuestionSelectorDemoPage() {
   };
 
   const handleCreateRoom = () => {
-    console.log("Creating room with selected questions:", selectedQuestionIds);
-    console.log("Custom questions:", customQuestions);
     // In a real implementation, this would call the API to create a room
     alert(
       `Room would be created with ${selectedQuestionIds.length} selected questions!`,

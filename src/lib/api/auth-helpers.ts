@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { Session } from "next-auth";
+import { upsertUser } from "@/lib/db/supabase";
 
 export interface AuthResult {
   userId: string;
@@ -83,6 +84,46 @@ export async function requireAuth(request: NextRequest): Promise<AuthResult> {
  */
 export async function requireSessionAuth(): Promise<AuthResult> {
   const result = await getSessionUser();
+  if (!result) {
+    throw new Error("Authentication required");
+  }
+  return result;
+}
+
+/**
+ * Get session user and ensure they exist in the database.
+ * This is the recommended pattern for most API routes that require authentication.
+ *
+ * @returns AuthResult with userId and session, or null if not authenticated
+ */
+export async function getSessionUserWithUpsert(): Promise<AuthResult | null> {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId || !session?.user?.email) {
+    return null;
+  }
+
+  // Ensure user exists in database
+  await upsertUser({
+    id: userId,
+    email: session.user.email,
+    name: session.user.name || "Anonymous",
+    avatarUrl: session.user.image || null,
+  });
+
+  return { userId, session, isAnonymous: false };
+}
+
+/**
+ * Require session auth and ensure user exists in database.
+ * Throws if not authenticated. Use this for most protected API routes.
+ *
+ * @throws Error if no authenticated session exists
+ * @returns AuthResult with userId and session
+ */
+export async function requireSessionAuthWithUpsert(): Promise<AuthResult> {
+  const result = await getSessionUserWithUpsert();
   if (!result) {
     throw new Error("Authentication required");
   }
