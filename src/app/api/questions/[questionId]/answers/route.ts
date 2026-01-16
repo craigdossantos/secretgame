@@ -107,6 +107,7 @@ export async function GET(
       answers: formattedSecrets,
       questionId,
       totalAnswers: formattedSecrets.length,
+      currentUserId: userId, // Include for client-side (secure alternative to cookie reading)
     });
   } catch {
     return errorResponse("Failed to fetch answers", 500);

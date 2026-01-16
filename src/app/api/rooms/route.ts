@@ -138,10 +138,11 @@ export async function POST(request: NextRequest) {
     });
 
     // Set userId cookie if it's a new anonymous user or we're using an existing one
-    // This ensures the client has the ID for future requests
+    // httpOnly: true for security (client gets userId from API responses instead)
     if (!session?.user?.id) {
       response.cookies.set("userId", userId, {
-        httpOnly: false, // Allow client-side access for UI logic
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
         path: "/",
         maxAge: 60 * 60 * 24 * 30, // 30 days
         sameSite: "lax",

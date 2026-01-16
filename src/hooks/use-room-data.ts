@@ -95,12 +95,8 @@ export function useRoomData(roomId: string): UseRoomDataReturn {
       const roomData = await roomResponse.json();
       setRoom(roomData.room);
 
-      // Get current user ID from cookies
-      const userId = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("userId="))
-        ?.split("=")[1];
-      setCurrentUserId(userId || null);
+      // Get current user ID from API response (secure - no cookie reading needed)
+      setCurrentUserId(roomData.currentUserId || null);
 
       // Load questions from YAML file
       try {

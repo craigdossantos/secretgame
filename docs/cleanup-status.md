@@ -2,7 +2,7 @@
 
 **Branch**: `refactor/sprint3-code-quality`
 **Date**: 2025-01-15
-**Status**: ✅ COMPLETE - Sprint 3 Code Quality finished
+**Status**: ✅ COMPLETE - Sprint 1 Security Hardening & Sprint 3 Code Quality finished
 
 ---
 
@@ -96,15 +96,15 @@ src/
 
 ## Cleanup Plan (5 Sprints)
 
-### Sprint 1: Security Hardening
+### Sprint 1: Security Hardening ✅ COMPLETE
 
-**Priority**: CRITICAL | **Effort**: 2-3 days
+**Priority**: CRITICAL | **Effort**: 2-3 days | **Completed**: 2025-01-15
 
-1. Replace `Math.random()` with `crypto.randomBytes()` for invite codes
-2. Fix secret metadata exposure - hide until unlocked
-3. Add room membership validation to unlock/rate endpoints
-4. Set cookies to `httpOnly: true`
-5. Add rate limiting
+1. ✅ Replace `Math.random()` with `crypto.randomBytes()` for invite codes
+2. ✅ Fix secret metadata exposure - verified already properly protected
+3. ✅ Add room membership validation - verified already implemented
+4. ✅ Set cookies to `httpOnly: true` + updated client to use API responses
+5. ⏸️ Add rate limiting (deferred - optional for MVP)
 
 ### Sprint 2: Accessibility Fixes
 
@@ -202,13 +202,28 @@ src/
 - [x] Integrate auth helpers into API routes
 - [x] Run build and tests - no regressions
 
-### Sprint 1: Security Hardening (NEXT)
+### Sprint 1: Security Hardening ✅ COMPLETED (2025-01-15)
 
-1. [ ] Replace `Math.random()` with `crypto.randomBytes()` - `src/lib/api/helpers.ts`
-2. [ ] Fix secret metadata exposure - `src/app/api/rooms/[id]/secrets/route.ts`
-3. [ ] Add room membership validation - `src/app/api/secrets/[id]/unlock/route.ts`
-4. [ ] Set cookies to `httpOnly: true`
-5. [ ] Add rate limiting (optional for MVP)
+1. [x] Replace `Math.random()` with `crypto.randomBytes()` - `src/lib/api/helpers.ts`
+   - Now uses Node.js crypto module for 32 bits of entropy
+2. [x] Fix secret metadata exposure - `src/app/api/rooms/[id]/secrets/route.ts`
+   - **Already secured**: body/answerData properly masked for locked secrets
+3. [x] Add room membership validation - `src/app/api/secrets/[id]/unlock/route.ts`
+   - **Already secured**: membership check at lines 94-98 before sensitive operations
+4. [x] Set cookies to `httpOnly: true` - `src/app/api/rooms/route.ts`
+   - Changed from httpOnly: false to httpOnly: true + secure in production
+   - Updated client code to get userId from API responses instead of document.cookie
+   - Modified: use-room-data.ts, collaborative-answers-modal.tsx
+   - Added currentUserId to: /api/rooms/[id], /api/questions/[questionId]/answers
+5. [ ] Add rate limiting (deferred - optional for MVP)
+
+### Sprint 2: Accessibility Fixes (NEXT)
+
+1. [ ] Make RatingStars keyboard accessible with ARIA
+2. [ ] Convert CategoryFilter badges to buttons
+3. [ ] Add `role="tablist"` to SecretSortTabs
+4. [ ] Add `aria-label` to icon-only buttons
+5. [ ] Make card flip interactions keyboard accessible
 
 ---
 

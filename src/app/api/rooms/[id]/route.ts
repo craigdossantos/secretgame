@@ -49,6 +49,7 @@ export async function GET(
           name: room.name,
           isMember: false,
         },
+        currentUserId: userId,
       });
     }
 
@@ -86,6 +87,7 @@ export async function GET(
         setupMode: room.setupMode,
         isMember: true,
       },
+      currentUserId: userId, // Include for client-side ownership checks (secure alternative to cookie reading)
     });
   } catch {
     return errorResponse("Failed to get room", 500);

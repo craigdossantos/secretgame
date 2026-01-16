@@ -64,13 +64,6 @@ export function CollaborativeAnswersModal({
       setLoading(true);
       setError(null);
 
-      // Get current user ID from cookies
-      const userId = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("userId="))
-        ?.split("=")[1];
-      setCurrentUserId(userId || null);
-
       const response = await fetch(
         `/api/questions/${questionId}/answers?roomId=${roomId}`,
       );
@@ -81,6 +74,8 @@ export function CollaborativeAnswersModal({
       }
 
       setAnswers(data.answers || []);
+      // Get current user ID from API response (secure - no cookie reading needed)
+      setCurrentUserId(data.currentUserId || null);
     } catch (err) {
       console.error("Failed to load collaborative answers:", err);
       setError(err instanceof Error ? err.message : "Failed to load answers");
