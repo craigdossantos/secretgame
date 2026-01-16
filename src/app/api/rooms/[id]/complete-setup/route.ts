@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
 import { createId } from "@paralleldrive/cuid2";
 import {
   findRoomById,
@@ -7,6 +6,7 @@ import {
   insertRoomQuestion,
 } from "@/lib/db/supabase";
 import { errorResponse, successResponse } from "@/lib/api/helpers";
+import { getSessionUserWithUpsert } from "@/lib/api/auth-helpers";
 
 interface RouteContext {
   params: Promise<{
@@ -21,18 +21,11 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const { questionIds = [], customQuestions = [] } = body;
 
     // Get authenticated user from NextAuth session
-    // Get authenticated user from NextAuth session
-    const session = await auth();
-    let userId = session?.user?.id;
-
-    if (!userId) {
-      const cookieStore = request.cookies;
-      userId = cookieStore.get("userId")?.value;
+    const authResult = await getSessionUserWithUpsert();
+    if (!authResult) {
+      return errorResponse("Authentication required", 401);
     }
-
-    if (!userId) {
-      return errorResponse("Not authenticated", 401);
-    }
+    const { userId } = authResult;
 
     // Find the room in Supabase
     const room = await findRoomById(roomId);
@@ -98,16 +91,11 @@ export async function POST(request: NextRequest, context: RouteContext) {
       setupMode: false,
     });
 
-    console.log(
-      `✅ Room ${roomId} setup completed with ${totalQuestions} questions`,
-    );
-
     return successResponse({
       success: true,
       questionCount: totalQuestions,
     });
-  } catch (error) {
-    console.error("Failed to complete room setup:", error);
+  } catch {
     return errorResponse("Failed to complete setup", 500);
   }
 }

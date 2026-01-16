@@ -64,8 +64,9 @@ export function UnlockHelpTooltip({ spiciness }: UnlockHelpTooltipProps) {
                 size="icon"
                 className="absolute top-2 right-2 h-6 w-6 text-white/70 hover:text-white hover:bg-white/10"
                 onClick={handleDismiss}
+                aria-label="Dismiss hint"
               >
-                <X className="h-3 w-3" />
+                <X className="h-3 w-3" aria-hidden="true" />
               </Button>
             </div>
 

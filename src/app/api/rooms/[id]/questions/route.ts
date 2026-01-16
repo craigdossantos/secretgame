@@ -1,14 +1,13 @@
 import { NextRequest } from "next/server";
 import { createId } from "@paralleldrive/cuid2";
-import { auth } from "@/lib/auth";
 import {
   findRoomById,
   findRoomMember,
   findRoomQuestions,
   insertRoomQuestion,
-  upsertUser,
 } from "@/lib/db/supabase";
 import { successResponse, errorResponse } from "@/lib/api/helpers";
+import { getSessionUserWithUpsert } from "@/lib/api/auth-helpers";
 
 // POST /api/rooms/[id]/questions - Add a custom question to a room
 export async function POST(
@@ -18,20 +17,12 @@ export async function POST(
   try {
     const { id: roomId } = await params;
 
-    // Get user session from NextAuth
-    const session = await auth();
-    if (!session?.user?.id) {
+    // Get authenticated user (auto-upserts to database)
+    const authResult = await getSessionUserWithUpsert();
+    if (!authResult) {
       return errorResponse("Authentication required", 401);
     }
-    const userId = session.user.id;
-
-    // Upsert user to ensure they exist in database
-    await upsertUser({
-      id: userId,
-      email: session.user.email!,
-      name: session.user.name || "Anonymous",
-      avatarUrl: session.user.image || null,
-    });
+    const { userId } = authResult;
 
     // Get request body
     const body = await request.json();
@@ -44,10 +35,6 @@ export async function POST(
       answerConfig,
       allowAnonymous,
     } = body;
-
-    console.log(
-      `❓ Adding custom question to room ${roomId} by user ${userId}`,
-    );
 
     // Validation
     if (!question || typeof question !== "string") {
@@ -81,14 +68,12 @@ export async function POST(
     // Get the room
     const room = await findRoomById(roomId);
     if (!room) {
-      console.log(`❌ Room ${roomId} not found`);
       return errorResponse("Room not found", 404);
     }
 
     // Check if user is a member of the room
     const isMember = await findRoomMember(roomId, userId);
     if (!isMember) {
-      console.log(`❌ User ${userId} is not a member of room ${roomId}`);
       return errorResponse(
         "You must be a member of this room to add questions",
         403,
@@ -116,10 +101,6 @@ export async function POST(
       displayOrder,
     });
 
-    console.log(
-      `✅ Added custom question to room ${roomId}: ${customQuestion.id}`,
-    );
-
     return successResponse(
       {
         message: "Custom question added successfully",
@@ -127,8 +108,7 @@ export async function POST(
       },
       201,
     );
-  } catch (error) {
-    console.error("❌ Failed to add custom question:", error);
+  } catch {
     return errorResponse("Failed to add custom question", 500);
   }
 }

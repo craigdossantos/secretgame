@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { MultipleChoiceConfig } from "@/lib/questions";
+import { toBoolean } from "@/lib/utils";
 
 interface AnswerInputMultipleChoiceProps {
   config: MultipleChoiceConfig;
@@ -91,7 +92,7 @@ export function AnswerInputMultipleChoice({
                 id={`option-${index}`}
                 checked={value.includes(option)}
                 onCheckedChange={(checked) =>
-                  handleMultipleSelect(option, checked as boolean)
+                  handleMultipleSelect(option, toBoolean(checked))
                 }
                 className="h-5 w-5 rounded border-2 border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
               />
@@ -112,7 +113,7 @@ export function AnswerInputMultipleChoice({
                   id="option-custom"
                   checked={isCustomSelected}
                   onCheckedChange={(checked) =>
-                    handleMultipleSelect("__custom__", checked as boolean)
+                    handleMultipleSelect("__custom__", toBoolean(checked))
                   }
                   className="h-5 w-5 rounded border-2 border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                 />

@@ -2,13 +2,14 @@ import { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import { createId } from "@paralleldrive/cuid2";
 import { insertUser, findUserById, findUserByEmail } from "@/lib/db/supabase";
+import { getServerEnv } from "@/lib/env";
 
 export const authConfig = {
   basePath: "/api/auth",
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: getServerEnv().GOOGLE_CLIENT_ID,
+      clientSecret: getServerEnv().GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
           prompt: "consent",
@@ -102,5 +103,5 @@ export const authConfig = {
     signIn: "/", // Redirect to homepage for sign-in
     error: "/", // Redirect errors to homepage
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: getServerEnv().NEXTAUTH_SECRET,
 } satisfies NextAuthConfig;

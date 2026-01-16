@@ -1,15 +1,15 @@
 import { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
+import { getSessionUserWithUpsert } from "@/lib/api/auth-helpers";
 import {
   findRoomById,
   findRoomMember,
   findRoomSecrets,
   insertSecret,
   updateSecret,
-  upsertUser,
 } from "@/lib/db/supabase";
 import { successResponse, errorResponse } from "@/lib/api/helpers";
 import { createId } from "@paralleldrive/cuid2";
+import { countWords, MAX_WORD_COUNT } from "@/lib/utils";
 
 interface SecretSubmitBody {
   roomId: string;
@@ -24,20 +24,12 @@ interface SecretSubmitBody {
 
 export async function POST(request: NextRequest) {
   try {
-    // Get user session from NextAuth
-    const session = await auth();
-    if (!session?.user?.id) {
+    // Get user session and ensure user exists in database
+    const authResult = await getSessionUserWithUpsert();
+    if (!authResult) {
       return errorResponse("Authentication required", 401);
     }
-    const userId = session.user.id;
-
-    // Upsert user to ensure they exist in database
-    await upsertUser({
-      id: userId,
-      email: session.user.email!,
-      name: session.user.name || "Anonymous",
-      avatarUrl: session.user.image || null,
-    });
+    const { userId } = authResult;
 
     // Parse request body
     const data: SecretSubmitBody = await request.json();
@@ -52,10 +44,6 @@ export async function POST(request: NextRequest) {
       isAnonymous,
     } = data;
 
-    console.log(
-      `📝 Creating/updating secret for question ${questionId} in room ${roomId}`,
-    );
-
     // Validate required fields
     if (
       !roomId ||
@@ -69,14 +57,13 @@ export async function POST(request: NextRequest) {
 
     // Validate word count (≤100 words) for text answers only
     if (!answerType || answerType === "text") {
-      const wordCount = body
-        .trim()
-        .split(/\s+/)
-        .filter((word) => word.length > 0).length;
-      if (wordCount > 100) {
-        return errorResponse("Secret must be 100 words or less", 400);
+      const wordCount = countWords(body);
+      if (wordCount > MAX_WORD_COUNT) {
+        return errorResponse(
+          `Secret must be ${MAX_WORD_COUNT} words or less`,
+          400,
+        );
       }
-
       if (wordCount === 0) {
         return errorResponse("Secret cannot be empty", 400);
       }
@@ -90,14 +77,12 @@ export async function POST(request: NextRequest) {
     // Verify room exists
     const room = await findRoomById(roomId);
     if (!room) {
-      console.log(`❌ Room ${roomId} not found`);
       return errorResponse("Room not found", 404);
     }
 
     // Verify user is a member of the room
     const membership = await findRoomMember(roomId, userId);
     if (!membership) {
-      console.log(`❌ User ${userId} is not a member of room ${roomId}`);
       return errorResponse(
         "You must be a member of this room to submit secrets",
         403,
@@ -112,8 +97,6 @@ export async function POST(request: NextRequest) {
 
     if (existingSecret) {
       // Update existing secret (edit answer)
-      console.log(`♻️ Updating existing secret ${existingSecret.id}`);
-
       await updateSecret(existingSecret.id, {
         body: body.trim(),
         selfRating,
@@ -122,8 +105,6 @@ export async function POST(request: NextRequest) {
         answerData,
         isAnonymous: isAnonymous || false,
       });
-
-      console.log(`✅ Secret updated successfully`);
 
       return successResponse({
         message: "Secret updated successfully",
@@ -140,8 +121,6 @@ export async function POST(request: NextRequest) {
     } else {
       // Create new secret
       const secretId = createId();
-
-      console.log(`🆕 Creating new secret ${secretId}`);
 
       const newSecret = {
         id: secretId,
@@ -160,8 +139,6 @@ export async function POST(request: NextRequest) {
       };
 
       await insertSecret(newSecret);
-
-      console.log(`✅ Secret created successfully`);
 
       return successResponse(
         {

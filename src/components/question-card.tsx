@@ -14,12 +14,14 @@ import { ChiliRating } from "@/components/chili-rating";
 import { AnswerInputSlider } from "@/components/answer-input-slider";
 import { AnswerInputMultipleChoice } from "@/components/answer-input-multiple-choice";
 import { ImageUploadInput } from "@/components/image-upload-input";
+import { toBoolean } from "@/lib/utils";
 import {
   QuestionPrompt,
   SliderConfig,
   MultipleChoiceConfig,
 } from "@/lib/questions";
 import { ImageData } from "@/lib/image-utils";
+import { countWords, MAX_WORD_COUNT } from "@/lib/utils";
 
 interface QuestionCardProps {
   question: QuestionPrompt;
@@ -85,30 +87,11 @@ export function QuestionCard({
   const questionAllowsAnonymous = question.allowAnonymous || false;
   const [isAnonymous, setIsAnonymous] = useState(false);
 
-  const wordCount = body
-    .trim()
-    .split(/\s+/)
-    .filter((word) => word.length > 0).length;
-  const isValidWordCount = wordCount <= 100 && wordCount > 0;
+  const wordCount = countWords(body);
+  const isValidWordCount = wordCount <= MAX_WORD_COUNT && wordCount > 0;
 
   // Check if question allows image upload
   const allowsImageUpload = question.allowImageUpload || false;
-
-  // AGGRESSIVE DEBUG LOGGING
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("🔍 QUESTION CARD DEBUG");
-  console.log("Question:", question.question);
-  console.log("question.allowImageUpload:", question.allowImageUpload);
-  console.log("typeof:", typeof question.allowImageUpload);
-  console.log("allowsImageUpload (computed):", allowsImageUpload);
-  console.log("questionType:", questionType);
-  console.log("WILL SHOW IMAGE UPLOAD?:", allowsImageUpload === true);
-  console.log("IS TEXT QUESTION?:", questionType === "text");
-  console.log(
-    "SHOULD RENDER IMAGE UPLOAD?:",
-    questionType === "text" && allowsImageUpload === true,
-  );
-  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
   // Validation based on question type
   const isValidAnswer =
@@ -125,6 +108,13 @@ export function QuestionCard({
     if (questionType === "slider" || questionType === "multipleChoice") return;
     // Allow flipping even if answered (for editing)
     setIsFlipped(!isFlipped);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleFlip();
+    }
   };
 
   const handleSkip = (e: React.MouseEvent) => {
@@ -189,7 +179,6 @@ export function QuestionCard({
 
   // Slider questions don't flip - render inline
   if (questionType === "slider") {
-    console.log("🎚️ RENDERING SLIDER QUESTION");
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -248,7 +237,7 @@ export function QuestionCard({
                   id="answer-anonymous-slider"
                   checked={isAnonymous}
                   onCheckedChange={(checked) =>
-                    setIsAnonymous(checked as boolean)
+                    setIsAnonymous(toBoolean(checked))
                   }
                   className="h-4 w-4"
                 />
@@ -290,7 +279,6 @@ export function QuestionCard({
 
   // Multiple choice questions don't flip - render inline
   if (questionType === "multipleChoice") {
-    console.log("🔘 RENDERING MULTIPLE CHOICE QUESTION");
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -352,7 +340,7 @@ export function QuestionCard({
                   id="answer-anonymous-mc"
                   checked={isAnonymous}
                   onCheckedChange={(checked) =>
-                    setIsAnonymous(checked as boolean)
+                    setIsAnonymous(toBoolean(checked))
                   }
                   className="h-4 w-4"
                 />
@@ -393,7 +381,6 @@ export function QuestionCard({
   }
 
   // Text questions use accordion-style expand/collapse
-  console.log("📝 RENDERING TEXT QUESTION WITH ACCORDION");
   return (
     <div
       className="relative z-20"
@@ -403,8 +390,13 @@ export function QuestionCard({
       <Card className="art-deco-border bg-card/50 backdrop-blur-sm transition-all duration-200 hover:art-deco-glow">
         {/* Question Display - Always Visible */}
         <div
-          className={`p-5 cursor-pointer transition-all duration-300 ${isFlipped ? "pb-3" : ""}`}
+          className={`p-5 cursor-pointer transition-all duration-300 ${isFlipped ? "pb-3" : ""} focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-t-lg`}
           onClick={handleFlip}
+          onKeyDown={handleKeyDown}
+          tabIndex={0}
+          role="button"
+          aria-expanded={isFlipped}
+          aria-label={`${question.question}. ${isAnswered ? "Answered" : "Click to answer"}. Press Enter or Space to ${isFlipped ? "collapse" : "expand"} answer form.`}
         >
           {/* Skip Button */}
           {!isAnswered && onSkip && (
@@ -479,57 +471,49 @@ export function QuestionCard({
             {/* Answer Form */}
             <div className="flex-1 space-y-4">
               {/* Image Upload or Text Answer based on question config */}
-              {allowsImageUpload
-                ? (() => {
-                    console.log("✅ RENDERING ImageUploadInput");
-                    return (
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="answer-image"
-                          className="text-xs text-foreground"
-                        >
-                          Upload Image
-                        </Label>
-                        <ImageUploadInput
-                          value={imageData}
-                          onChange={setImageData}
-                          maxSizeMB={5}
-                          showCaption={true}
-                        />
-                      </div>
-                    );
-                  })()
-                : (() => {
-                    console.log("❌ RENDERING Textarea instead");
-                    return (
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="answer-body"
-                          className="text-xs text-foreground"
-                        >
-                          Your Answer
-                        </Label>
-                        <Textarea
-                          id="answer-body"
-                          placeholder="Share your honest answer..."
-                          value={body}
-                          onChange={(e) => setBody(e.target.value)}
-                          className="min-h-[80px] resize-none text-sm bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
-                        />
-                        <div className="text-xs text-right">
-                          <span
-                            className={
-                              wordCount > 100
-                                ? "text-red-500"
-                                : "text-muted-foreground"
-                            }
-                          >
-                            {wordCount}/100 words
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })()}
+              {allowsImageUpload ? (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="answer-image"
+                    className="text-xs text-foreground"
+                  >
+                    Upload Image
+                  </Label>
+                  <ImageUploadInput
+                    value={imageData}
+                    onChange={setImageData}
+                    maxSizeMB={5}
+                    showCaption={true}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="answer-body"
+                    className="text-xs text-foreground"
+                  >
+                    Your Answer
+                  </Label>
+                  <Textarea
+                    id="answer-body"
+                    placeholder="Share your honest answer..."
+                    value={body}
+                    onChange={(e) => setBody(e.target.value)}
+                    className="min-h-[80px] resize-none text-sm bg-secondary/30 border-border text-foreground placeholder:text-muted-foreground"
+                  />
+                  <div className="text-xs text-right">
+                    <span
+                      className={
+                        wordCount > MAX_WORD_COUNT
+                          ? "text-red-500"
+                          : "text-muted-foreground"
+                      }
+                    >
+                      {wordCount}/{MAX_WORD_COUNT} words
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Rating Sliders */}
               <div className="space-y-3">
@@ -569,7 +553,7 @@ export function QuestionCard({
                     id="answer-anonymous-text"
                     checked={isAnonymous}
                     onCheckedChange={(checked) =>
-                      setIsAnonymous(checked as boolean)
+                      setIsAnonymous(toBoolean(checked))
                     }
                     className="h-4 w-4"
                   />

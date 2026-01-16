@@ -32,12 +32,9 @@ export async function GET(
     }
 
     // Get room details from Supabase
-    console.log(`🔍 Looking for room: ${roomId} `);
     const room = await findRoomById(roomId);
-    console.log(`🏠 Found room: `, room ? "YES" : "NO");
 
     if (!room) {
-      console.log(`❌ Room ${roomId} not found in database`);
       return errorResponse("Room not found", 404);
     }
 
@@ -52,6 +49,7 @@ export async function GET(
           name: room.name,
           isMember: false,
         },
+        currentUserId: userId,
       });
     }
 
@@ -89,9 +87,9 @@ export async function GET(
         setupMode: room.setupMode,
         isMember: true,
       },
+      currentUserId: userId, // Include for client-side ownership checks (secure alternative to cookie reading)
     });
-  } catch (error) {
-    console.error("Failed to get room:", error);
+  } catch {
     return errorResponse("Failed to get room", 500);
   }
 }
@@ -139,8 +137,7 @@ export async function PATCH(
     });
 
     return successResponse({ room: updatedRoom });
-  } catch (error) {
-    console.error("Failed to update room:", error);
+  } catch {
     return errorResponse("Failed to update room", 500);
   }
 }

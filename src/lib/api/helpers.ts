@@ -1,11 +1,19 @@
 import { createId } from "@paralleldrive/cuid2";
 import { cookies } from "next/headers";
 import { NextResponse, NextRequest } from "next/server";
+import { randomBytes } from "crypto";
+import { isProduction } from "@/lib/env";
 
-// Generate a unique invite code
+// Generate a unique invite code using cryptographically secure random bytes
 export function generateInviteCode(): string {
-  // Generate a 6-character alphanumeric code
-  return Math.random().toString(36).substring(2, 8).toUpperCase();
+  // Generate 4 random bytes (32 bits of entropy) and convert to 6-char alphanumeric
+  const bytes = randomBytes(4);
+  // Convert to base36 (0-9, a-z) and take 6 characters, uppercase for readability
+  const code = bytes.readUInt32BE(0).toString(36).substring(0, 6).toUpperCase();
+  // Ensure exactly 6 characters by padding with random chars if needed
+  return code
+    .padEnd(6, randomBytes(1)[0].toString(36).toUpperCase())
+    .substring(0, 6);
 }
 
 // Get current user ID from session (temporary solution)
@@ -28,7 +36,7 @@ export function createUserCookie(userId: string) {
     value: userId,
     options: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isProduction(),
       sameSite: "lax" as const,
       maxAge: 60 * 60 * 24 * 30, // 30 days
     },

@@ -5,6 +5,7 @@ import {
   mockQuestions,
 } from "@/lib/questions";
 import { successResponse, errorResponse } from "@/lib/api/helpers";
+import { getServerEnv } from "@/lib/env";
 
 // GET /api/questions - Get curated questions for room selection
 export async function GET(request: NextRequest) {
@@ -18,10 +19,7 @@ export async function GET(request: NextRequest) {
     try {
       // Try to load questions from YAML file
       const questionsResponse = await fetch(
-        new URL(
-          "/questions.yaml",
-          process.env.NEXTAUTH_URL || "http://localhost:3000",
-        ),
+        new URL("/questions.yaml", getServerEnv().NEXTAUTH_URL),
       );
       if (questionsResponse.ok) {
         const yamlContent = await questionsResponse.text();

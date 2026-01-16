@@ -13,6 +13,7 @@ import {
   errorResponse,
   successResponse,
 } from "@/lib/api/helpers";
+import { getServerEnv, isProduction } from "@/lib/env";
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,23 +74,15 @@ export async function POST(request: NextRequest) {
     // Auto-generate room name if not provided
     const roomName = name || `Room ${inviteCode.slice(0, 6)}`;
 
-    console.log(`🏗️ Creating room:`, roomId);
-
     // Insert room into Supabase
-    try {
-      await insertRoom({
-        id: roomId,
-        name: roomName,
-        ownerId: userId,
-        inviteCode,
-        maxMembers: 20,
-        setupMode,
-      });
-      console.log(`✅ Room created successfully:`, roomId);
-    } catch (insertError) {
-      console.error(`❌ Failed to insert room:`, insertError);
-      throw insertError;
-    }
+    await insertRoom({
+      id: roomId,
+      name: roomName,
+      ownerId: userId,
+      inviteCode,
+      maxMembers: 20,
+      setupMode,
+    });
 
     // Add owner as first member
     await insertRoomMember({
@@ -134,7 +127,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const inviteUrl = `${process.env.NEXTAUTH_URL}/invite/${inviteCode}`;
+    const inviteUrl = `${getServerEnv().NEXTAUTH_URL}/invite/${inviteCode}`;
 
     const response = successResponse({
       roomId,
@@ -146,10 +139,11 @@ export async function POST(request: NextRequest) {
     });
 
     // Set userId cookie if it's a new anonymous user or we're using an existing one
-    // This ensures the client has the ID for future requests
+    // httpOnly: true for security (client gets userId from API responses instead)
     if (!session?.user?.id) {
       response.cookies.set("userId", userId, {
-        httpOnly: false, // Allow client-side access for UI logic
+        httpOnly: true,
+        secure: isProduction(),
         path: "/",
         maxAge: 60 * 60 * 24 * 30, // 30 days
         sameSite: "lax",
@@ -157,8 +151,7 @@ export async function POST(request: NextRequest) {
     }
 
     return response;
-  } catch (error) {
-    console.error("Failed to create room:", error);
+  } catch {
     return errorResponse("Failed to create room", 500);
   }
 }
@@ -176,8 +169,7 @@ export async function GET() {
     const userRooms = await findUserRooms(session.user.id);
 
     return successResponse({ rooms: userRooms });
-  } catch (error) {
-    console.error("Failed to get rooms:", error);
+  } catch {
     return errorResponse("Failed to get rooms", 500);
   }
 }

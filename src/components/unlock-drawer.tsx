@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
+import { countWords, MAX_WORD_COUNT } from "@/lib/utils";
 
 interface UnlockDrawerProps {
   isOpen: boolean;
@@ -31,11 +32,8 @@ export function UnlockDrawer({
   const [importance, setImportance] = useState(3);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const wordCount = body
-    .trim()
-    .split(/\s+/)
-    .filter((word) => word.length > 0).length;
-  const isValidWordCount = wordCount <= 100 && wordCount > 0;
+  const wordCount = countWords(body);
+  const isValidWordCount = wordCount <= MAX_WORD_COUNT && wordCount > 0;
   const isValidRating = selfRating >= requiredRating;
 
   const handleSubmit = async () => {
@@ -85,8 +83,9 @@ export function UnlockDrawer({
                 size="sm"
                 onClick={() => onOpenChange(false)}
                 className="rounded-full hover:bg-primary/10"
+                aria-label="Close secret submission form"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </Button>
             </div>
 
