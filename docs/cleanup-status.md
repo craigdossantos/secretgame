@@ -2,7 +2,7 @@
 
 **Branch**: `refactor/sprint3-code-quality`
 **Date**: 2025-01-15
-**Status**: ✅ COMPLETE - Sprint 1 Security Hardening & Sprint 3 Code Quality finished
+**Status**: ✅ COMPLETE - Sprints 1, 2, 3 finished (Security, A11y, Code Quality)
 
 ---
 
@@ -106,15 +106,15 @@ src/
 4. ✅ Set cookies to `httpOnly: true` + updated client to use API responses
 5. ⏸️ Add rate limiting (deferred - optional for MVP)
 
-### Sprint 2: Accessibility Fixes
+### Sprint 2: Accessibility Fixes ✅ COMPLETE
 
-**Priority**: CRITICAL | **Effort**: 2-3 days
+**Priority**: CRITICAL | **Effort**: 2-3 days | **Completed**: 2025-01-15
 
-1. Make RatingStars keyboard accessible with ARIA
-2. Convert CategoryFilter badges to buttons
-3. Add `role="tablist"` to SecretSortTabs
-4. Add `aria-label` to icon-only buttons
-5. Make card flip interactions keyboard accessible
+1. ✅ Make RatingStars keyboard accessible with ARIA (radiogroup pattern)
+2. ✅ Convert CategoryFilter badges to semantic buttons with aria-pressed
+3. ✅ Add `role="tablist"` to SecretSortTabs with full keyboard navigation
+4. ✅ Add `aria-label` to 6 icon-only buttons across codebase
+5. ✅ Make card flip interactions keyboard accessible (tabIndex, role, aria-expanded)
 
 ### Sprint 3: Code Quality ✅ COMPLETE
 
@@ -217,13 +217,20 @@ src/
    - Added currentUserId to: /api/rooms/[id], /api/questions/[questionId]/answers
 5. [ ] Add rate limiting (deferred - optional for MVP)
 
-### Sprint 2: Accessibility Fixes (NEXT)
+### Sprint 2: Accessibility Fixes ✅ COMPLETED (2025-01-15)
 
-1. [ ] Make RatingStars keyboard accessible with ARIA
-2. [ ] Convert CategoryFilter badges to buttons
-3. [ ] Add `role="tablist"` to SecretSortTabs
-4. [ ] Add `aria-label` to icon-only buttons
-5. [ ] Make card flip interactions keyboard accessible
+1. [x] Make RatingStars keyboard accessible with ARIA - radiogroup pattern with arrow key nav
+2. [x] Convert CategoryFilter badges to buttons - semantic buttons with aria-pressed
+3. [x] Add `role="tablist"` to SecretSortTabs - full keyboard nav (arrows, Home, End)
+4. [x] Add `aria-label` to icon-only buttons - 6 components fixed
+5. [x] Make card flip interactions keyboard accessible - tabIndex, role, aria-expanded
+
+### Sprint 4: TypeScript Safety (NEXT)
+
+1. [ ] Add environment variable validation with Zod
+2. [ ] Create session validation helper
+3. [ ] Add type guards for answerData structures
+4. [ ] Fix Checkbox type handling
 
 ---
 
