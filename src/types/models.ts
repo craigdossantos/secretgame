@@ -113,6 +113,9 @@ export interface MultipleChoiceAnswerData {
 export interface ImageUploadAnswerData {
   imageBase64: string;
   caption?: string;
+  mimeType?: string;
+  fileSize?: number;
+  fileName?: string;
 }
 
 /**
@@ -181,6 +184,8 @@ export function isImageUploadAnswerData(
 
 /**
  * Check if value is a valid TextAnswerData
+ * Note: Returns true for null/undefined since text answers may not have
+ * structured answerData (the body field is used directly instead).
  */
 export function isTextAnswerData(data: unknown): data is TextAnswerData {
   if (data === null || data === undefined) return true;

@@ -46,7 +46,8 @@ export async function withAuth(options?: {
   } else if (requireSession) {
     result = await getSessionUser();
   } else {
-    // This path requires a request object, so we fallback to session-based auth
+    // Note: Cookie fallback requires NextRequest, use getAuthenticatedUser() directly for that.
+    // This path behaves the same as requireSession: true when no request is available.
     result = await getSessionUser();
   }
 

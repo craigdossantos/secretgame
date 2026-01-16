@@ -83,9 +83,9 @@ export function SecretAnswerDisplay({
     const imageData = {
       imageBase64: answerData.imageBase64,
       caption: answerData.caption,
-      mimeType: (answerData as { mimeType?: string }).mimeType || "image/jpeg",
-      fileSize: (answerData as { fileSize?: number }).fileSize || 0,
-      fileName: (answerData as { fileName?: string }).fileName || "image",
+      mimeType: answerData.mimeType || "image/jpeg",
+      fileSize: answerData.fileSize || 0,
+      fileName: answerData.fileName || "image",
     };
     return <ImageAnswerDisplay imageData={imageData} />;
   }
