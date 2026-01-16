@@ -83,8 +83,9 @@ export function UnlockDrawer({
                 size="sm"
                 onClick={() => onOpenChange(false)}
                 className="rounded-full hover:bg-primary/10"
+                aria-label="Close secret submission form"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </Button>
             </div>
 

@@ -63,6 +63,8 @@ export function SingleQuestionView({
                 <span
                   className="text-xl"
                   title={`Spiciness: ${currentQuestion.spiciness}/5`}
+                  role="img"
+                  aria-label={`Spiciness level: ${currentQuestion.spiciness || 1} out of 5`}
                 >
                   {"🌶️".repeat(currentQuestion.spiciness || 1)}
                 </span>

@@ -29,8 +29,9 @@ export function ImageModalViewer({
           size="sm"
           className="absolute top-4 right-4 z-50 h-10 w-10 p-0 rounded-full bg-white/10 hover:bg-white/20 text-white"
           onClick={onClose}
+          aria-label="Close image viewer"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5" aria-hidden="true" />
         </Button>
 
         {/* Image container */}

@@ -109,6 +109,13 @@ export function QuestionCard({
     setIsFlipped(!isFlipped);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleFlip();
+    }
+  };
+
   const handleSkip = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card flip
     onSkip?.(question.id);
@@ -382,8 +389,13 @@ export function QuestionCard({
       <Card className="art-deco-border bg-card/50 backdrop-blur-sm transition-all duration-200 hover:art-deco-glow">
         {/* Question Display - Always Visible */}
         <div
-          className={`p-5 cursor-pointer transition-all duration-300 ${isFlipped ? "pb-3" : ""}`}
+          className={`p-5 cursor-pointer transition-all duration-300 ${isFlipped ? "pb-3" : ""} focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-t-lg`}
           onClick={handleFlip}
+          onKeyDown={handleKeyDown}
+          tabIndex={0}
+          role="button"
+          aria-expanded={isFlipped}
+          aria-label={`${question.question}. ${isAnswered ? "Answered" : "Click to answer"}. Press Enter or Space to ${isFlipped ? "collapse" : "expand"} answer form.`}
         >
           {/* Skip Button */}
           {!isAnswered && onSkip && (

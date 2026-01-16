@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Star } from "lucide-react";
 
 interface RatingStarsProps {
@@ -9,6 +9,7 @@ interface RatingStarsProps {
   readonly?: boolean;
   size?: "sm" | "md" | "lg";
   className?: string;
+  label?: string;
 }
 
 export function RatingStars({
@@ -17,6 +18,7 @@ export function RatingStars({
   readonly = false,
   size = "md",
   className = "",
+  label = "Rating",
 }: RatingStarsProps) {
   const [hoverRating, setHoverRating] = useState<number | null>(null);
 
@@ -28,30 +30,75 @@ export function RatingStars({
 
   const displayRating = hoverRating ?? rating;
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent, starIndex: number) => {
+      if (readonly) return;
+
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        onRatingChange?.(starIndex);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowUp") {
+        e.preventDefault();
+        const newRating = Math.min(5, rating + 1);
+        onRatingChange?.(newRating);
+      } else if (e.key === "ArrowLeft" || e.key === "ArrowDown") {
+        e.preventDefault();
+        const newRating = Math.max(1, rating - 1);
+        onRatingChange?.(newRating);
+      }
+    },
+    [readonly, rating, onRatingChange],
+  );
+
   return (
-    <div className={`flex gap-1 ${className}`}>
+    <div
+      className={`flex gap-1 ${className}`}
+      role="radiogroup"
+      aria-label={label}
+    >
       {Array.from({ length: 5 }, (_, i) => {
         const starIndex = i + 1;
         const isFilled = starIndex <= displayRating;
+        const isSelected = starIndex === rating;
+
+        if (readonly) {
+          return (
+            <Star
+              key={i}
+              className={`${sizeClasses[size]} transition-colors ${
+                isFilled ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+              }`}
+              aria-hidden="true"
+            />
+          );
+        }
 
         return (
-          <Star
+          <button
             key={i}
-            className={`${sizeClasses[size]} transition-colors ${
-              isFilled ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
-            } ${
-              !readonly
-                ? "cursor-pointer hover:text-yellow-400 hover:fill-yellow-400"
-                : ""
+            type="button"
+            role="radio"
+            aria-checked={isSelected}
+            aria-label={`${starIndex} star${starIndex !== 1 ? "s" : ""}`}
+            tabIndex={isSelected || (rating === 0 && i === 0) ? 0 : -1}
+            className={`p-0.5 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1 ${
+              !readonly ? "cursor-pointer" : ""
             }`}
-            onMouseEnter={
-              !readonly ? () => setHoverRating(starIndex) : undefined
-            }
-            onMouseLeave={!readonly ? () => setHoverRating(null) : undefined}
-            onClick={!readonly ? () => onRatingChange?.(starIndex) : undefined}
-          />
+            onMouseEnter={() => setHoverRating(starIndex)}
+            onMouseLeave={() => setHoverRating(null)}
+            onClick={() => onRatingChange?.(starIndex)}
+            onKeyDown={(e) => handleKeyDown(e, starIndex)}
+          >
+            <Star
+              className={`${sizeClasses[size]} transition-colors ${
+                isFilled ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+              } ${!readonly ? "hover:text-yellow-400 hover:fill-yellow-400" : ""}`}
+              aria-hidden="true"
+            />
+          </button>
         );
       })}
+      <span className="sr-only">{rating} of 5 stars selected</span>
     </div>
   );
 }

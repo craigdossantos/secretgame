@@ -38,8 +38,9 @@ export function RoomHeader({ room }: RoomHeaderProps) {
               size="sm"
               onClick={() => router.push("/")}
               className="rounded-full hover:bg-primary/10"
+              aria-label="Go back to home"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4 h-4" aria-hidden="true" />
             </Button>
             <div>
               <h1 className="text-2xl font-serif text-foreground art-deco-text art-deco-shadow">

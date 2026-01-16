@@ -1,6 +1,5 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { QuestionCategory } from "@/lib/questions";
@@ -74,19 +73,24 @@ export function CategoryFilter({
       </div>
 
       {/* Category Tags */}
-      <div className="flex flex-wrap gap-2">
-        {/* All Categories Badge */}
-        <Badge
-          variant={isAllSelected ? "default" : "outline"}
-          className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
+      <div
+        className="flex flex-wrap gap-2"
+        role="group"
+        aria-label="Filter by category"
+      >
+        {/* All Categories Button */}
+        <button
+          type="button"
+          aria-pressed={isAllSelected}
+          onClick={isAllSelected ? clearAll : selectAll}
+          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 ${
             isAllSelected
               ? "bg-gray-900 text-white hover:bg-gray-800"
-              : "hover:bg-gray-100"
+              : "border border-gray-200 bg-transparent hover:bg-gray-100"
           }`}
-          onClick={isAllSelected ? clearAll : selectAll}
         >
           All
-          <span className="ml-1 text-xs opacity-75">
+          <span className="ml-1 opacity-75">
             (
             {categories.reduce(
               (sum, cat) => sum + (categoryCounts[cat] || 0),
@@ -94,64 +98,64 @@ export function CategoryFilter({
             )}
             )
           </span>
-        </Badge>
+        </button>
 
-        {/* Individual Category Badges */}
+        {/* Individual Category Buttons */}
         {categories.map((category) => {
           const count = categoryCounts[category] || 0;
           const selected = isSelected(category);
 
-          const getCategoryColor = (cat: string) => {
+          const getCategoryStyles = (cat: string) => {
+            const baseStyles =
+              "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2";
+
             switch (cat) {
               case "Personal":
                 return selected
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "hover:bg-blue-50 border-blue-200 text-blue-700";
+                  ? `${baseStyles} bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500`
+                  : `${baseStyles} border border-blue-200 text-blue-700 hover:bg-blue-50 focus:ring-blue-500`;
               case "Relationships":
                 return selected
-                  ? "bg-pink-600 hover:bg-pink-700"
-                  : "hover:bg-pink-50 border-pink-200 text-pink-700";
+                  ? `${baseStyles} bg-pink-600 hover:bg-pink-700 text-white focus:ring-pink-500`
+                  : `${baseStyles} border border-pink-200 text-pink-700 hover:bg-pink-50 focus:ring-pink-500`;
               case "Embarrassing":
                 return selected
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "hover:bg-red-50 border-red-200 text-red-700";
+                  ? `${baseStyles} bg-red-600 hover:bg-red-700 text-white focus:ring-red-500`
+                  : `${baseStyles} border border-red-200 text-red-700 hover:bg-red-50 focus:ring-red-500`;
               case "Fears & Dreams":
                 return selected
-                  ? "bg-purple-600 hover:bg-purple-700"
-                  : "hover:bg-purple-50 border-purple-200 text-purple-700";
+                  ? `${baseStyles} bg-purple-600 hover:bg-purple-700 text-white focus:ring-purple-500`
+                  : `${baseStyles} border border-purple-200 text-purple-700 hover:bg-purple-50 focus:ring-purple-500`;
               case "Opinions":
                 return selected
-                  ? "bg-orange-600 hover:bg-orange-700"
-                  : "hover:bg-orange-50 border-orange-200 text-orange-700";
+                  ? `${baseStyles} bg-orange-600 hover:bg-orange-700 text-white focus:ring-orange-500`
+                  : `${baseStyles} border border-orange-200 text-orange-700 hover:bg-orange-50 focus:ring-orange-500`;
               case "Work/School":
                 return selected
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "hover:bg-green-50 border-green-200 text-green-700";
+                  ? `${baseStyles} bg-green-600 hover:bg-green-700 text-white focus:ring-green-500`
+                  : `${baseStyles} border border-green-200 text-green-700 hover:bg-green-50 focus:ring-green-500`;
               case "Random":
                 return selected
-                  ? "bg-indigo-600 hover:bg-indigo-700"
-                  : "hover:bg-indigo-50 border-indigo-200 text-indigo-700";
+                  ? `${baseStyles} bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500`
+                  : `${baseStyles} border border-indigo-200 text-indigo-700 hover:bg-indigo-50 focus:ring-indigo-500`;
               default:
                 return selected
-                  ? "bg-gray-600 hover:bg-gray-700"
-                  : "hover:bg-gray-50 border-gray-200 text-gray-700";
+                  ? `${baseStyles} bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500`
+                  : `${baseStyles} border border-gray-200 text-gray-700 hover:bg-gray-50 focus:ring-gray-500`;
             }
           };
 
           return (
-            <Badge
+            <button
               key={category}
-              variant={selected ? "default" : "outline"}
-              className={`cursor-pointer transition-all duration-200 hover:scale-105 ${
-                selected
-                  ? `${getCategoryColor(category)} text-white`
-                  : getCategoryColor(category)
-              }`}
+              type="button"
+              aria-pressed={selected}
               onClick={() => toggleCategory(category)}
+              className={getCategoryStyles(category)}
             >
               {category}
-              <span className="ml-1 text-xs opacity-75">({count})</span>
-            </Badge>
+              <span className="ml-1 opacity-75">({count})</span>
+            </button>
           );
         })}
       </div>

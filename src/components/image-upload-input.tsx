@@ -191,8 +191,9 @@ export function ImageUploadInput({
           className="absolute top-2 right-2 h-8 w-8 p-0 rounded-full shadow-lg"
           onClick={handleClearImage}
           disabled={disabled}
+          aria-label="Remove image"
         >
-          <X className="w-4 h-4" />
+          <X className="w-4 h-4" aria-hidden="true" />
         </Button>
 
         {/* File info */}
