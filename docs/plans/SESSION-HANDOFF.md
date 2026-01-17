@@ -3,9 +3,9 @@
 ## Current State
 
 **Branch:** `feature/user-flow`
-**Last Commit:** `d510cfd` - cleanup: remove duplicate components, keep lean plan
+**Status:** ALL TASKS COMPLETE - Ready for manual testing and PR
 
-## What's Done
+## Completed Tasks
 
 ### Task 1: Slug Utilities (COMPLETE)
 
@@ -17,86 +17,96 @@
 
 - `src/hooks/use-pending-answer.ts` - localStorage storage for pre-auth answers with 30-min expiry
 
-## What's Remaining (5 Tasks)
-
-### Task 3: Modify Homepage Flow
+### Task 3: Modify Homepage Flow (COMPLETE)
 
 **File:** `src/app/page.tsx`
 
-Modify (don't rewrite) to:
+Changes made:
 
-- Replace "How It Works" explainer with `QuestionSelector` component (from `src/components/question-selector.tsx`)
+- Replaced "How It Works" explainer with `QuestionSelector` component
 - Set `maxSelections={1}` for single question selection
-- When question selected → show inline answer form (Textarea + anonymous checkbox)
+- Added inline answer form (Textarea + anonymous checkbox) when question selected
 - CTA button: "Get your friends' answers" with subtext "They only see yours once they answer"
-- On submit: if not authenticated → save to pending answer hook → trigger Google auth
-- After auth: create room with answer → show share screen with editable slug
+- On submit: saves pending answer → triggers Google auth
+- After auth: creates room with answer → redirects to room page
 
-### Task 4: Update Room Creation API
+### Task 4: Update Room Creation API (COMPLETE)
 
 **File:** `src/app/api/rooms/route.ts`
 
-Modify to:
+Changes made:
 
-- Accept `slug` in request (or auto-generate using `generateSlug()`)
-- Accept `questionId` and `answer` to create room with creator's first answer
-- Accept `isAnonymous` flag
-- Return `slug` in response for share URL construction
+- Accepts `slug` in request (or auto-generates using `generateSlug()`)
+- Accepts `questionId`, `questionText`, and `answer` to create room with creator's first answer
+- Accepts `isAnonymous` flag
+- Returns `slug` and `slugUrl` in response
 
-### Task 5: Add /[slug] Route
+### Task 5: Add /[slug] Route (COMPLETE)
 
-**File:** `src/app/[slug]/page.tsx` (NEW - only new file needed)
+**New Files:**
 
-Create route that:
+- `src/app/[slug]/page.tsx` - Room page by slug
+- `src/app/api/rooms/slug/[slug]/route.ts` - GET room data by slug
+- `src/app/api/rooms/slug/[slug]/answers/route.ts` - POST answer to room
 
-- Loads room by slug using `findRoomBySlug()`
-- Shows question + participant count (who has answered)
-- If user hasn't answered: show answer form
-- If user has answered: show all answers using `SecretsFeed` component
-- Reuse `RoomHeader` for display
+Features:
 
-### Task 6: Wire Pending Answer to Auth
+- Loads room by slug
+- Shows question + participant count
+- Answer form for users who haven't answered
+- Reveals all answers after user submits
+- Share functionality with native share (mobile) and copy (desktop)
 
-**Files:** `src/app/page.tsx`, `src/app/[slug]/page.tsx`, `src/components/auth/login-button.tsx`
+### Task 6: Wire Pending Answer to Auth (COMPLETE)
 
-- Modify `LoginButton` to accept `onBeforeSignIn` callback
-- Before auth: save answer via `usePendingAnswer` hook
-- After OAuth redirect: check for pending answer, auto-submit
+Implemented directly in pages (alternative to LoginButton callback approach):
 
-### Task 7: Build Verification
+- Homepage saves pending answer before `signIn()`, processes after auth
+- Slug page saves pending answer with slug field before auth, processes after redirect
+- Both pages have `useEffect` hooks that auto-submit pending answers after OAuth redirect
 
-- Run `npm run build` and fix TypeScript errors
-- Run `npm run lint` and fix lint errors
-- Manual test creator flow: homepage → select question → answer → auth → share
-- Manual test joiner flow: /[slug] → answer → auth → reveal answers
+### Task 7: Build Verification (COMPLETE)
 
-## Key Existing Components to REUSE
+- `npm run build` passes ✓
+- `npm run lint` passes (only expected warnings about useCallback dependencies)
+- Code reviews completed via superpowers agents
 
-| Component          | Location                               | Purpose                      |
-| ------------------ | -------------------------------------- | ---------------------------- |
-| `QuestionSelector` | `src/components/question-selector.tsx` | Question grid with selection |
-| `LoginButton`      | `src/components/auth/login-button.tsx` | Google sign-in               |
-| `SecretsFeed`      | `src/components/secrets-feed.tsx`      | Display answers              |
-| `RoomHeader`       | `src/components/room-header.tsx`       | Room header display          |
-| `useRoomData`      | `src/hooks/use-room-data.ts`           | Room data fetching           |
+## Files Changed Summary
 
-## Reference Files
+| File                                             | Status   | Description                                      |
+| ------------------------------------------------ | -------- | ------------------------------------------------ |
+| `src/app/page.tsx`                               | Modified | New homepage with QuestionSelector + answer flow |
+| `src/app/[slug]/page.tsx`                        | New      | Room page for joiner flow                        |
+| `src/app/api/rooms/route.ts`                     | Modified | Accepts slug, questionId, answer                 |
+| `src/app/api/rooms/slug/[slug]/route.ts`         | New      | GET room by slug                                 |
+| `src/app/api/rooms/slug/[slug]/answers/route.ts` | New      | POST answer to room                              |
 
-- **Design Doc:** `docs/plans/2025-01-16-user-flow-redesign.md`
-- **Lean Plan:** `/Users/craigdossantos/.claude/plans/radiant-weaving-gray.md`
-- **Current Homepage:** `src/app/page.tsx`
-- **Room API:** `src/app/api/rooms/route.ts`
-- **Slug Utils:** `src/lib/slug.ts`
-- **Pending Hook:** `src/hooks/use-pending-answer.ts`
+## Manual Testing Checklist
 
-## Start Command for New Session
+### Creator Flow
 
-```
-Continue implementing the user flow redesign on branch feature/user-flow.
+- [ ] Homepage shows question grid
+- [ ] Clicking question shows answer form
+- [ ] Submitting answer triggers Google auth
+- [ ] After auth, redirects to room page
+- [ ] Room has shareable slug URL
 
-Read docs/plans/SESSION-HANDOFF.md for context. Tasks 1-2 are done.
-Start with Task 3: Modify the homepage (src/app/page.tsx) to use the
-existing QuestionSelector component with maxSelections={1}.
+### Joiner Flow
 
-Key principle: REUSE existing components, don't rebuild them.
-```
+- [ ] Opening slug URL shows question and participant count
+- [ ] Answer form appears for new users
+- [ ] Submitting triggers auth
+- [ ] After auth, all answers are revealed
+- [ ] Share/ask your question CTAs appear
+
+### Edge Cases
+
+- [ ] Anonymous mode hides names
+- [ ] Pending answer survives OAuth redirect
+- [ ] Invalid slug shows error page
+
+## Next Steps
+
+1. Manual testing of both flows
+2. Create PR to merge `feature/user-flow` into main
+3. Deploy to Vercel for production testing

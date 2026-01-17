@@ -6,7 +6,9 @@ import {
   insertRoom,
   insertRoomMember,
   insertRoomQuestion,
+  insertSecret,
   findUserRooms,
+  isSlugAvailable,
 } from "@/lib/db/supabase";
 import {
   generateInviteCode,
@@ -14,6 +16,7 @@ import {
   successResponse,
 } from "@/lib/api/helpers";
 import { getServerEnv, isProduction } from "@/lib/env";
+import { generateSlug, isValidSlug, normalizeSlug } from "@/lib/slug";
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,10 +60,19 @@ export async function POST(request: NextRequest) {
       questionIds = [],
       customQuestions = [],
       setupMode = false,
+      // New fields for simplified flow
+      slug: requestedSlug,
+      questionId: singleQuestionId,
+      questionText: singleQuestionText,
+      answer: creatorAnswer,
+      isAnonymous: answerIsAnonymous = false,
     } = body;
 
-    // Validate question selection only if NOT in setup mode
-    if (!setupMode) {
+    // New simplified flow: single question with answer
+    const isSimplifiedFlow = singleQuestionId && creatorAnswer;
+
+    // Validate question selection only if NOT in setup mode and NOT simplified flow
+    if (!setupMode && !isSimplifiedFlow) {
       const totalQuestions = questionIds.length + customQuestions.length;
       if (totalQuestions < 1) {
         return errorResponse("At least 1 question must be selected");
@@ -71,6 +83,38 @@ export async function POST(request: NextRequest) {
     const roomId = createId();
     const inviteCode = generateInviteCode();
 
+    // Handle slug - normalize, validate, and check availability
+    let finalSlug: string | null = null;
+    if (requestedSlug) {
+      const normalized = normalizeSlug(requestedSlug);
+      if (!isValidSlug(normalized)) {
+        return errorResponse(
+          "Invalid slug format. Use 3-50 lowercase letters, numbers, and hyphens.",
+        );
+      }
+      const available = await isSlugAvailable(normalized);
+      if (!available) {
+        return errorResponse(
+          "This URL is already taken. Please choose another.",
+        );
+      }
+      finalSlug = normalized;
+    } else {
+      // Auto-generate a unique slug
+      let attempts = 0;
+      while (!finalSlug && attempts < 5) {
+        const candidate = generateSlug();
+        if (await isSlugAvailable(candidate)) {
+          finalSlug = candidate;
+        }
+        attempts++;
+      }
+      // If all attempts fail, use inviteCode as fallback
+      if (!finalSlug) {
+        finalSlug = inviteCode.toLowerCase();
+      }
+    }
+
     // Auto-generate room name if not provided
     const roomName = name || `Room ${inviteCode.slice(0, 6)}`;
 
@@ -80,10 +124,10 @@ export async function POST(request: NextRequest) {
       name: roomName,
       ownerId: userId,
       inviteCode,
-      slug: null, // Custom URL slug - will be set later if user provides one
+      slug: finalSlug,
       maxMembers: 20,
-      setupMode,
-      isAnonymous: false, // Anonymous mode - off by default
+      setupMode: isSimplifiedFlow ? false : setupMode, // Never setup mode for simplified flow
+      isAnonymous: false, // Room-level anonymous mode - off by default
     });
 
     // Add owner as first member
@@ -92,49 +136,93 @@ export async function POST(request: NextRequest) {
       userId,
     });
 
-    // Process and insert selected questions from data/questions.md
-    for (let i = 0; i < questionIds.length; i++) {
+    // Handle simplified flow: single question with creator's answer
+    let roomQuestionId: string | null = null;
+    if (isSimplifiedFlow) {
+      // Create the room question
+      roomQuestionId = createId();
       await insertRoomQuestion({
-        id: createId(),
+        id: roomQuestionId,
         roomId,
-        questionId: questionIds[i], // Reference to curated question
-        question: null, // Will be resolved from questionId
+        questionId: singleQuestionId, // Reference to curated question
+        question: singleQuestionText || null, // Store question text for display
         category: null,
         suggestedLevel: null,
         difficulty: null,
         questionType: "text",
         answerConfig: null,
-        allowAnonymous: false,
-        createdBy: null, // Curated question, no specific creator
-        displayOrder: i,
+        allowAnonymous: true, // Allow anonymous answers
+        createdBy: null,
+        displayOrder: 0,
       });
-    }
 
-    // Process and insert custom questions
-    for (let i = 0; i < customQuestions.length; i++) {
-      const q = customQuestions[i];
-      await insertRoomQuestion({
-        id: q.id || createId(),
+      // Create the creator's first secret (answer)
+      const secretId = createId();
+      await insertSecret({
+        id: secretId,
         roomId,
-        questionId: null, // Custom question, not from curated list
-        question: q.question,
-        category: q.category || "Custom",
-        suggestedLevel: q.suggestedLevel || 3,
-        difficulty: q.difficulty || "medium",
-        questionType: q.questionType || "text",
-        answerConfig: q.answerConfig || null,
-        allowAnonymous: q.allowAnonymous || false,
-        createdBy: userId,
-        displayOrder: questionIds.length + i,
+        questionId: roomQuestionId,
+        authorId: userId,
+        body: creatorAnswer,
+        selfRating: 3, // Default spiciness
+        importance: 3,
+        avgRating: null,
+        buyersCount: 0,
+        isHidden: false,
+        isAnonymous: answerIsAnonymous,
+        answerType: "text",
+        answerData: null,
       });
+    } else {
+      // Process and insert selected questions from data/questions.md
+      for (let i = 0; i < questionIds.length; i++) {
+        await insertRoomQuestion({
+          id: createId(),
+          roomId,
+          questionId: questionIds[i], // Reference to curated question
+          question: null, // Will be resolved from questionId
+          category: null,
+          suggestedLevel: null,
+          difficulty: null,
+          questionType: "text",
+          answerConfig: null,
+          allowAnonymous: false,
+          createdBy: null, // Curated question, no specific creator
+          displayOrder: i,
+        });
+      }
+
+      // Process and insert custom questions
+      for (let i = 0; i < customQuestions.length; i++) {
+        const q = customQuestions[i];
+        await insertRoomQuestion({
+          id: q.id || createId(),
+          roomId,
+          questionId: null, // Custom question, not from curated list
+          question: q.question,
+          category: q.category || "Custom",
+          suggestedLevel: q.suggestedLevel || 3,
+          difficulty: q.difficulty || "medium",
+          questionType: q.questionType || "text",
+          answerConfig: q.answerConfig || null,
+          allowAnonymous: q.allowAnonymous || false,
+          createdBy: userId,
+          displayOrder: questionIds.length + i,
+        });
+      }
     }
 
     const inviteUrl = `${getServerEnv().NEXTAUTH_URL}/invite/${inviteCode}`;
+    const slugUrl = finalSlug
+      ? `${getServerEnv().NEXTAUTH_URL}/${finalSlug}`
+      : null;
 
     const response = successResponse({
       roomId,
       inviteCode,
       inviteUrl,
+      slug: finalSlug,
+      slugUrl,
       name: roomName,
       isAnonymous,
       userId,
