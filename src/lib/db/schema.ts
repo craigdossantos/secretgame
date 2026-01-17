@@ -29,8 +29,10 @@ export const rooms = pgTable("rooms", {
     .references(() => users.id)
     .notNull(),
   inviteCode: varchar("invite_code", { length: 20 }).unique().notNull(),
+  slug: varchar("slug", { length: 50 }).unique(), // Custom URL slug (e.g., "friday-night-crew")
   maxMembers: integer("max_members").default(20).notNull(),
   setupMode: boolean("setup_mode").default(true), // true = setup, false = play mode
+  isAnonymous: boolean("is_anonymous").default(false), // Anonymous mode toggle
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

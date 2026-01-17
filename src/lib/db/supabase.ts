@@ -138,8 +138,10 @@ export async function findUserRooms(userId: string): Promise<Room[]> {
       name: schema.rooms.name,
       ownerId: schema.rooms.ownerId,
       inviteCode: schema.rooms.inviteCode,
+      slug: schema.rooms.slug,
       maxMembers: schema.rooms.maxMembers,
       setupMode: schema.rooms.setupMode,
+      isAnonymous: schema.rooms.isAnonymous,
       createdAt: schema.rooms.createdAt,
     })
     .from(schema.roomMembers)
@@ -148,6 +150,20 @@ export async function findUserRooms(userId: string): Promise<Room[]> {
     .orderBy(desc(schema.rooms.createdAt));
 
   return result;
+}
+
+export async function findRoomBySlug(slug: string): Promise<Room | undefined> {
+  const result = await db
+    .select()
+    .from(schema.rooms)
+    .where(eq(schema.rooms.slug, slug))
+    .limit(1);
+  return result[0];
+}
+
+export async function isSlugAvailable(slug: string): Promise<boolean> {
+  const existing = await findRoomBySlug(slug);
+  return !existing;
 }
 
 // ============================================================================

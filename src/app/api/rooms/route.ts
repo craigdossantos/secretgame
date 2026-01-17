@@ -80,8 +80,10 @@ export async function POST(request: NextRequest) {
       name: roomName,
       ownerId: userId,
       inviteCode,
+      slug: null, // Custom URL slug - will be set later if user provides one
       maxMembers: 20,
       setupMode,
+      isAnonymous: false, // Anonymous mode - off by default
     });
 
     // Add owner as first member
