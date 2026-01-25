@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const router = useRouter();
-  const { data: session, status } = useSession();
-  const { savePending, getPending, clearPending } = usePendingAnswer();
+  const { status } = useSession();
+  const { savePending, clearPending } = usePendingAnswer();
 
   // Questions state
   const [questions, setQuestions] = useState<QuestionPrompt[]>([]);
@@ -29,9 +29,6 @@ export default function Home() {
   const [answer, setAnswer] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Ref to prevent race condition during post-auth room creation
-  const isCreatingRoomRef = useRef(false);
 
   // Get the selected question
   const allQuestions = [...questions, ...customQuestions];
@@ -62,25 +59,6 @@ export default function Home() {
 
     loadQuestions();
   }, []);
-
-  // Handle pending answer after auth - wrapped in useCallback to avoid stale closures
-  const processPostAuthPendingAnswer = useCallback(async () => {
-    if (isCreatingRoomRef.current) return; // Guard against race conditions
-
-    const pending = getPending();
-    if (pending) {
-      isCreatingRoomRef.current = true;
-      // User just authenticated with a pending answer - create room
-      await handleCreateRoomWithAnswer(pending);
-    }
-  }, [getPending]);
-
-  // Trigger post-auth room creation when authenticated
-  useEffect(() => {
-    if (status === "authenticated" && session?.user) {
-      processPostAuthPendingAnswer();
-    }
-  }, [status, session, processPostAuthPendingAnswer]);
 
   const handleSelectionChange = (
     newSelectedIds: string[],
@@ -168,8 +146,8 @@ export default function Home() {
         isAnonymous,
       });
 
-      // Redirect to Google sign-in
-      await signIn("google", { callbackUrl: "/" });
+      // Redirect to Google sign-in (callback page handles room creation)
+      await signIn("google", { callbackUrl: "/auth/callback" });
       return;
     }
 

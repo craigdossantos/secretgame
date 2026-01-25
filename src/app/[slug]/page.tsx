@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useSession, signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,7 @@ type PageStep = "loading" | "answer" | "auth" | "reveal" | "error";
 
 export default function SlugPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const slug = params.slug as string;
   const { data: session, status } = useSession();
   const { savePending, getPending, clearPending } = usePendingAnswer();
@@ -53,6 +54,9 @@ export default function SlugPage() {
   const [room, setRoom] = useState<RoomData | null>(null);
   const [step, setStep] = useState<PageStep>("loading");
   const [error, setError] = useState<string | null>(null);
+
+  // Welcome state (shown after room creation)
+  const [showWelcome, setShowWelcome] = useState(false);
 
   // Answer form state
   const [answer, setAnswer] = useState("");
@@ -64,6 +68,17 @@ export default function SlugPage() {
 
   // Ref to prevent race condition during post-auth submission
   const isSubmittingRef = useRef(false);
+
+  // Check for welcome query param (room just created)
+  useEffect(() => {
+    if (searchParams.get("welcome") === "true") {
+      setShowWelcome(true);
+      // Clean up URL without triggering navigation
+      const url = new URL(window.location.href);
+      url.searchParams.delete("welcome");
+      window.history.replaceState({}, "", url.pathname);
+    }
+  }, [searchParams]);
 
   // Load room data
   const loadRoom = useCallback(async () => {
@@ -236,6 +251,48 @@ export default function SlugPage() {
       </header>
 
       <main className="container max-w-2xl mx-auto px-4 py-12">
+        {/* Welcome Banner (shown after room creation) */}
+        <AnimatePresence>
+          {showWelcome && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="art-deco-border bg-primary/20 backdrop-blur-sm p-6 mb-8 text-center"
+            >
+              <h2 className="text-xl font-serif text-[#f4e5c2] mb-2 art-deco-text">
+                Room Created!
+              </h2>
+              <p className="text-muted-foreground mb-4">
+                Share this link with friends to see their answers
+              </p>
+              <Button
+                onClick={handleShare}
+                className="art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+                size="lg"
+              >
+                {isCopied ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Link Copied!
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="w-5 h-5" />
+                    Share with Friends
+                  </>
+                )}
+              </Button>
+              <button
+                onClick={() => setShowWelcome(false)}
+                className="block mx-auto mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Dismiss
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Question Card */}
         <div className="art-deco-border bg-card/50 backdrop-blur-sm p-8 text-center mb-8">
           <p className="text-2xl sm:text-3xl font-serif text-[#f4e5c2] leading-relaxed">
