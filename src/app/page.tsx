@@ -1,30 +1,112 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import {
-  TextIcon,
-  SlidersHorizontal,
-  CheckSquare,
-  Lock,
-  Unlock,
-} from "lucide-react";
+import { QuestionSelector } from "@/components/question-selector";
+import { QuestionPrompt, parseQuestions, mockQuestions } from "@/lib/questions";
+import { usePendingAnswer } from "@/hooks/use-pending-answer";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const router = useRouter();
-  const [isCreating, setIsCreating] = useState(false);
+  const { status } = useSession();
+  const { savePending, clearPending } = usePendingAnswer();
 
-  const handleCreateRoom = async () => {
-    setIsCreating(true);
+  // Questions state
+  const [questions, setQuestions] = useState<QuestionPrompt[]>([]);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(true);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([]);
+  const [customQuestions, setCustomQuestions] = useState<QuestionPrompt[]>([]);
+
+  // Answer form state
+  const [answer, setAnswer] = useState("");
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Get the selected question
+  const allQuestions = [...questions, ...customQuestions];
+  const selectedQuestion =
+    selectedQuestionIds.length > 0
+      ? allQuestions.find((q) => q.id === selectedQuestionIds[0])
+      : null;
+
+  // Load questions on mount
+  useEffect(() => {
+    const loadQuestions = async () => {
+      try {
+        const response = await fetch("/questions.yaml");
+        if (response.ok) {
+          const yamlContent = await response.text();
+          const parsed = parseQuestions(yamlContent);
+          setQuestions(parsed);
+        } else {
+          setQuestions(mockQuestions);
+        }
+      } catch (error) {
+        console.warn("Error loading questions:", error);
+        setQuestions(mockQuestions);
+      } finally {
+        setIsLoadingQuestions(false);
+      }
+    };
+
+    loadQuestions();
+  }, []);
+
+  const handleSelectionChange = (
+    newSelectedIds: string[],
+    newCustomQuestions: QuestionPrompt[],
+  ) => {
+    setSelectedQuestionIds(newSelectedIds);
+    setCustomQuestions(newCustomQuestions);
+    // Clear answer when selection changes
+    if (newSelectedIds[0] !== selectedQuestionIds[0]) {
+      setAnswer("");
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedQuestionIds([]);
+    setAnswer("");
+    setIsAnonymous(false);
+  };
+
+  const handleCreateRoomWithAnswer = async (pendingAnswer?: {
+    questionId: string;
+    questionText: string;
+    answer: string;
+    isAnonymous: boolean;
+  }) => {
+    const answerData = pendingAnswer || {
+      questionId: selectedQuestion?.id,
+      questionText: selectedQuestion?.question,
+      answer,
+      isAnonymous,
+    };
+
+    if (!answerData.questionId || !answerData.answer.trim()) {
+      toast.error("Please answer the question first");
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       const response = await fetch("/api/rooms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          setupMode: true,
+          questionId: answerData.questionId,
+          questionText: answerData.questionText,
+          answer: answerData.answer,
+          isAnonymous: answerData.isAnonymous,
         }),
       });
 
@@ -35,146 +117,173 @@ export default function Home() {
         return;
       }
 
-      // Redirect to room in setup mode
-      router.push(`/rooms/${data.roomId}`);
+      // Clear pending answer after successful creation
+      clearPending();
+
+      // Redirect to the new room (using slug if available, otherwise room ID)
+      const roomPath = data.slug ? `/${data.slug}` : `/rooms/${data.roomId}`;
+      router.push(roomPath);
     } catch (error) {
       console.error("Failed to create room:", error);
       toast.error("Failed to create room. Please try again.");
     } finally {
-      setIsCreating(false);
+      setIsSubmitting(false);
     }
+  };
+
+  const handleSubmit = async () => {
+    if (!selectedQuestion || !answer.trim()) {
+      toast.error("Please select a question and write your answer");
+      return;
+    }
+
+    // If not authenticated, save pending answer and trigger auth
+    if (status !== "authenticated") {
+      savePending({
+        questionId: selectedQuestion.id,
+        questionText: selectedQuestion.question,
+        answer,
+        isAnonymous,
+      });
+
+      // Redirect to Google sign-in (callback page handles room creation)
+      await signIn("google", { callbackUrl: "/auth/callback" });
+      return;
+    }
+
+    // If authenticated, create room directly
+    await handleCreateRoomWithAnswer();
   };
 
   return (
     <div className="min-h-screen bg-background art-deco-pattern flex items-center justify-center p-6">
-      <div className="max-w-2xl w-full">
+      <div className="max-w-4xl w-full">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-6xl font-serif mb-4 text-foreground art-deco-text art-deco-shadow">
+        <div className="text-center mb-8">
+          <h1 className="text-5xl sm:text-6xl font-serif mb-4 text-foreground art-deco-text art-deco-shadow">
             The Secret Game
           </h1>
           <div className="art-deco-divider my-6">
             <span>◆ ◆ ◆</span>
           </div>
-          <p className="text-xl text-muted-foreground max-w-lg mx-auto">
-            Ask about friend&apos;s secrets. Answer anonymously. Unlock their
-            secrets by sharing your answers.
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-lg mx-auto">
+            Pick a question. Answer it. Share with friends to see their answers.
           </p>
         </div>
 
-        {/* How It Works - Visual Explanation */}
-        <div className="space-y-8 mb-12">
-          <div className="text-center">
-            <h2 className="text-2xl font-serif mb-6 art-deco-text">
-              How It Works
-            </h2>
-          </div>
+        <AnimatePresence mode="wait">
+          {/* Question Selector View */}
+          {!selectedQuestion && (
+            <motion.div
+              key="question-selector"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {isLoadingQuestions ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <QuestionSelector
+                  questions={questions}
+                  selectedQuestionIds={selectedQuestionIds}
+                  onSelectionChange={handleSelectionChange}
+                  maxSelections={1}
+                />
+              )}
+            </motion.div>
+          )}
 
-          {/* Step 1: Choose Questions */}
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg art-deco-border">
-              1
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2">
-                Choose Your Questions
-              </h3>
-              <p className="text-muted-foreground mb-3">
-                Pick from different question types or create your own
-              </p>
-              <div className="flex gap-3">
-                <div className="flex-1 p-3 rounded-lg bg-card border border-border flex items-center gap-2">
-                  <TextIcon className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm">Text</span>
+          {/* Answer Form View */}
+          {selectedQuestion && (
+            <motion.div
+              key="answer-form"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              {/* Back Button */}
+              <Button
+                variant="ghost"
+                onClick={handleClearSelection}
+                className="gap-2 text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Choose different question
+              </Button>
+
+              {/* Selected Question Display */}
+              <div className="art-deco-border bg-card/50 backdrop-blur-sm p-6 text-center">
+                <p className="text-2xl sm:text-3xl font-serif text-[#f4e5c2] leading-relaxed">
+                  {selectedQuestion.question}
+                </p>
+              </div>
+
+              {/* Answer Form */}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="answer" className="text-lg font-medium">
+                    Your Answer
+                  </Label>
+                  <Textarea
+                    id="answer"
+                    placeholder="Type your answer here..."
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    className="mt-2 min-h-[120px] text-lg bg-card/50 border-border focus:border-primary"
+                    maxLength={500}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1 text-right">
+                    {answer.length}/500 characters
+                  </p>
                 </div>
-                <div className="flex-1 p-3 rounded-lg bg-card border border-border flex items-center gap-2">
-                  <SlidersHorizontal className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm">Slider</span>
-                </div>
-                <div className="flex-1 p-3 rounded-lg bg-card border border-border flex items-center gap-2">
-                  <CheckSquare className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">Choice</span>
+
+                {/* Anonymous Checkbox */}
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    id="anonymous"
+                    checked={isAnonymous}
+                    onCheckedChange={(checked) =>
+                      setIsAnonymous(checked === true)
+                    }
+                  />
+                  <Label
+                    htmlFor="anonymous"
+                    className="text-sm text-muted-foreground cursor-pointer"
+                  >
+                    Post anonymously (friends won&apos;t see your name)
+                  </Label>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Step 2: Answer Questions */}
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg art-deco-border">
-              2
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2">Everyone Answers</h3>
-              <p className="text-muted-foreground">
-                Each person rates how vulnerable their answer is with 🌶️ chili
-                peppers
-              </p>
-            </div>
-          </div>
-
-          {/* Step 3: Unlock with Matching Spiciness */}
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg art-deco-border">
-              3
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2">
-                Unlock Others&apos; Secrets
-              </h3>
-              <p className="text-muted-foreground mb-3">
-                Share a secret with matching spiciness to see someone
-                else&apos;s answer
-              </p>
-              <div className="flex gap-3">
-                <div className="flex-1 p-4 rounded-lg bg-card border border-border text-center">
-                  <Lock className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
-                  <div className="text-sm text-muted-foreground">Locked</div>
-                  <div className="text-xs mt-1">Need 🌶️🌶️🌶️</div>
-                </div>
-                <div className="flex items-center justify-center text-2xl">
-                  →
-                </div>
-                <div className="flex-1 p-4 rounded-lg bg-primary/10 border border-primary text-center">
-                  <Unlock className="w-6 h-6 mx-auto mb-2 text-primary" />
-                  <div className="text-sm font-medium">Unlocked!</div>
-                  <div className="text-xs mt-1 text-muted-foreground">
-                    You shared 🌶️🌶️🌶️
-                  </div>
-                </div>
+              {/* Submit Button */}
+              <div className="text-center pt-4">
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || !answer.trim()}
+                  className="art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 px-12 py-6 text-lg art-deco-text art-deco-glow h-auto"
+                  size="lg"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Get your friends' answers"
+                  )}
+                </Button>
+                <p className="text-sm text-muted-foreground mt-4">
+                  They only see yours once they answer
+                </p>
               </div>
-            </div>
-          </div>
-
-          {/* Step 4: Connect Deeper */}
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg art-deco-border">
-              4
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2">Connect Deeper</h3>
-              <p className="text-muted-foreground">
-                The more vulnerable you are, the more you unlock. Build genuine
-                connections.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* CTA Button */}
-        <div className="text-center">
-          <Button
-            onClick={handleCreateRoom}
-            disabled={isCreating}
-            className="art-deco-border bg-primary text-primary-foreground hover:bg-primary/90 px-12 py-6 text-lg art-deco-text art-deco-glow h-auto"
-            size="lg"
-          >
-            {isCreating ? "Creating Room..." : "Create Room"}
-          </Button>
-          <p className="text-sm text-muted-foreground mt-4">
-            Free to use · No sign up required · Private by default
-          </p>
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
