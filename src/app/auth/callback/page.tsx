@@ -17,6 +17,7 @@ type CallbackState = "checking" | "processing" | "success" | "error";
 
 const STORAGE_KEY = "secretgame_pending_answer";
 const EXPIRY_MS = 30 * 60 * 1000; // 30 minutes
+const AUTH_TIMEOUT_MS = 10000; // 10 seconds to wait for auth
 
 interface PendingAnswer {
   questionId: string;
@@ -31,6 +32,8 @@ export default function AuthCallbackPage() {
   const router = useRouter();
   const { status } = useSession();
   const isProcessingRef = useRef(false);
+  const mountTimeRef = useRef(Date.now());
+  const hasPendingAnswerRef = useRef(false);
 
   const [state, setState] = useState<CallbackState>("checking");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -60,6 +63,7 @@ export default function AuthCallbackPage() {
       }
 
       // We have a valid pending answer - wait for auth
+      hasPendingAnswerRef.current = true;
       setState("checking");
     } catch {
       // Invalid data in localStorage
@@ -128,12 +132,40 @@ export default function AuthCallbackPage() {
     }
   }, [router]);
 
+  // Timeout state to force re-evaluation of auth status
+  const [authCheckCount, setAuthCheckCount] = useState(0);
+
+  // Poll for auth status changes if we have a pending answer and are unauthenticated
+  useEffect(() => {
+    if (
+      status === "unauthenticated" &&
+      hasPendingAnswerRef.current &&
+      authCheckCount < 20 // Max 20 checks (10 seconds at 500ms intervals)
+    ) {
+      const timer = setTimeout(() => {
+        setAuthCheckCount((prev) => prev + 1);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [status, authCheckCount]);
+
   // Process pending answer once authenticated
   useEffect(() => {
     if (status === "loading") return;
 
     if (status === "unauthenticated") {
-      // Auth was cancelled or failed
+      // Don't immediately redirect - the session might still be loading
+      // This is a race condition fix: useSession can briefly return "unauthenticated"
+      // right after OAuth callback before the cookie is recognized
+      const timeSinceMount = Date.now() - mountTimeRef.current;
+
+      if (timeSinceMount < AUTH_TIMEOUT_MS && hasPendingAnswerRef.current) {
+        // Still within timeout window and we have a pending answer - keep waiting
+        // The polling effect above will trigger re-checks
+        return;
+      }
+
+      // Timeout exceeded or no pending answer - auth truly failed
       toast.error("Sign in was cancelled");
       router.replace("/");
       return;
@@ -142,7 +174,7 @@ export default function AuthCallbackPage() {
     if (status === "authenticated" && !isProcessingRef.current) {
       processCreateRoom();
     }
-  }, [status, router, processCreateRoom]);
+  }, [status, router, processCreateRoom, authCheckCount]);
 
   const handleRetry = () => {
     setState("processing");
