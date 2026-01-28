@@ -44,13 +44,14 @@ export async function POST(request: NextRequest) {
         name: "Anonymous Host",
         avatarUrl: null,
       });
-    } else if (session?.user?.email) {
+    } else {
       // Ensure authenticated user exists in database
+      // Always upsert - email may be empty if DB was unavailable during auth
       await upsertUser({
-        id: userId!,
-        email: session.user.email,
-        name: session.user.name || "Anonymous",
-        avatarUrl: session.user.image || null,
+        id: userId,
+        email: session?.user?.email || `user-${userId}@secretgame.local`,
+        name: session?.user?.name || "Anonymous",
+        avatarUrl: session?.user?.image || null,
       });
     }
 
@@ -241,8 +242,11 @@ export async function POST(request: NextRequest) {
     }
 
     return response;
-  } catch {
-    return errorResponse("Failed to create room", 500);
+  } catch (error) {
+    console.error("POST /api/rooms error:", error);
+    const message =
+      error instanceof Error ? error.message : "Failed to create room";
+    return errorResponse(message, 500);
   }
 }
 
