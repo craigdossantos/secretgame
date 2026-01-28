@@ -8,6 +8,7 @@ import {
   insertRoomQuestion,
   insertSecret,
   findUserRooms,
+  findUserByEmail,
   isSlugAvailable,
 } from "@/lib/db/supabase";
 import {
@@ -46,10 +47,18 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // Ensure authenticated user exists in database
-      // Always upsert - email may be empty if DB was unavailable during auth
+      // Check if user already exists by email (handles ID migration from Google sub)
+      const email = session?.user?.email;
+      if (email) {
+        const existingUser = await findUserByEmail(email);
+        if (existingUser && existingUser.id !== userId) {
+          // User exists with a different ID - use their existing ID
+          userId = existingUser.id;
+        }
+      }
       await upsertUser({
         id: userId,
-        email: session?.user?.email || `user-${userId}@secretgame.local`,
+        email: email || `user-${userId}@secretgame.local`,
         name: session?.user?.name || "Anonymous",
         avatarUrl: session?.user?.image || null,
       });
