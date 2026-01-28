@@ -28,7 +28,15 @@ export async function GET() {
     };
   }
 
-  // 2. Test raw database connection
+  // 2. Check DATABASE_URL
+  const dbUrl = process.env.DATABASE_URL;
+  diagnostics.envCheck = {
+    DATABASE_URL_set: !!dbUrl,
+    DATABASE_URL_length: dbUrl?.length ?? 0,
+    DATABASE_URL_prefix: dbUrl ? dbUrl.substring(0, 30) + "..." : "NOT SET",
+  };
+
+  // 3. Test raw database connection
   try {
     const result = await db.execute(sql`SELECT 1 as ok`);
     diagnostics.dbConnection = {
@@ -43,6 +51,8 @@ export async function GET() {
       code: err.code,
       severity: err.severity,
       detail: err.detail,
+      name: err.name,
+      errorType: err.constructor ? String(err.constructor) : typeof error,
     };
   }
 
