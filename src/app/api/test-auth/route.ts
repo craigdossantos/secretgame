@@ -45,14 +45,21 @@ export async function GET() {
     };
   } catch (error: unknown) {
     const err = error as Record<string, unknown>;
+    const cause = err.cause as Record<string, unknown> | undefined;
     diagnostics.dbConnection = {
       success: false,
       message: err.message,
       code: err.code,
       severity: err.severity,
       detail: err.detail,
-      name: err.name,
-      errorType: err.constructor ? String(err.constructor) : typeof error,
+      // The real error is often in .cause
+      cause: cause
+        ? {
+            message: cause.message ?? String(cause),
+            code: cause.code,
+            name: cause.name,
+          }
+        : "no cause",
     };
   }
 
