@@ -60,38 +60,42 @@ export const authConfig = {
       return true;
     },
     async session({ session, token }) {
-      // Create user object from token if it doesn't exist
+      // Always populate session from token - this is fault-tolerant
       if (token.sub) {
-        // Fetch user data from database
-        const dbUser = await findUserById(token.sub);
+        // Start with token data (always available)
+        session.user = {
+          ...session.user,
+          id: token.sub,
+          name: (token.name as string) || "",
+          email: (token.email as string) || "",
+          image: (token.picture as string) || undefined,
+        };
 
-        if (dbUser) {
-          // Populate session with user data
-          session.user = {
-            ...session.user,
-            id: dbUser.id,
-            name: dbUser.name,
-            email: dbUser.email || "",
-            image: dbUser.avatarUrl || undefined,
-          };
-        } else {
-          // Token exists but user not in DB - shouldn't happen but handle gracefully
-          session.user = {
-            ...session.user,
-            id: token.sub,
-            name: (token.name as string) || "",
-            email: (token.email as string) || "",
-            image: (token.picture as string) || undefined,
-          };
+        // Try to enrich with database data (best-effort)
+        try {
+          const dbUser = await findUserById(token.sub);
+          if (dbUser) {
+            session.user.name = dbUser.name || session.user.name;
+            session.user.email = dbUser.email || session.user.email;
+            session.user.image = dbUser.avatarUrl || session.user.image;
+          }
+        } catch (error) {
+          // Database lookup failed - continue with token data
+          console.error("Session callback - database lookup failed:", error);
         }
       }
 
       return session;
     },
-    async jwt({ token, user, account }) {
-      // Initial sign in
+    async jwt({ token, user, account, profile }) {
+      // Initial sign in - store user data in token
       if (account && user) {
         token.sub = user.id;
+        // Preserve profile data for session fallback
+        token.name = user.name || (profile as { name?: string })?.name;
+        token.email = user.email || (profile as { email?: string })?.email;
+        token.picture =
+          user.image || (profile as { picture?: string })?.picture;
       }
 
       return token;
