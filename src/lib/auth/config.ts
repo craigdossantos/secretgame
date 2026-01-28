@@ -21,13 +21,14 @@ export const authConfig = {
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      try {
-        // On sign-in, sync user with our database
-        if (account?.provider === "google" && profile?.email) {
-          // Use Google's sub (subject) as the user ID for consistency
-          const googleId =
-            (profile as { sub?: string }).sub || user.id || createId();
+      // Always allow sign-in - database sync is best-effort
+      // If database operations fail, we still authenticate using Google profile
+      if (account?.provider === "google" && profile?.email) {
+        // Use Google's sub (subject) as the user ID for consistency
+        const googleId =
+          (profile as { sub?: string }).sub || user.id || createId();
 
+        try {
           // Check if user exists by email first (handles ID migration)
           const existingUserByEmail = await findUserByEmail(profile.email);
 
@@ -46,17 +47,17 @@ export const authConfig = {
                 name: profile.name || profile.email.split("@")[0],
                 avatarUrl: (profile as { picture?: string }).picture || null,
               });
-              user.id = googleId;
-            } else {
-              user.id = googleId;
             }
+            user.id = googleId;
           }
+        } catch (error) {
+          // Database sync failed - log but don't block authentication
+          // User will be created on next API call that needs them
+          console.error("SignIn callback - database sync failed:", error);
+          user.id = googleId;
         }
-        return true;
-      } catch (error) {
-        console.error("SignIn callback error:", error);
-        return false;
       }
+      return true;
     },
     async session({ session, token }) {
       // Create user object from token if it doesn't exist
