@@ -99,9 +99,8 @@ export const authConfig = {
   session: {
     strategy: "jwt", // Use JWT instead of database sessions for simplicity
   },
-  pages: {
-    signIn: "/", // Redirect to homepage for sign-in
-    error: "/", // Redirect errors to homepage
-  },
+  // Note: Removed 'pages' config to allow callbackUrl to work properly.
+  // The pages config was overriding the callbackUrl parameter in signIn(),
+  // causing users to land on "/" instead of "/auth/callback" after OAuth.
   secret: getServerEnv().NEXTAUTH_SECRET,
 } satisfies NextAuthConfig;
