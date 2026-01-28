@@ -100,8 +100,7 @@ export const authConfig = {
   session: {
     strategy: "jwt", // Use JWT instead of database sessions for simplicity
   },
-  // Note: Removed 'pages' config to allow callbackUrl to work properly.
-  // The pages config was overriding the callbackUrl parameter in signIn(),
-  // causing users to land on "/" instead of "/auth/callback" after OAuth.
+  // Trust the host header from Vercel/proxies for proper cookie domain
+  trustHost: true,
   secret: getServerEnv().NEXTAUTH_SECRET,
 } satisfies NextAuthConfig;
