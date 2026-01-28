@@ -251,11 +251,20 @@ export async function POST(request: NextRequest) {
     }
 
     return response;
-  } catch (error) {
-    console.error("POST /api/rooms error:", error);
-    const message =
-      error instanceof Error ? error.message : "Failed to create room";
-    return errorResponse(message, 500);
+  } catch (error: unknown) {
+    const err = error as Record<string, unknown>;
+    console.error("POST /api/rooms error:", {
+      message: err.message,
+      code: err.code,
+      severity: err.severity,
+      detail: err.detail,
+      stack: err.stack,
+    });
+    // Return postgres error code/detail for debugging (don't leak full query)
+    const debugInfo = err.code
+      ? `[${err.code}] ${err.detail || err.message}`
+      : (err.message as string) || "Failed to create room";
+    return errorResponse(debugInfo, 500);
   }
 }
 
